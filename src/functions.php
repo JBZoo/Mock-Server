@@ -21,6 +21,7 @@ use FastRoute\RouteParser\Std;
  * @param callable $routeDefinitionCallback
  * @param array    $options
  * @return Dispatcher
+ * @phan-suppress PhanRedefineFunction
  */
 function simpleDispatcher(callable $routeDefinitionCallback, array $options = []): Dispatcher
 {

@@ -18,6 +18,14 @@ $default = include __DIR__ . '/../vendor/jbzoo/codestyle/src/phan/default.php';
 return array_merge($default, [
     'directory_list' => [
         'src',
-        'vendor',
+
+        'vendor/jbzoo/utils/src',
+        'vendor/jbzoo/data/src',
+        'vendor/amphp',
+        'vendor/psr',
+        'vendor/monolog/monolog/src',
+        'vendor/symfony/finder',
+        'vendor/symfony/process',
+        'vendor/nikic/fast-route/src',
     ]
 ]);

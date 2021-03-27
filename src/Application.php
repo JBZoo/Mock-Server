@@ -58,8 +58,8 @@ class Application
      */
     public function __construct()
     {
-        $this->logger = $this->initLogger();
-        $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
+        $this->logger = self::initLogger();
+        $this->server = new HttpServer(self::getServers(), $this->initRouter(), $this->logger);
     }
 
     public function start(): void
@@ -68,6 +68,7 @@ class Application
         Loop::run(function () {
             yield $this->server->start();
 
+            // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
                 Loop::cancel($watcherId);
                 yield $this->server->stop();
@@ -79,7 +80,7 @@ class Application
      * @return array
      * @throws \Amp\Socket\SocketException
      */
-    private function getServers(): array
+    private static function getServers(): array
     {
         $host = Env::string('JBZOO_MOCK_HOST', self::DEFAULT_HOST);
         $port = Env::string('JBZOO_MOCK_PORT', self::DEFAULT_PORT);
@@ -102,7 +103,7 @@ class Application
         $this->logger->info('Mocks found: ' . count($mocks));
 
         $router = new Router();
-        $router->setFallback(new CallableRequestHandler(function (Request $request) {
+        $router->setFallback(new CallableRequestHandler(function (Request $request): void {
             $this->logger->info("Not found route for \"{$request->getMethod()} {$request->getUri()}\"");
         }));
 
@@ -139,7 +140,7 @@ class Application
     /**
      * @return Logger
      */
-    private function initLogger(): Logger
+    private static function initLogger(): Logger
     {
         $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
         $logHandler->setFormatter(new ConsoleFormatter("[%datetime%] %level_name%: %message%\r\n"));
