@@ -21,11 +21,6 @@ php:
   - 7.4
   - 8.0
 
-env:
-  matrix:
-    - JBZOO_COMPOSER_UPDATE_FLAGS="--prefer-lowest --prefer-stable"
-    - JBZOO_COMPOSER_UPDATE_FLAGS=""
-
 before_script:
   - composer self-update
 
