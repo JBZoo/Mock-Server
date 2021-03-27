@@ -17,7 +17,7 @@ namespace FastRoute;
 
 use FastRoute\RouteParser\Std;
 
-if (!function_exists('simpleDispatcher')) {
+if (!function_exists('FastRoute\simpleDispatcher')) {
     /**
      * @param callable $routeDefinitionCallback
      * @param array    $options
