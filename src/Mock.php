@@ -134,7 +134,10 @@ class Mock
      */
     public function getResponseCode(): int
     {
-        return (int)$this->data->find('response.code', Status::OK);
+        $codeHandler = $this->data->find('response.code', Status::OK);
+        $code = $this->handleCallable($codeHandler, 'int');
+
+        return (int)$code;
     }
 
     /**
@@ -142,7 +145,8 @@ class Mock
      */
     public function getResponseHeaders(): array
     {
-        $headers = (array)$this->data->find('response.headers', ['content-type' => 'text/plain']);
+        $headerHandler = $this->data->find('response.headers', ['content-type' => 'text/plain']);
+        $headers = (array)$this->handleCallable($headerHandler, 'array');
 
         $headers['X-Mock-Server-Fixture'] = $this->getFilename();
         $headers['X-Mock-Server-Request-Id'] = $this->requestId;
@@ -156,13 +160,9 @@ class Mock
     public function getResponseBody(): string
     {
         $bodyHandler = $this->data->find('response.body', '');
+        $body = $this->handleCallable($bodyHandler, 'string');
 
-        $bodyResponse = $bodyHandler;
-        if (is_callable($bodyHandler)) {
-            $bodyResponse = $bodyHandler($this->request, $this->requestId);
-        }
-
-        return (string)$bodyResponse;
+        return (string)$body;
     }
 
     /**
@@ -188,5 +188,41 @@ class Mock
         }
 
         return null;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDelay(): int
+    {
+        return (int)$this->data->find('control.delay', 0);
+    }
+
+    /**
+     * @param mixed  $handler
+     * @param string $expectedResultType
+     * @return mixed
+     */
+    private function handleCallable($handler, string $expectedResultType)
+    {
+        $result = $handler;
+
+        if (is_callable($handler)) {
+            $result = $handler($this->request, $this->requestId);
+        }
+
+        if ($expectedResultType === 'int' && !is_int($result)) {
+            throw new Exception("Expected result of callback is integer");
+        }
+
+        if ($expectedResultType === 'string' && !is_string($result)) {
+            throw new Exception("Expected result of callback is string");
+        }
+
+        if ($expectedResultType === 'array' && !is_array($result)) {
+            throw new Exception("Expected result of callback is array");
+        }
+
+        return $result;
     }
 }

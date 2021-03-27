@@ -13,21 +13,14 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-use function JBZoo\Data\json;
-
 return [
     'request' => [
-        'method' => 'GET|POST',
-        'path'   => '/testMultiplyMethods'
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code'    => 200,
-        'headers' => [
-            'Content-Type' => 'application/json'
-        ],
-        'body'    => (string)json([
-            'message' => 'Hello'
-        ])
+        'code' => static function (): int {
+            return random_int(200, 299);
+        }
     ]
 ];

@@ -15,47 +15,12 @@
 
 namespace JBZoo\PHPUnit;
 
-use JBZoo\HttpClient\HttpClient;
-use JBZoo\HttpClient\Response;
-use JBZoo\MockServer\Application;
-
 /**
  * Class MockServerTest
  * @package JBZoo\PHPUnit
  */
-class MockServerTest extends PHPUnit
+class MockServerTest extends AbstractMockServerTest
 {
-    private const TEST_URL = '__SELF__';
-
-    /**
-     * @var string
-     */
-    private $testHost;
-
-    protected function setUp(): void
-    {
-        $this->testHost = Application::DEFAULT_HOST . ':' . Application::DEFAULT_PORT;
-        parent::setUp();
-    }
-
-    /**
-     * @param string            $relativePath
-     * @param array|string|null $args
-     * @param string            $method
-     * @param array             $headers
-     * @return Response
-     */
-    private function request(
-        string $method = 'GET',
-        $args = null,
-        string $relativePath = self::TEST_URL,
-        array $headers = []
-    ) {
-        $client = new HttpClient(['exceptions' => false, 'allow_redirects' => false]);
-        $url = str_replace(self::TEST_URL, $this->getName(), "http://{$this->testHost}/{$relativePath}");
-        return $client->request($url, $args, $method, ['headers' => $headers]);
-    }
-
     public function testMinimalMock(): void
     {
         $response = $this->request();
@@ -75,13 +40,21 @@ class MockServerTest extends PHPUnit
 
     public function testMultiplyMethods(): void
     {
-        $response = $this->request();
-        isSame(200, $response->getCode());
-        isSame('Hello', $response->getJSON()->get('message'));
+        $formats = ['string', 'array'];
+        $allowedMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", /*'OPTIONS'*/];
 
-        $response = $this->request('POST');
-        isSame(200, $response->getCode());
-        isSame('Hello', $response->getJSON()->get('message'));
+        foreach ($formats as $format) {
+            foreach ($allowedMethods as $allowedMethod) {
+                $response = $this->request($allowedMethod, null, self::TEST_URL . '_' . $format);
+                isSame(200, $response->getCode());
+
+                if ($allowedMethod === 'HEAD') {
+                    isSame('', $response->getBody());
+                } else {
+                    isSame($allowedMethod, $response->getJSON()->get('method'));
+                }
+            }
+        }
     }
 
     public function testRedirect(): void
@@ -105,7 +78,7 @@ class MockServerTest extends PHPUnit
         isSame('fatal_error', $response->getJSON()->get('message'));
     }
 
-    public function testFunctionAsBody(): void
+    public function testFunctionAsResponseBody(): void
     {
         $random = \random_int(1, 10000000);
         $response = $this->request(
@@ -129,9 +102,60 @@ class MockServerTest extends PHPUnit
         ], $response->getJSON()->get('request'));
     }
 
+    public function testFunctionAsResponseHeaders(): void
+    {
+        isNotSame($this->request()->getHeader('x-random-value'), $this->request()->getHeader('x-random-value'));
+    }
+
+    public function testFunctionAsResponseCode(): void
+    {
+        isNotSame($this->request()->getCode(), $this->request()->getCode());
+    }
+
     public function testFakerAsPartOfBody(): void
     {
         isNotSame($this->request()->getJSON()->get('name'), $this->request()->getJSON()->get('name'));
         isNotSame($this->request()->getJSON()->get('name'), $this->request()->getJSON()->get('name'));
+    }
+
+    /**
+     * @depends testCustomDelay
+     */
+    public function testConcurrency(): void
+    {
+        $max = random_int(10, 100);
+
+        $requests = [];
+        for ($i = 0; $i < $max; $i++) {
+            $requests[] = [$this->prepareUrl() . "?id={$i}"];
+        }
+
+        $start = microtime(true);
+        $responses = $this->createClient()->multiRequest($requests);
+        $time = (microtime(true) - $start) * 1000;
+
+        isTrue($time > 1000 && $time < 1500, "Expected elapsedMS between 1000 & 1300, got: {$time}");
+
+        $requestIds = [];
+        foreach ($responses as $response) {
+            $requestIds[] = $response->getJSON()->get('request_id');
+        }
+
+        isCount($max, array_unique($requestIds));
+    }
+
+    /**
+     * Just in case we have to warm up the server and PhpUnit framework
+     * @depends testMinimalMock
+     */
+    public function testCustomDelay(): void
+    {
+        $start = microtime(true);
+        $response = $this->request();
+        $time = (microtime(true) - $start) * 1000;
+
+        isAmount($response->getTime() * 1000, $time, '', 100);
+
+        isTrue($time > 1000 && $time < 1300, "Expected elapsedMS between 1000 & 1300, got: {$time}");
     }
 }

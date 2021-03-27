@@ -16,6 +16,7 @@
 namespace JBZoo\MockServer;
 
 use Amp\ByteStream\ResourceOutputStream;
+use Amp\Delayed;
 use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
@@ -26,6 +27,7 @@ use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\Socket\Server;
 use JBZoo\Utils\Env;
+use JBZoo\Utils\FS;
 use Monolog\Logger;
 use Symfony\Component\Finder\Finder;
 
@@ -37,6 +39,9 @@ class Application
 {
     public const DEFAULT_HOST = '0.0.0.0';
     public const DEFAULT_PORT = '8089';
+
+    //private const LOG_FORMAT = "[%datetime%] %level_name%: %message%\r\n";
+    private const LOG_FORMAT = "%level_name%: %message%\r\n";
 
     /**
      * @var HttpServer
@@ -67,6 +72,7 @@ class Application
         $this->logger->debug('PHP version: ' . PHP_VERSION);
         Loop::run(function () {
             yield $this->server->start();
+            $this->logger->info('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
@@ -109,14 +115,21 @@ class Application
 
         foreach ($mocks as $mock) {
             $requestHandler = new CallableRequestHandler(function (Request $request) use ($mock) {
+                $msDelay = $mock->getDelay();
+                if ($msDelay > 0) {
+                    yield new Delayed($msDelay);
+                }
+
                 $this->requestId++;
 
-                $message = "#{$this->requestId} {$mock->getResponseCode()} " .
-                    "{$request->getMethod()} {$request->getUri()}";
+                $this->logger->info(implode("\t", [
+                    "#{$this->requestId}",
+                    $mock->getResponseCode(),
+                    $request->getMethod(),
+                    $request->getUri()
+                ]));
 
-                $this->logger->info($message);
                 $mock->bindRequest($request, $this->requestId);
-
                 return new Response(
                     $mock->getResponseCode(),
                     $mock->getResponseHeaders(),
@@ -143,8 +156,9 @@ class Application
     private static function initLogger(): Logger
     {
         $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
-        $logHandler->setFormatter(new ConsoleFormatter("[%datetime%] %level_name%: %message%\r\n"));
+        $logHandler->setFormatter(new ConsoleFormatter(self::LOG_FORMAT));
         $logHandler->setLevel(Logger::DEBUG);
+        $logHandler->setLevel(Logger::INFO);
 
         $logger = new Logger('MockServer');
         $logger->pushHandler($logHandler);

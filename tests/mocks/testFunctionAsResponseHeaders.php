@@ -13,17 +13,14 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-use function JBZoo\Data\json;
-
 return [
     'request' => [
         'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code'    => 500,
-        'body'    => (string)json([
-            'message' => 'fatal_error'
-        ])
+        'headers' => static function (): array {
+            return ['x-random-value' => random_int(0, 10000000)];
+        }
     ]
 ];

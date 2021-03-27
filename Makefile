@@ -17,6 +17,8 @@ ifneq (, $(wildcard ./vendor/jbzoo/codestyle/src/init.Makefile))
 endif
 
 
+MOCK_SERVER_LOG = ./build/server.log
+
 update: ##@Project Install/Update all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
 	@echo "Composer flags: $(JBZOO_COMPOSER_UPDATE_FLAGS)"
@@ -34,15 +36,25 @@ restart:
 
 
 up:
-	@$(PHP_BIN) `pwd`/jbzoo-mock-server --host=0.0.0.0 --port=8089--mocks=./tests/mocks --ansi
+	@echo "----"
+	@$(PHP_BIN) `pwd`/jbzoo-mock-server up \
+        --host=0.0.0.0                     \
+        --port=8089                        \
+        --mocks=./tests/mocks              \
+        --ansi
+	@echo "Mock Server started (dev mode)"
 
 
 up-background:
-	@make up >> "`pwd`/build/server.log" 2>&1 &
+	@AMP_LOG_COLOR=true make up   \
+        1>> "$(MOCK_SERVER_LOG)"  \
+        2>> "$(MOCK_SERVER_LOG)"  \
+        &
 
 
 down:
 	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
+	@echo "Mock Server killed"
 
 
 dev-watcher:

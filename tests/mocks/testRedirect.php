@@ -17,7 +17,7 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'path' => '/testRedirect'
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [

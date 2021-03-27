@@ -18,8 +18,8 @@ return [
 
     'request' => [
         'host'   => 'example.com',
-        'method' => 'GET|POST|PUT|PATCH|...',
-        'path'   => '/your/path/:variable',
+//        'method' => 'GET|POST|PUT|PATCH|...',
+//        'path'   => '/your/path/:variable',
 
         'queryStringParameters' => [
             'name' => ['value', 'value'],

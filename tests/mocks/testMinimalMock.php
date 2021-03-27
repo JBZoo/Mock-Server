@@ -15,6 +15,6 @@
 
 return [
     'request' => [
-        'path' => '/testMinimalMock'
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 ];

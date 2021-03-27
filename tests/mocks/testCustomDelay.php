@@ -13,17 +13,12 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-use function JBZoo\Data\json;
-
 return [
     'request' => [
         'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
-    'response' => [
-        'code'    => 500,
-        'body'    => (string)json([
-            'message' => 'fatal_error'
-        ])
+    'control' => [
+        'delay' => 1000
     ]
 ];

@@ -13,17 +13,25 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+use Amp\Http\Server\Request;
+
 use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'method' => ["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS", "DELETE"],
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code'    => 500,
-        'body'    => (string)json([
-            'message' => 'fatal_error'
-        ])
+        'code'    => 200,
+        'headers' => [
+            'Content-Type' => 'application/json'
+        ],
+        'body'    => static function (Request $request): string {
+            return (string)json([
+                'method' => $request->getMethod(),
+            ]);
+        }
     ]
 ];

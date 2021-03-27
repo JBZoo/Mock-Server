@@ -21,9 +21,14 @@ return [
     ],
 
     'response' => [
-        'code'    => 500,
-        'body'    => (string)json([
-            'message' => 'fatal_error'
-        ])
+        'body' => static function ($request, $requestId): string {
+            return (string)json([
+                'request_id' => $requestId
+            ]);
+        }
+    ],
+
+    'control' => [
+        'delay' => 1000 // 1 second
     ]
 ];

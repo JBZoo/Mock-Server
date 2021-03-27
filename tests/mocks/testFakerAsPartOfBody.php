@@ -17,14 +17,12 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'path' => '/testFakerAsPartOfBody'
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
         'body' => static function (): string {
-            return (string)json([
-                'name' => Faker\Factory::create()->name
-            ]);
+            return (string)json(['name' => Faker\Factory::create()->name]);
         }
     ]
 ];

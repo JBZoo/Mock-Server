@@ -19,23 +19,18 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'POST',
-        'path'   => '/testFunctionAsBody'
+        'method' => 'GET|POST|PUT|PATCH|HEAD|OPTIONS|DELETE',
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'body' => static function (Request $request, $requestId): string {
-            $headers = $request->getHeaders();
-            unset($headers['content-length']);
-
+        'code'    => 200,
+        'headers' => [
+            'Content-Type' => 'application/json'
+        ],
+        'body'    => static function (Request $request): string {
             return (string)json([
-                'request_id' => $requestId,
-                'request'    => [
-                    'uri'      => (string)$request->getUri(),
-                    'method'   => $request->getMethod(),
-                    'protocol' => $request->getProtocolVersion(),
-                    'headers'  => $headers,
-                ],
+                'method' => $request->getMethod(),
             ]);
         }
     ]
