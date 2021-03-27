@@ -24,8 +24,12 @@ require_once __DIR__ . '/SysCalls.php';
 
 CliDumper::$defaultColors = true;
 
-
-function server($port)
+/**
+ * @param $port
+ * @return Generator
+ * @throws Exception
+ */
+function server($port): Generator
 {
     echo "Starting server at port $port...\n";
 
@@ -43,7 +47,11 @@ function server($port)
     }
 }
 
-function handleClient($socket)
+/**
+ * @param $socket
+ * @return Generator
+ */
+function handleClient($socket): Generator
 {
     yield waitForRead($socket);
     $data = fread($socket, 8192);

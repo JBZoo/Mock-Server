@@ -26,12 +26,14 @@
 
         "monolog/monolog"               : "^2.2.0",
         "yosymfony/resource-watcher"    : "^3.0.0",
-        "amphp/http-server-form-parser" : "^1.1.4"
+        "amphp/http-server-form-parser" : "^1.1.4",
+        "fzaninotto/faker"              : "^1.9.2"
     },
 
     "require-dev"       : {
+        "jbzoo/http-client" : "^3.4.2",
         "jbzoo/toolbox-dev" : "^2.6.2",
-        "jbzoo/http-client" : "^3.4.2"
+        "guzzlehttp/guzzle" : "^7.3.0"
     },
 
     "autoload"          : {

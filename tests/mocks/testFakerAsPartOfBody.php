@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -14,11 +13,18 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-use JBZoo\MockServer\Application;
-use Symfony\Component\VarDumper\Dumper\CliDumper;
+use function JBZoo\Data\json;
 
-require __DIR__ . '/src/functions.php';
-require __DIR__ . '/vendor/autoload.php';
+return [
+    'request' => [
+        'path' => '/testFakerAsPartOfBody'
+    ],
 
-$application = new Application();
-$application->start();
+    'response' => [
+        'body' => static function (): string {
+            return (string)json([
+                'name' => Faker\Factory::create()->name
+            ]);
+        }
+    ]
+];

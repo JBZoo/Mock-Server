@@ -128,4 +128,10 @@ class MockServerTest extends PHPUnit
             ],
         ], $response->getJSON()->get('request'));
     }
+
+    public function testFakerAsPartOfBody(): void
+    {
+        isNotSame($this->request()->getJSON()->get('name'), $this->request()->getJSON()->get('name'));
+        isNotSame($this->request()->getJSON()->get('name'), $this->request()->getJSON()->get('name'));
+    }
 }

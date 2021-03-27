@@ -34,11 +34,11 @@ restart:
 
 
 up:
-	@php `pwd`/jbzoo-mock-server --host=0.0.0.0 --port=8089--mocks=./tests/mocks
+	@$(PHP_BIN) `pwd`/jbzoo-mock-server --host=0.0.0.0 --port=8089--mocks=./tests/mocks --ansi
 
 
 up-background:
-	@make up > "`pwd`/build/server.log" 2>&1 &
+	@make up >> "`pwd`/build/server.log" 2>&1 &
 
 
 down:
