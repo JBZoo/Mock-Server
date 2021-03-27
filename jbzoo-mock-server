@@ -19,7 +19,5 @@ use JBZoo\MockServer\Application;
 require __DIR__ . '/src/functions.php';
 require __DIR__ . '/vendor/autoload.php';
 
-define('MOCK_SERVER_ROOT', __DIR__);
-
 $application = new Application();
 $application->start();
