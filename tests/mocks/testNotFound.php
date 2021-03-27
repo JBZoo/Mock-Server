@@ -13,10 +13,21 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-// main autoload
-if ($autoload = dirname(__DIR__) . '/vendor/autoload.php') {
-    require_once $autoload;
-} else {
-    echo 'Please execute "composer update" !' . PHP_EOL;
-    exit(1);
-}
+use function JBZoo\Data\json;
+
+return [
+    'request' => [
+        'method' => 'get',
+        'path'   => '/testNotFound'
+    ],
+
+    'response' => [
+        'code'    => 404,
+        'headers' => [
+            'Content-Type' => 'application/json'
+        ],
+        'body'    => (string)json([
+            'message' => 'not_found'
+        ])
+    ]
+];

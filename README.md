@@ -1,19 +1,33 @@
-# JBZoo - Skeleton (PHP)
+# JBZoo / Mock-Server
+
+[![Build Status](https://travis-ci.org/JBZoo/Mock-Server.svg)](https://travis-ci.org/JBZoo/Mock-Server)    [![Coverage Status](https://coveralls.io/repos/JBZoo/Mock-Server/badge.svg)](https://coveralls.io/github/JBZoo/Mock-Server)    [![Psalm Coverage](https://shepherd.dev/github/JBZoo/Mock-Server/coverage.svg)](https://shepherd.dev/github/JBZoo/Mock-Server)    
+[![Stable Version](https://poser.pugx.org/jbzoo/mock-server/version)](https://packagist.org/packages/jbzoo/mock-server)    [![Latest Unstable Version](https://poser.pugx.org/jbzoo/mock-server/v/unstable)](https://packagist.org/packages/jbzoo/mock-server)    [![Dependents](https://poser.pugx.org/jbzoo/mock-server/dependents)](https://packagist.org/packages/jbzoo/mock-server/dependents?order_by=downloads)    [![GitHub Issues](https://img.shields.io/github/issues/jbzoo/mock-server)](https://github.com/JBZoo/Mock-Server/issues)    [![Total Downloads](https://poser.pugx.org/jbzoo/mock-server/downloads)](https://packagist.org/packages/jbzoo/mock-server/stats)    [![GitHub License](https://img.shields.io/github/license/jbzoo/mock-server)](https://github.com/JBZoo/Mock-Server/blob/master/LICENSE)
 
 
-[![Build Status](https://travis-ci.org/JBZoo/Skeleton-Php.svg?branch=master)](https://travis-ci.org/JBZoo/Skeleton-Php)    [![GitHub Issues](https://img.shields.io/github/issues/JBZoo/Skeleton-Php)](https://github.com/JBZoo/Skeleton-Php/issues)    [![GitHub License](https://img.shields.io/github/license/JBZoo/Skeleton-Php)](https://github.com/JBZoo/Skeleton-Php/blob/master/LICENSE)
+
+### Installing
+
+```sh
+composer require jbzoo/mock-server
+```
 
 
-This is not a completed library, but only a blank.
-It aims to clean up the minds of programmers and standardize the development of open-source libraries for JBZoo.
+### Usage
+
+```php
+use JBZoo\SkeletonPhp\Mock-Server;
+
+// Just use it!
+$object = new Mock-Server();
+$object->doSomeStreetMagic(':)');
+```
 
 
-### Action plan
-
- * Create a new repository (MIT, without .gitignore).
- * Make a checkout of a clean repository for a working machine.
- * [Download the latest version of the skeleton](https://github.com/JBZoo/Skeleton/archive/master.zip).
- * Run the skeleton script for your package through `php ./create-new-project.php Skeleton-Php`
+## Unit tests and check code style
+```sh
+make update
+make test-all
+```
 
 
 ### License

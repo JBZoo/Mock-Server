@@ -1,14 +1,14 @@
 #
-# JBZoo Toolbox - __PACKAGE__
+# JBZoo Toolbox - Mock-Server
 #
 # This file is part of the JBZoo Toolbox project.
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 #
-# @package    __PACKAGE__
+# @package    Mock-Server
 # @license    MIT
 # @copyright  Copyright (C) JBZoo.com, All rights reserved.
-# @link       https://github.com/JBZoo/__PACKAGE__
+# @link       https://github.com/JBZoo/Mock-Server
 #
 
 
@@ -26,3 +26,25 @@ update: ##@Project Install/Update all 3rd party dependencies
 test-all: ##@Project Run all project tests at once
 	@make test
 	@make codestyle
+
+
+restart:
+	@make down
+	@make up
+
+
+up:
+	@php `pwd`/jbzoo-mock-server --host=0.0.0.0 --port=8089--mocks=./tests/mocks
+
+
+up-background:
+	@make up > "`pwd`/build/server.log" 2>&1 &
+
+
+down:
+	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
+
+
+dev-watcher:
+	@make down
+	@make up-background

@@ -13,10 +13,21 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-// main autoload
-if ($autoload = dirname(__DIR__) . '/vendor/autoload.php') {
-    require_once $autoload;
-} else {
-    echo 'Please execute "composer update" !' . PHP_EOL;
-    exit(1);
+/**
+ * Class SystemCall
+ */
+class SystemCall
+{
+    protected $callback;
+
+    public function __construct(callable $callback)
+    {
+        $this->callback = $callback;
+    }
+
+    public function __invoke(Task $task, Scheduler $scheduler)
+    {
+        $callback = $this->callback; // Can't call it directly in PHP :/
+        return $callback($task, $scheduler);
+    }
 }
