@@ -17,28 +17,30 @@ namespace FastRoute;
 
 use FastRoute\RouteParser\Std;
 
-/**
- * @param callable $routeDefinitionCallback
- * @param array    $options
- * @return Dispatcher
- * @phan-suppress PhanRedefineFunction
- */
-function simpleDispatcher(callable $routeDefinitionCallback, array $options = []): Dispatcher
-{
-    $options += [
-        'routeParser'    => Std::class,
-        'dataGenerator'  => DataGenerator\GroupCountBased::class,
-        'dispatcher'     => Dispatcher\GroupCountBased::class,
-        'routeCollector' => RouteCollector::class,
-    ];
+if (!function_exists('simpleDispatcher')) {
+    /**
+     * @param callable $routeDefinitionCallback
+     * @param array    $options
+     * @return Dispatcher
+     * @phan-suppress PhanRedefineFunction
+     */
+    function simpleDispatcher(callable $routeDefinitionCallback, array $options = []): Dispatcher
+    {
+        $options += [
+            'routeParser'    => Std::class,
+            'dataGenerator'  => DataGenerator\GroupCountBased::class,
+            'dispatcher'     => Dispatcher\GroupCountBased::class,
+            'routeCollector' => RouteCollector::class,
+        ];
 
-    $routeParser = new $options['routeParser']();
-    $dataGenerator = new $options['dataGenerator']();
+        $routeParser = new $options['routeParser']();
+        $dataGenerator = new $options['dataGenerator']();
 
-    /** @var RouteCollector $routeCollector */
-    $routeCollector = new $options['routeCollector']($routeParser, $dataGenerator);
+        /** @var RouteCollector $routeCollector */
+        $routeCollector = new $options['routeCollector']($routeParser, $dataGenerator);
 
-    $routeDefinitionCallback($routeCollector);
+        $routeDefinitionCallback($routeCollector);
 
-    return new $options['dispatcher']($routeCollector->getData());
+        return new $options['dispatcher']($routeCollector->getData());
+    }
 }
