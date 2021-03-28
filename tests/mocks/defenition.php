@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 return [
     'description' => 'Some text that describes the intended usage of the current configuration',
 

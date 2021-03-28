@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 use Amp\Http\Server\Request;
 
 use function JBZoo\Data\json;

@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 namespace JBZoo\PHPUnit;
 
 /**
@@ -22,8 +24,6 @@ namespace JBZoo\PHPUnit;
  */
 class MockServerCopyrightTest extends AbstractCopyrightTest
 {
-    /**
-     * @var string
-     */
-    protected $packageName = 'Mock-Server';
+    protected $packageName     = 'Mock-Server';
+    protected $isPhpStrictType = true;
 }

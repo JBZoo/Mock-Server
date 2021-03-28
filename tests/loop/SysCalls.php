@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 function getTaskId()
 {
     return new SystemCall(function (Task $task, Scheduler $scheduler) {

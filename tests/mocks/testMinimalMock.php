@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 return [
     'request' => [
         'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)

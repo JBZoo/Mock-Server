@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 namespace JBZoo\MockServer;
 
 use Amp\ByteStream\ResourceOutputStream;
@@ -65,6 +67,7 @@ class Application
     {
         $this->logger = self::initLogger();
         $this->server = new HttpServer(self::getServers(), $this->initRouter(), $this->logger);
+        $this->server->setErrorHandler(new MockErrorHandler());
     }
 
     public function start(): void
@@ -121,6 +124,7 @@ class Application
                 }
 
                 $this->requestId++;
+                $mock->bindRequest($request, $this->requestId);
 
                 $this->logger->info(implode("\t", [
                     "#{$this->requestId}",
@@ -129,7 +133,6 @@ class Application
                     $request->getUri()
                 ]));
 
-                $mock->bindRequest($request, $this->requestId);
                 return new Response(
                     $mock->getResponseCode(),
                     $mock->getResponseHeaders(),
@@ -158,7 +161,7 @@ class Application
         $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
         $logHandler->setFormatter(new ConsoleFormatter(self::LOG_FORMAT));
         $logHandler->setLevel(Logger::DEBUG);
-        $logHandler->setLevel(Logger::INFO);
+        //$logHandler->setLevel(Logger::INFO);
 
         $logger = new Logger('MockServer');
         $logger->pushHandler($logHandler);

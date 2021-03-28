@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 namespace JBZoo\PHPUnit;
 
 /**
@@ -109,7 +111,8 @@ class MockServerTest extends AbstractMockServerTest
 
     public function testFunctionAsResponseCode(): void
     {
-        isNotSame($this->request()->getCode(), $this->request()->getCode());
+        isSame(200, $this->request('GET')->getCode());
+        isSame(404, $this->request('POST')->getCode());
     }
 
     public function testFakerAsPartOfBody(): void

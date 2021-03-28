@@ -13,14 +13,19 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
+use Amp\Http\Server\Request;
+
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'method' => 'GET|POST',
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code' => static function (): int {
-            return random_int(200, 299);
-        }
+        'code' => static function (Request $request, int $requestId): int {
+            return $request->getMethod() === 'GET' ? 200 : 404;
+        },
     ]
 ];

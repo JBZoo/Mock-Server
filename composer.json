@@ -2,6 +2,10 @@
     "name"              : "jbzoo/mock-server",
     "type"              : "library",
     "description"       : "Flexible HTTP mocking application for testing and fast prototyping",
+    "keywords"          : [
+        "testing", "mock", "php", "http", "mock-server", "stubbing",
+        "http-server", "prototyping", "jbzoo", "httpmock", "mmock"
+    ],
     "license"           : "MIT",
 
     "authors"           : [
@@ -27,12 +31,13 @@
         "monolog/monolog"               : "^2.2.0",
         "yosymfony/resource-watcher"    : "^3.0.0",
         "amphp/http-server-form-parser" : "^1.1.4",
-        "fzaninotto/faker"              : "^1.9.2"
+        "fzaninotto/faker"              : "^1.9.2",
+        "winzou/state-machine"          : "^0.4.1"
     },
 
     "require-dev"       : {
         "jbzoo/http-client" : "^3.4.2",
-        "jbzoo/toolbox-dev" : "^2.6.2",
+        "jbzoo/toolbox-dev" : "^2.7.0",
         "guzzlehttp/guzzle" : "^7.3.0"
     },
 

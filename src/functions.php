@@ -13,6 +13,8 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
+declare(strict_types=1);
+
 namespace FastRoute;
 
 use FastRoute\RouteParser\Std;
