@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-use Amp\Http\Server\Request;
+use JBZoo\MockServer\Request;
 
 use function JBZoo\Data\json;
 
@@ -26,12 +26,12 @@ return [
     ],
 
     'response' => [
-        'body' => static function (Request $request, $requestId): string {
+        'body' => static function (Request $request): string {
             $headers = $request->getHeaders();
             unset($headers['content-length']);
 
             return (string)json([
-                'request_id' => $requestId,
+                'request_id' => $request->getId(),
                 'request'    => [
                     'uri'      => (string)$request->getUri(),
                     'method'   => $request->getMethod(),

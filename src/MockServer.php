@@ -20,7 +20,7 @@ namespace JBZoo\MockServer;
 use Amp\ByteStream\ResourceOutputStream;
 use Amp\Delayed;
 use Amp\Http\Server\HttpServer;
-use Amp\Http\Server\Request;
+use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
@@ -28,22 +28,24 @@ use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\Socket\Server;
-use JBZoo\Utils\Env;
 use JBZoo\Utils\FS;
 use Monolog\Logger;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+
+use function Amp\Http\Server\FormParser\parseForm;
 
 /**
  * Class Application
  * @package JBZoo\MockServer
  */
-class Application
+class MockServer
 {
     public const DEFAULT_HOST = '0.0.0.0';
-    public const DEFAULT_PORT = '8089';
+    public const DEFAULT_PORT = 8089;
 
-    //private const LOG_FORMAT = "[%datetime%] %level_name%: %message%\r\n";
-    private const LOG_FORMAT = "%level_name%: %message%\r\n";
+    //    private const LOG_FORMAT = "[%datetime%] %level_name%: %message% %context% %extra%\r\n";
+    private const LOG_FORMAT = "%level_name%: %message% %context% %extra%\r\n";
 
     /**
      * @var HttpServer
@@ -61,21 +63,36 @@ class Application
     private $requestId = 0;
 
     /**
-     * Application constructor.
+     * @var string
      */
-    public function __construct()
-    {
-        $this->logger = self::initLogger();
-        $this->server = new HttpServer(self::getServers(), $this->initRouter(), $this->logger);
-        $this->server->setErrorHandler(new MockErrorHandler());
-    }
+    private $host = self::DEFAULT_HOST;
+
+    /**
+     * @var int
+     */
+    private $port = self::DEFAULT_PORT;
+
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
+     * @var string
+     */
+    private $mocksPath;
 
     public function start(): void
     {
-        $this->logger->debug('PHP version: ' . PHP_VERSION);
+        $this->logger = $this->initLogger();
+        $this->logger->debug('PHP Version: ' . PHP_VERSION);
+
+        $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
+        $this->server->setErrorHandler(new ErrorHandler());
+
         Loop::run(function () {
             yield $this->server->start();
-            $this->logger->info('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
+            $this->logger->info('Ready to work. Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
@@ -89,14 +106,9 @@ class Application
      * @return array
      * @throws \Amp\Socket\SocketException
      */
-    private static function getServers(): array
+    private function getServers(): array
     {
-        $host = Env::string('JBZOO_MOCK_HOST', self::DEFAULT_HOST);
-        $port = Env::string('JBZOO_MOCK_PORT', self::DEFAULT_PORT);
-
-        return [
-            Server::listen("{$host}:{$port}")
-        ];
+        return [Server::listen("{$this->host}:{$this->port}")];
     }
 
     /**
@@ -112,21 +124,23 @@ class Application
         $this->logger->info('Mocks found: ' . count($mocks));
 
         $router = new Router();
-        $router->setFallback(new CallableRequestHandler(function (Request $request): void {
-            $this->logger->info("Not found route for \"{$request->getMethod()} {$request->getUri()}\"");
+        $router->setFallback(new CallableRequestHandler(function (ServerRequest $request): void {
+            $this->logger->error("Route not found: \"{$request->getMethod()} {$request->getUri()}\"");
         }));
 
+        $totalRoutes = 0;
         foreach ($mocks as $mock) {
-            $requestHandler = new CallableRequestHandler(function (Request $request) use ($mock) {
+            $requestHandler = new CallableRequestHandler(function (ServerRequest $request) use ($mock) {
                 $msDelay = $mock->getDelay();
                 if ($msDelay > 0) {
                     yield new Delayed($msDelay);
                 }
 
                 $this->requestId++;
-                $mock->bindRequest($request, $this->requestId);
+                $form = yield parseForm($request);
+                $mock->bindRequest(new Request($this->requestId, $request, $form, $mock));
 
-                $this->logger->info(implode("\t", [
+                $this->logger->debug(implode("\t", [
                     "#{$this->requestId}",
                     $mock->getResponseCode(),
                     $request->getMethod(),
@@ -144,11 +158,14 @@ class Application
                 $methods = $mock->getRequestMethods();
                 foreach ($methods as $method) {
                     $router->addRoute($method, $mock->getRequestPath(), $requestHandler);
+                    $totalRoutes++;
                 }
             } catch (\Exception $exception) {
                 $this->logger->warning($exception->getMessage());
             }
         }
+
+        $this->logger->info("Routes added: {$totalRoutes}");
 
         return $router;
     }
@@ -156,17 +173,18 @@ class Application
     /**
      * @return Logger
      */
-    private static function initLogger(): Logger
+    private function initLogger(): Logger
     {
         $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
-        $logHandler->setFormatter(new ConsoleFormatter(self::LOG_FORMAT));
-        $logHandler->setLevel(Logger::DEBUG);
-        //$logHandler->setLevel(Logger::INFO);
+        $consoleFormatter = new ConsoleFormatter(self::LOG_FORMAT);
+        $consoleFormatter->ignoreEmptyContextAndExtra(true);
+        $logHandler->setFormatter($consoleFormatter);
+        $logHandler->setLevel(Logger::INFO);
 
         $logger = new Logger('MockServer');
         $logger->pushHandler($logHandler);
-
         return $logger;
+        //return new ConsoleLogger($this->output);
     }
 
     /**
@@ -174,12 +192,10 @@ class Application
      */
     private function getMocks(): array
     {
-        //$mocksPath = realpath($this->getOption('mocks')) ?: dirname(__DIR__) . '/mocks';
-        $mocksPath = dirname(__DIR__) . '/tests/mocks';
-        $this->logger->info("Mocks Path: {$mocksPath}");
+        $this->logger->info("Mocks Path: {$this->mocksPath}");
 
         $finder = (new Finder())
-            ->in($mocksPath)
+            ->in($this->mocksPath)
             ->files()
             ->name(".php")
             ->name("*.php")
@@ -201,5 +217,50 @@ class Application
         }
 
         return $mocks;
+    }
+
+    /**
+     * @param string $host
+     * @return $this
+     */
+    public function setHost(string $host): self
+    {
+        $this->host = $host;
+        return $this;
+    }
+
+    /**
+     * @param int $port
+     * @return $this
+     */
+    public function setPort(int $port): self
+    {
+        $this->port = $port;
+        return $this;
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @return $this
+     */
+    public function setOutput(OutputInterface $output): self
+    {
+        $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * @param string $mocksPath
+     * @return $this
+     */
+    public function setMocksPath(string $mocksPath): self
+    {
+        $path = realpath($mocksPath);
+        if (!$path) {
+            throw new Exception("Mock path not found: {$mocksPath}");
+        }
+
+        $this->mocksPath = $path;
+        return $this;
     }
 }

@@ -15,6 +15,8 @@
 
 declare(strict_types=1);
 
+use JBZoo\MockServer\Request;
+
 use function JBZoo\Data\json;
 
 return [
@@ -23,9 +25,9 @@ return [
     ],
 
     'response' => [
-        'body' => static function ($request, $requestId): string {
+        'body' => static function (Request $request): string {
             return (string)json([
-                'request_id' => $requestId
+                'request_id' => $request->getId()
             ]);
         }
     ],

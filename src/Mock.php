@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace JBZoo\MockServer;
 
-use Amp\Http\Server\Request;
 use Amp\Http\Status;
 use JBZoo\Data\Data;
 use JBZoo\Utils\Cli;
@@ -41,18 +40,14 @@ class Mock
     private $data;
 
     /**
-     * @var Request|null
+     * @var Request
      */
     private $request;
 
     /**
-     * @var int
-     */
-    private $requestId = 0;
-
-    /**
      * Mock constructor.
      * @param string $mockFilepath
+     * @param bool   $checkSyntax
      */
     public function __construct(string $mockFilepath)
     {
@@ -151,7 +146,7 @@ class Mock
         $headers = (array)$this->handleCallable($headerHandler, 'array');
 
         $headers['X-Mock-Server-Fixture'] = $this->getFilename();
-        $headers['X-Mock-Server-Request-Id'] = $this->requestId;
+        $headers['X-Mock-Server-Request-Id'] = $this->request->getId();
 
         return $headers;
     }
@@ -169,12 +164,10 @@ class Mock
 
     /**
      * @param Request $request
-     * @param int     $requestId
      */
-    public function bindRequest(Request $request, int $requestId): void
+    public function bindRequest(Request $request): void
     {
         $this->request = $request;
-        $this->requestId = $requestId;
     }
 
     /**
@@ -197,7 +190,10 @@ class Mock
      */
     public function getDelay(): int
     {
-        return (int)$this->data->find('control.delay', 0);
+        $delayHandler = $this->data->find('control.delay', 0);
+        $delay = $this->handleCallable($delayHandler, 'int');
+
+        return (int)$delay;
     }
 
     /**
@@ -210,7 +206,7 @@ class Mock
         $result = $handler;
 
         if (is_callable($handler)) {
-            $result = $handler($this->request, $this->requestId);
+            $result = $handler($this->request);
         }
 
         if ($expectedResultType === 'int' && !is_int($result)) {

@@ -25,11 +25,7 @@ return [
 
     'response' => [
         'code'    => 200,
-        'headers' => [
-            'Content-Type' => 'application/json'
-        ],
-        'body'    => (string)json([
-            'message' => 'Hello'
-        ])
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => (string)json(['message' => 'Hello'])
     ]
 ];

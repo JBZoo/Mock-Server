@@ -111,7 +111,7 @@ class MockServerTest extends AbstractMockServerTest
 
     public function testFunctionAsResponseCode(): void
     {
-        isSame(200, $this->request('GET')->getCode());
+        isSame(200, $this->request('PUT')->getCode());
         isSame(404, $this->request('POST')->getCode());
     }
 
@@ -130,7 +130,7 @@ class MockServerTest extends AbstractMockServerTest
 
         $requests = [];
         for ($i = 0; $i < $max; $i++) {
-            $requests[] = [$this->prepareUrl() . "?id={$i}"];
+            $requests[] = [$this->prepareUrl() . "?anti-cache={$i}"];
         }
 
         $start = microtime(true);
@@ -160,5 +160,41 @@ class MockServerTest extends AbstractMockServerTest
         isAmount($response->getTime() * 1000, $time, '', 100);
 
         isTrue($time > 1000 && $time < 1300, "Expected elapsedMS between 1000 & 1300, got: {$time}");
+    }
+
+    /**
+     * Just in case we have to warm up the server and PhpUnit framework
+     * @depends testMinimalMock
+     */
+    public function testFunctionAsDelay(): void
+    {
+        $start = microtime(true);
+        $response = $this->request();
+        $time = (microtime(true) - $start) * 1000;
+
+        isAmount($response->getTime() * 1000, $time, '', 100);
+
+        isTrue($time > 1000 && $time < 1300, "Expected elapsedMS between 1000 & 1300, got: {$time}");
+    }
+
+    public function testFileAsBody(): void
+    {
+        $response = $this->request();
+        isSame($response->getBody(), file_get_contents(__DIR__ . '/mocks/Example.jpg'));
+        isSame('image/jpeg', $response->getHeader('Content-Type'));
+    }
+
+    public function testRequestParser(): void
+    {
+        //$random = \random_int(1, 10000000);
+        $random = '1234567890';
+        $response = $this->request(
+            'POST',
+            ['test' => $random],
+            self::TEST_URL . "?message={$random}",
+            ['x-custom-header' => $random]
+        );
+
+        dump($response->getJSON());
     }
 }

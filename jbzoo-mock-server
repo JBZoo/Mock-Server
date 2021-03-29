@@ -14,11 +14,18 @@
  * @link       https://github.com/JBZoo/Mock-Server
  */
 
-use JBZoo\MockServer\Application;
-use Symfony\Component\VarDumper\Dumper\CliDumper;
+declare(strict_types=1);
+
+use JBZoo\MockServer\StartCommand;
+use Symfony\Component\Console\Application;
+
+umask(0000);
+date_default_timezone_set('UTC');
 
 require __DIR__ . '/src/functions.php';
 require __DIR__ . '/vendor/autoload.php';
 
 $application = new Application();
-$application->start();
+$application->add(new StartCommand());
+$application->setDefaultCommand('help');
+$application->run();

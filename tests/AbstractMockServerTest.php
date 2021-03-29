@@ -19,7 +19,7 @@ namespace JBZoo\PHPUnit;
 
 use JBZoo\HttpClient\HttpClient;
 use JBZoo\HttpClient\Response;
-use JBZoo\MockServer\Application;
+use JBZoo\MockServer\MockServer;
 
 /**
  * Class AbstractMockServerTest
@@ -42,7 +42,7 @@ abstract class AbstractMockServerTest extends PHPUnit
 
     protected function setUp(): void
     {
-        $this->testHost = Application::DEFAULT_HOST . ':' . Application::DEFAULT_PORT;
+        $this->testHost = MockServer::DEFAULT_HOST . ':' . MockServer::DEFAULT_PORT;
         parent::setUp();
     }
 

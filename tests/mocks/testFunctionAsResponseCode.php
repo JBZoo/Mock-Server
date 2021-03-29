@@ -15,17 +15,17 @@
 
 declare(strict_types=1);
 
-use Amp\Http\Server\Request;
+use JBZoo\MockServer\Request;
 
 return [
     'request' => [
-        'method' => 'GET|POST',
+        'method' => 'PUT|POST',
         'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code' => static function (Request $request, int $requestId): int {
-            return $request->getMethod() === 'GET' ? 200 : 404;
+        'code' => static function (Request $request): int {
+            return $request->getMethod() === 'PUT' ? 200 : 404;
         },
     ]
 ];

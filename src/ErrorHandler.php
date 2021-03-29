@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace JBZoo\MockServer;
 
-use Amp\Http\Server\ErrorHandler;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
 use Amp\Promise;
@@ -26,16 +25,17 @@ use Amp\Success;
 use function JBZoo\Data\json;
 
 /**
- * Class MockErrorHandler
+ * Class ErrorHandler
  * @package JBZoo\MockServer
  */
-final class MockErrorHandler implements ErrorHandler
+final class ErrorHandler implements \Amp\Http\Server\ErrorHandler
 {
     /** {@inheritdoc} */
     public function handleError(int $statusCode, string $reason = null, Request $request = null): Promise
     {
-        $message = "Undefined request. {$statusCode} {$reason}";
+        $message = "{$statusCode} {$reason}";
         $body = $message;
+
         if ($request) {
             $body = (string)json([
                 'fatal_error' => $message,

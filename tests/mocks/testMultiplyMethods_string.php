@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-use Amp\Http\Server\Request;
+use JBZoo\MockServer\Request;
 
 use function JBZoo\Data\json;
 
@@ -27,9 +27,7 @@ return [
 
     'response' => [
         'code'    => 200,
-        'headers' => [
-            'Content-Type' => 'application/json'
-        ],
+        'headers' => ['Content-Type' => 'application/json'],
         'body'    => static function (Request $request): string {
             return (string)json([
                 'method' => $request->getMethod(),

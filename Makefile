@@ -17,7 +17,9 @@ ifneq (, $(wildcard ./vendor/jbzoo/codestyle/src/init.Makefile))
 endif
 
 
-MOCK_SERVER_LOG = ./build/server.log
+MOCK_SERVER_LOG  = ./build/server.log
+MOCK_SERVER_HOST = 0.0.0.0
+MOCK_SERVER_PORT = 8089
 
 update: ##@Project Install/Update all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
@@ -36,13 +38,11 @@ restart:
 
 
 up:
-	@echo "----"
-	@$(PHP_BIN) `pwd`/jbzoo-mock-server up \
-        --host=0.0.0.0                     \
-        --port=8089                        \
-        --mocks=./tests/mocks              \
-        --ansi
-	@echo "Mock Server started (dev mode)"
+	@$(PHP_BIN) `pwd`/jbzoo-mock-server start \
+        --host=$(MOCK_SERVER_HOST)            \
+        --port=$(MOCK_SERVER_PORT)            \
+        --mocks=tests/mocks                   \
+        --no-ansi
 
 
 up-background:
@@ -60,3 +60,6 @@ down:
 dev-watcher:
 	@make down
 	@make up-background
+
+bench:
+	@apib -c 50 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testFileAsBody
