@@ -38,11 +38,12 @@ restart:
 
 
 up:
-	@$(PHP_BIN) `pwd`/jbzoo-mock-server start \
-        --host=$(MOCK_SERVER_HOST)            \
-        --port=$(MOCK_SERVER_PORT)            \
-        --mocks=tests/mocks                   \
-        --no-ansi
+	@$(PHP_BIN) `pwd`/jbzoo-mock-server \
+        --host=$(MOCK_SERVER_HOST)      \
+        --port=$(MOCK_SERVER_PORT)      \
+        --mocks=tests/mocks             \
+        --ansi                          \
+        -vvv
 
 
 up-background:
@@ -62,4 +63,5 @@ dev-watcher:
 	@make up-background
 
 bench:
-	@apib -c 50 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testFileAsBody
+	@apib -1 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
+	@apib -c 100 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock

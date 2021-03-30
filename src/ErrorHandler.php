@@ -43,7 +43,6 @@ final class ErrorHandler implements \Amp\Http\Server\ErrorHandler
                     'uri'     => (string)$request->getUri(),
                     'headers' => $request->getHeaders(),
                 ],
-                'trace'       => self::getTrace()
             ]);
         }
 
@@ -51,47 +50,5 @@ final class ErrorHandler implements \Amp\Http\Server\ErrorHandler
         $response->setStatus($statusCode, $reason);
 
         return new Success($response);
-    }
-
-    /**
-     * @return string
-     */
-    private static function getTrace(): string
-    {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-
-        $result = [];
-        foreach ($trace as $index => $traceRow) {
-            $result[] = $index . ': ' . self::getOneTrace($traceRow);
-        }
-
-        return implode("\n", $result);
-    }
-
-    /**
-     * Get formated one trace info
-     * @param array $traceRow One trace element
-     * @return string
-     */
-    private static function getOneTrace(array $traceRow): string
-    {
-        $result = [];
-
-        if (isset($traceRow['file'])) {
-            $result['file'] = $traceRow['file'] . ':' . $traceRow['line'];
-        }
-
-        $isIncluding = in_array($traceRow['function'], ['include', 'include_once', 'require', 'require_once'], true);
-
-        if ($isIncluding) {
-            $includedFile = $traceRow['args'][0] ?? '';
-            $result['func'] = "{$traceRow['function']} ('{$includedFile}')";
-        } elseif (isset($traceRow['type'], $traceRow['class'])) {
-            $result['func'] = "{$traceRow['class']}{$traceRow['type']}{$traceRow['function']}()";
-        } else {
-            $result['func'] = $traceRow['function'] . '()';
-        }
-
-        return $result['file'] ?? $result['func'];
     }
 }

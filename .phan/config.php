@@ -29,5 +29,6 @@ return array_merge($default, [
         'vendor/symfony/finder',
         'vendor/symfony/process',
         'vendor/nikic/fast-route/src',
+        'vendor/symfony/console',
     ]
 ]);

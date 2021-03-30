@@ -40,9 +40,9 @@ class StartCommand extends Command
             ->setName('start')
             ->setDescription('Try to connect to TransferWise account to check current keys and tokens')
             ->addOption('host', null, $req, "Host", MockServer::DEFAULT_HOST)
-            ->addOption('port', null, $req, "Port", MockServer::DEFAULT_PORT)
+            ->addOption('port', null, $req, "Port", (string)MockServer::DEFAULT_PORT)
             ->addOption('mocks', null, $req, "Mocks path", './mocks')
-            ->addOption('check-php-syntax', null, $none, 'Check syntax of PHP mock files before loading. ' .
+            ->addOption('check-syntax', null, $none, 'Check syntax of PHP mock files before loading. ' .
                 'It can take some time on loading');
     }
 
@@ -53,11 +53,42 @@ class StartCommand extends Command
     {
         (new MockServer())
             ->setOutput($output)
-            ->setHost((string)$input->getOption('host'))
-            ->setPort((int)$input->getOption('port'))
-            ->setMocksPath((string)$input->getOption('mocks'))
+            ->setHost(self::getOptionString('host', $input))
+            ->setPort(self::getOptionInt('port', $input))
+            ->setMocksPath(self::getOptionString('mocks', $input))
+            ->setCheckSyntax(self::isOptionEnabled('check-syntax', $input))
             ->start();
 
         return 0;
+    }
+
+    /**
+     * @param string         $option
+     * @param InputInterface $input
+     * @return int
+     */
+    private static function getOptionInt(string $option, InputInterface $input): int
+    {
+        return (int)implode('', (array)$input->getOption($option));
+    }
+
+    /**
+     * @param string         $option
+     * @param InputInterface $input
+     * @return string
+     */
+    private static function getOptionString(string $option, InputInterface $input): string
+    {
+        return (string)implode('', (array)$input->getOption($option));
+    }
+
+    /**
+     * @param string         $option
+     * @param InputInterface $input
+     * @return bool
+     */
+    private static function isOptionEnabled(string $option, InputInterface $input): bool
+    {
+        return (bool)$input->getOption($option);
     }
 }

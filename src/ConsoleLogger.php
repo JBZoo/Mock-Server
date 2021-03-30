@@ -25,11 +25,12 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * Class ConsoleLogger
  * PSR-3 compliant console logger.
+ * @package JBZoo\MockServer
  *
- * @author Kévin Dunglas <dunglas@gmail.com>
- *
- * @see    https://www.php-fig.org/psr/psr-3/
+ * @see     https://www.php-fig.org/psr/psr-3/
+ * @author  Kévin Dunglas <dunglas@gmail.com>
  */
 class ConsoleLogger extends AbstractLogger
 {
@@ -102,7 +103,7 @@ class ConsoleLogger extends AbstractLogger
         // Write to the error output if necessary and available
         if (self::ERROR === $this->formatLevelMap[$level]) {
             if ($this->output instanceof ConsoleOutputInterface) {
-                $output = $output->getErrorOutput();
+                $output = $this->output->getErrorOutput();
             }
             $this->errored = true;
         }
@@ -114,7 +115,7 @@ class ConsoleLogger extends AbstractLogger
                 '<%1$s>%2$s</%1$s>: %3$s',
                 $this->formatLevelMap[$level],
                 $level,
-                $this->interpolate($message, $context)
+                self::interpolate($message, $context)
             ), $this->verbosityLevelMap[$level]);
         }
     }
@@ -137,7 +138,7 @@ class ConsoleLogger extends AbstractLogger
      *
      * @author PHP Framework Interoperability Group
      */
-    private function interpolate(string $message, array $context): string
+    private static function interpolate(string $message, array $context): string
     {
         if (false === strpos($message, '{')) {
             return $message;

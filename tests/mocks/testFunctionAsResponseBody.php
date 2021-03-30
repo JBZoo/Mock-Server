@@ -21,23 +21,42 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'POST',
+        'method' => 'GET|POST',
         'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
         'body' => static function (Request $request): string {
-            $headers = $request->getHeaders();
-            unset($headers['content-length']);
+            $uri = $request->getUri();
 
             return (string)json([
-                'request_id' => $request->getId(),
-                'request'    => [
-                    'uri'      => (string)$request->getUri(),
-                    'method'   => $request->getMethod(),
-                    'protocol' => $request->getProtocolVersion(),
-                    'headers'  => $headers,
+                'id' => $request->getId(),
+
+                'protocol'   => $request->getProtocolVersion(),
+                'method'     => $request->getMethod(),
+                'headers'    => $request->getHeaders(),
+                'cookies'    => $request->getCookies(),
+                'user_agent' => $request->getUserAgent(),
+                'client_ip'  => $request->getClientIP(),
+
+                'uri' => [
+                    'full'      => (string)$uri,
+                    'scheme'    => $uri->getScheme(),
+                    'host'      => $uri->getHost(),
+                    'port'      => $uri->getPort(),
+                    'authority' => $uri->getAuthority(),
+                    'path'      => $uri->getPath(),
+                    'query'     => $uri->getQuery(),
+                    'user_info' => $uri->getUserInfo(),
                 ],
+
+                'params' => [
+                    'query' => $request->getUriParams(),  // It's like $_GET in PHP
+                    'body'  => $request->getBodyParams(), // It's like $_POST in PHP
+                    'all'   => $request->getAllParams(),  // It's like $_REQUEST = $_GET + $_POST + $_COOKIE (merging)
+                ],
+
+                'uploaded_files' => $request->getFiles(true),
             ]);
         }
     ]

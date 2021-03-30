@@ -30,13 +30,14 @@ use Amp\Loop;
 use Amp\Socket\Server;
 use JBZoo\Utils\FS;
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
 use function Amp\Http\Server\FormParser\parseForm;
 
 /**
- * Class Application
+ * Class MockServer
  * @package JBZoo\MockServer
  */
 class MockServer
@@ -44,7 +45,7 @@ class MockServer
     public const DEFAULT_HOST = '0.0.0.0';
     public const DEFAULT_PORT = 8089;
 
-    //    private const LOG_FORMAT = "[%datetime%] %level_name%: %message% %context% %extra%\r\n";
+    //private const LOG_FORMAT = "[%datetime%] %level_name%: %message% %context% %extra%\r\n";
     private const LOG_FORMAT = "%level_name%: %message% %context% %extra%\r\n";
 
     /**
@@ -53,7 +54,7 @@ class MockServer
     private $server;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -82,17 +83,38 @@ class MockServer
      */
     private $mocksPath;
 
+    /**
+     * @var bool
+     */
+    private $checkSyntax = false;
+
+    /**
+     * @var float
+     */
+    private $startTime;
+
+    /**
+     * MockServer constructor.
+     */
+    public function __construct()
+    {
+        $this->startTime = microtime(true);
+    }
+
     public function start(): void
     {
-        $this->logger = $this->initLogger();
-        $this->logger->debug('PHP Version: ' . PHP_VERSION);
+        $this->logger = self::initLogger();
 
         $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
         $this->server->setErrorHandler(new ErrorHandler());
 
         Loop::run(function () {
             yield $this->server->start();
-            $this->logger->info('Ready to work. Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
+
+            $this->logger->debug('PHP Version: ' . PHP_VERSION);
+            $this->logger->debug('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
+            $this->logger->debug('Time to start: ' . round((microtime(true) - $this->startTime), 3) . ' sec');
+            $this->logger->info('Ready to work.');
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
@@ -138,7 +160,7 @@ class MockServer
 
                 $this->requestId++;
                 $form = yield parseForm($request);
-                $mock->bindRequest(new Request($this->requestId, $request, $form, $mock));
+                $mock->bindRequest(new Request($this->requestId, $request, $form));
 
                 $this->logger->debug(implode("\t", [
                     "#{$this->requestId}",
@@ -147,11 +169,7 @@ class MockServer
                     $request->getUri()
                 ]));
 
-                return new Response(
-                    $mock->getResponseCode(),
-                    $mock->getResponseHeaders(),
-                    $mock->getResponseBody()
-                );
+                return new Response($mock->getResponseCode(), $mock->getResponseHeaders(), $mock->getResponseBody());
             });
 
             try {
@@ -171,18 +189,20 @@ class MockServer
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface
      */
-    private function initLogger(): Logger
+    private static function initLogger(): LoggerInterface
     {
-        $logHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
+        $streamHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
         $consoleFormatter = new ConsoleFormatter(self::LOG_FORMAT);
         $consoleFormatter->ignoreEmptyContextAndExtra(true);
-        $logHandler->setFormatter($consoleFormatter);
-        $logHandler->setLevel(Logger::INFO);
+
+        $streamHandler->setFormatter($consoleFormatter);
+        $streamHandler->setLevel(Logger::DEBUG);
 
         $logger = new Logger('MockServer');
-        $logger->pushHandler($logHandler);
+        $logger->pushHandler($streamHandler);
+
         return $logger;
         //return new ConsoleLogger($this->output);
     }
@@ -207,7 +227,11 @@ class MockServer
         foreach ($finder as $file) {
             $filePath = $file->getPathname();
 
-            $validationErrors = Mock::isSourceValid($filePath);
+            $validationErrors = null;
+            if ($this->checkSyntax) {
+                $validationErrors = Mock::isSourceValid($filePath);
+            }
+
             if (!$validationErrors) {
                 $mock = new Mock($filePath);
                 $mocks[$mock->getHash()] = $mock;
@@ -246,6 +270,16 @@ class MockServer
     public function setOutput(OutputInterface $output): self
     {
         $this->output = $output;
+        return $this;
+    }
+
+    /**
+     * @param bool $checkSyntax
+     * @return $this
+     */
+    public function setCheckSyntax(bool $checkSyntax): self
+    {
+        $this->checkSyntax = $checkSyntax;
         return $this;
     }
 

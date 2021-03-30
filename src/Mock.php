@@ -47,7 +47,6 @@ class Mock
     /**
      * Mock constructor.
      * @param string $mockFilepath
-     * @param bool   $checkSyntax
      */
     public function __construct(string $mockFilepath)
     {
@@ -93,6 +92,7 @@ class Mock
      */
     public function getRequestMethods(): array
     {
+        $validMethods = ["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS", "DELETE"];
         $methods = $this->data->find('request.method') ?: 'GET';
 
         if (is_string($methods)) {
@@ -101,10 +101,16 @@ class Mock
 
         $result = [];
         foreach ($methods as $method) {
-            $result[] = strtoupper(trim($method));
+            $addMethods = strtoupper(trim($method));
+            if ($addMethods === 'ANY' || $addMethods === '*') {
+                $addMethods = $validMethods;
+            }
+
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $result = array_merge($result, (array)$addMethods);
         }
 
-        return $result;
+        return array_filter(array_unique($result));
     }
 
     /**

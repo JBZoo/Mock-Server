@@ -19,8 +19,13 @@ namespace JBZoo\MockServer;
 
 use Amp\Http\Server\FormParser\Form;
 use Amp\Http\Server\Request as ServerRequest;
+use JBZoo\Utils\Url;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * Class Request
+ * @package JBZoo\MockServer
+ */
 class Request
 {
     /**
@@ -39,23 +44,16 @@ class Request
     private $form;
 
     /**
-     * @var Mock
-     */
-    private $mock;
-
-    /**
      * Request constructor.
      * @param int           $requestId
      * @param ServerRequest $request
      * @param Form          $form
-     * @param Mock          $mock
      */
-    public function __construct(int $requestId, ServerRequest $request, Form $form, Mock $mock)
+    public function __construct(int $requestId, ServerRequest $request, Form $form)
     {
         $this->requestId = $requestId;
         $this->request = $request;
         $this->form = $form;
-        $this->mock = $mock;
     }
 
     /**
@@ -71,7 +69,13 @@ class Request
      */
     public function getHeaders(): array
     {
-        return $this->request->getHeaders();
+        $headerKeys = array_keys($this->request->getHeaders());
+        $result = [];
+        foreach ($headerKeys as $headerKey) {
+            $result[$headerKey] = $this->request->getHeader((string)$headerKey);
+        }
+
+        return $result;
     }
 
     /**
@@ -108,19 +112,95 @@ class Request
     }
 
     /**
-     * @return mixed[]
+     * @return array
      */
-    public function getAttributes(): array
+    public function getCookies(): array
     {
-        return $this->request->getAttributes();
+        $cookies = $this->request->getCookies();
+
+        $result = [];
+        foreach ($cookies as $cookie) {
+            $result[$cookie->getName()] = $cookie->getValue();
+        }
+
+        return $result;
     }
 
     /**
-     * @param string $attribute
-     * @return mixed
+     * @param bool $contentAsBase64
+     * @return array
      */
-    public function getAttribute(string $attribute)
+    public function getFiles(bool $contentAsBase64 = false): array
     {
-        return $this->request->getAttribute($attribute);
+        $files = $this->form->getFiles();
+
+        $result = [];
+
+        foreach ($files as $fileName => $filesByName) {
+            foreach ($filesByName as $fileByName) {
+                $result[$fileName] = $result[$fileName] ?? [];
+
+                $result[$fileName][] = [
+                    'name'     => $fileByName->getName(),
+                    'mime'     => $fileByName->getMimeType(),
+                    'contents' => $contentAsBase64
+                        ? base64_encode($fileByName->getContents())
+                        : $fileByName->getContents(),
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUriParams(): array
+    {
+        parse_str($this->getUri()->getQuery(), $result);
+        return $result;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserAgent(): ?string
+    {
+        return $this->getHeader('user-agent');
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClientIP(): ?string
+    {
+        return $this->request->getClient()->getRemoteAddress()->getHost();
+    }
+
+    /**
+     * @return array
+     */
+    public function getBodyParams(): array
+    {
+        $names = $this->form->getNames();
+
+        $values = [];
+        foreach ($names as $name) {
+            if ('' !== $name) {
+                $values[$name] = $this->form->getValue($name);
+            }
+        }
+
+        parse_str(Url::build($values), $result);
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllParams(): array
+    {
+        return array_merge($this->getUriParams(), $this->getBodyParams(), $this->getCookies());
     }
 }

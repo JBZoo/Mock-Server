@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 /**
@@ -16,4 +15,16 @@
 
 declare(strict_types=1);
 
-include __DIR__ . '/jbzoo-mock-server.php';
+use JBZoo\MockServer\StartCommand;
+use Symfony\Component\Console\Application;
+
+umask(0000);
+date_default_timezone_set('UTC');
+
+require __DIR__ . '/src/functions.php';
+require __DIR__ . '/vendor/autoload.php';
+
+$application = new Application();
+$application->add(new StartCommand());
+$application->setDefaultCommand('start');
+$application->run();
