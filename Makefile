@@ -30,6 +30,7 @@ update: ##@Project Install/Update all 3rd party dependencies
 test-all: ##@Project Run all project tests at once
 	@make test
 	@make codestyle
+	@cat `pwd`/build/server.log
 
 
 restart:
