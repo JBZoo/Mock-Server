@@ -25,6 +25,7 @@ php:
 matrix:
   fast_finish: true
   allow_failures:
+    - php: 8.0
     - php: nightly
 
 before_script:
@@ -36,4 +37,5 @@ script:
   - make test-all      --no-print-directory
 
 after_script:
+  - cat ./build/server.log
   - make report-coveralls
