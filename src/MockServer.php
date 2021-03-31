@@ -19,11 +19,11 @@ namespace JBZoo\MockServer;
 
 use Amp\ByteStream\ResourceOutputStream;
 use Amp\Delayed;
+use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
-use Amp\Http\Server\Server;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Loop;
@@ -49,7 +49,7 @@ class MockServer
     private const LOG_FORMAT = "%level_name%: %message% %context% %extra%\r\n";
 
     /**
-     * @var Server
+     * @var HttpServer
      */
     private $server;
 
@@ -92,16 +92,13 @@ class MockServer
     {
         $this->logger = self::initLogger();
 
-        $this->server = new Server($this->getServers(), $this->initRouter(), $this->logger);
+        $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
         $this->server->setErrorHandler(new ErrorHandler());
 
         Loop::run(function () {
             yield $this->server->start();
 
-            $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            $this->logger->debug('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
-            $bootstrapTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
-            $this->logger->debug("Time to start: {$bootstrapTime} sec");
+            $this->showDebugInfo();
             $this->logger->info('Ready to work.');
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
@@ -284,5 +281,16 @@ class MockServer
 
         $this->mocksPath = $path;
         return $this;
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    private function showDebugInfo(): void
+    {
+        $this->logger->debug('PHP Version: ' . PHP_VERSION);
+        $this->logger->debug('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
+        $bootstrapTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
+        $this->logger->debug("Time to start: {$bootstrapTime} sec");
     }
 }
