@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 use function JBZoo\Data\json;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 return [
     'request' => [
         'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)

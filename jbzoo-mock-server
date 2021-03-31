@@ -16,6 +16,8 @@
 
 declare(strict_types=1);
 
+use Amp\Http\Server\HttpServer;
+use Amp\Http\Server\Server;
 use JBZoo\MockServer\StartCommand;
 use Symfony\Component\Console\Application;
 
@@ -24,6 +26,10 @@ date_default_timezone_set('UTC');
 
 require __DIR__ . '/src/functions.php';
 require __DIR__ . '/vendor/autoload.php';
+
+if (!class_exists(Server::class)) {
+    \class_alias(HttpServer::class, Server::class);
+}
 
 $application = new Application();
 $application->add(new StartCommand());

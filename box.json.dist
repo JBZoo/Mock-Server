@@ -19,13 +19,9 @@
 
     "finder"      : [
         {
+            "in"      : "vendor",
             "name"    : "*.php",
-            "exclude" : [
-                "Tests",
-                "tests",
-                "test"
-            ],
-            "in"      : "vendor"
+            "exclude" : ["Tests", "tests", "test"]
         }
     ]
 }

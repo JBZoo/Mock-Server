@@ -41,7 +41,7 @@ class MockServerTest extends AbstractMockServerTest
         isSame(200, $response->getCode());
         isSame('Hello', $response->getJSON()->get('message'));
         isSame('application/json', $response->getHeader('content-type'));
-        isSame("./tests/mocks/{$this->getName()}.php", $response->getHeader('x-mock-server-fixture'));
+        isContain("tests/mocks/{$this->getName()}.php", $response->getHeader('x-mock-server-fixture'));
         isTrue((int)$response->getHeader('x-mock-server-request-id') > 0);
     }
 

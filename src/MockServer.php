@@ -19,15 +19,15 @@ namespace JBZoo\MockServer;
 
 use Amp\ByteStream\ResourceOutputStream;
 use Amp\Delayed;
-use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
+use Amp\Http\Server\Server;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Loop;
-use Amp\Socket\Server;
+use Amp\Socket\Server as SocketServer;
 use JBZoo\Utils\FS;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -49,7 +49,7 @@ class MockServer
     private const LOG_FORMAT = "%level_name%: %message% %context% %extra%\r\n";
 
     /**
-     * @var HttpServer
+     * @var Server
      */
     private $server;
 
@@ -92,7 +92,7 @@ class MockServer
     {
         $this->logger = self::initLogger();
 
-        $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
+        $this->server = new Server($this->getServers(), $this->initRouter(), $this->logger);
         $this->server->setErrorHandler(new ErrorHandler());
 
         Loop::run(function () {
@@ -118,7 +118,7 @@ class MockServer
      */
     private function getServers(): array
     {
-        return [Server::listen("{$this->host}:{$this->port}")];
+        return [SocketServer::listen("{$this->host}:{$this->port}")];
     }
 
     /**

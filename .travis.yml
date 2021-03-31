@@ -32,11 +32,9 @@ before_script:
   - composer self-update
 
 script:
-  - make update        --no-print-directory
-  - make up-background --no-print-directory
-  - make test          --no-print-directory
-  - make phar          --no-print-directory
-  - make phar-test     --no-print-directory
+  - make build      --no-print-directory
+  - make up-phar-bg --no-print-directory
+  - make test       --no-print-directory
 #  - make codestyle     --no-print-directory
 
 after_script:
