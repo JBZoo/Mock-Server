@@ -56,8 +56,7 @@
     "minimum-stability" : "dev",
     "prefer-stable"     : true,
     "config"            : {
-        "optimize-autoloader" : true,
-        "autoloader-suffix"   : "JBZooMock"
+        "optimize-autoloader" : true
     },
 
     "extra"             : {

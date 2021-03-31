@@ -33,7 +33,6 @@ else
 endif
 
 
-
 build: ##@Project Install all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
 	@composer install --optimize-autoloader
@@ -46,8 +45,10 @@ build-phar: ##@Project Compile phar file
         --no-check-certificate                                \
         --quiet                                               || true
 	@$(PHAR_BOX) --version
-	@$(PHAR_BOX) validate `pwd`/box.json.dist -vvv
-	@$(PHAR_BOX) compile --working-dir="`pwd`" -vv
+	@$(PHAR_BOX) validate `pwd`/box.json.dist          -vvv
+	@composer config autoloader-suffix JBZooMockServer -v
+	@$(PHAR_BOX) compile --working-dir="`pwd`"         -v
+	@composer config autoloader-suffix --unset         -v
 	@$(PHAR_BOX) info $(PHAR_FILE) --metadata
 
 
