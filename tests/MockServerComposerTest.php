@@ -24,8 +24,5 @@ namespace JBZoo\PHPUnit;
  */
 class MockServerComposerTest extends AbstractComposerTest
 {
-    /**
-     * @var string
-     */
-    protected $phpVersion = '^7.2';
+
 }
