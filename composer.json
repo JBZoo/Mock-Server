@@ -21,9 +21,9 @@
         "ext-pcntl"                     : "*",
 
         "amphp/amp"                     : "^2.5.2",
+        "amphp/log"                     : "^1.1.0",
         "amphp/http-server"             : "^2.1.0",
         "amphp/http-server-router"      : "^1.0.2",
-        "amphp/log"                     : "^1.1.0",
         "amphp/http-server-form-parser" : "^1.1.4",
 
         "jbzoo/data"                    : "^4.1.3",

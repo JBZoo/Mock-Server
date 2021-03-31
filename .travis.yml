@@ -34,9 +34,10 @@ before_script:
 script:
   - make update        --no-print-directory
   - make up-background --no-print-directory
-  - make test-all      --no-print-directory
+  - make test          --no-print-directory
   - make phar          --no-print-directory
   - make phar-test     --no-print-directory
+#  - make codestyle     --no-print-directory
 
 after_script:
   - cat ./build/server.log

@@ -21,6 +21,11 @@ MOCK_SERVER_LOG  = ./build/server.log
 MOCK_SERVER_HOST = 0.0.0.0
 MOCK_SERVER_PORT = 8089
 
+PHAR_BOX      = $(PHP_BIN) `pwd`/vendor/bin/box.phar
+PHAR_FILE     = `pwd`/build/jbzoo-mock-server.phar
+PHAR_FILE_BIN = $(PHP_BIN) $(PHAR_FILE)
+
+
 update: ##@Project Install/Update all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
 	@echo "Composer flags: $(JBZOO_COMPOSER_UPDATE_FLAGS)"
@@ -73,17 +78,17 @@ phar:
         --no-clobber                                                          \
         --no-check-certificate                                                \
         --quiet                                                               || true
-	@$(PHP_BIN) `pwd`/vendor/bin/box.phar --version
-	@$(PHP_BIN) `pwd`/vendor/bin/box.phar validate `pwd`/box.json.dist
-	@$(PHP_BIN) `pwd`/vendor/bin/box.phar compile --working-dir="`pwd`" --with-docker -vvv
+	@$(PHAR_BOX) --version
+	@$(PHAR_BOX) validate `pwd`/box.json.dist
+	@$(PHAR_BOX) compile --working-dir="`pwd`" --with-docker -vvv
+	@$(PHAR_BOX) info $(PHAR_FILE) --metadata
 
 
 phar-test:
 	@make down
-	@$(PHP_BIN) `pwd`/build/jbzoo-mock-server.phar --help
-	@$(PHP_BIN) `pwd`/build/jbzoo-mock-server.phar \
-        --host=$(MOCK_SERVER_HOST)                 \
-        --port=$(MOCK_SERVER_PORT)                 \
-        --mocks=tests/mocks                        \
-        --ansi                                     \
+	@$(PHAR_FILE_BIN)               \
+        --host=$(MOCK_SERVER_HOST)  \
+        --port=$(MOCK_SERVER_PORT)  \
+        --mocks=tests/mocks         \
+        --ansi                      \
         -vvv
