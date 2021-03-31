@@ -38,7 +38,7 @@ script:
   - make test       --no-print-directory
   - make down up-bg --no-print-directory
   - make test       --no-print-directory
-  - make codestyle     --no-print-directory
+  - make codestyle  --no-print-directory
 
 after_script:
   - cat ./build/server.log
