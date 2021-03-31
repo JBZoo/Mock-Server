@@ -24,5 +24,8 @@ namespace JBZoo\PHPUnit;
  */
 class MockServerCodestyleTest extends AbstractCodestyleTest
 {
-
+    public function testMakefilePhony(): void
+    {
+        skip('Custom "build" is used');
+    }
 }

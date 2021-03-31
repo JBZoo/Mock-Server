@@ -11,6 +11,7 @@
 # @link       https://github.com/JBZoo/Mock-Server
 #
 
+.PHONY: build
 
 ifneq (, $(wildcard ./vendor/jbzoo/codestyle/src/init.Makefile))
     include ./vendor/jbzoo/codestyle/src/init.Makefile
@@ -32,14 +33,14 @@ else
 endif
 
 
+
 build: ##@Project Install all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
-	@echo "Composer flags: $(JBZOO_COMPOSER_UPDATE_FLAGS)"
 	@composer install --optimize-autoloader
 	@make build-phar
 
 
-build-phar:
+build-phar: ##@Project Compile phar file
 	@wget $(PHAR_BOX_SOURCE)                                  \
         --output-document="$(PATH_ROOT)/vendor/bin/box.phar"  \
         --no-check-certificate                                \
@@ -51,27 +52,24 @@ build-phar:
 
 
 update: ##@Project Update all 3rd party dependencies
-	$(call title,"Install/Update all 3rd party dependencies")
-	@echo "Composer flags: $(JBZOO_COMPOSER_UPDATE_FLAGS)"
+	$(call title,"Update all 3rd party dependencies")
 	@composer update --optimize-autoloader
 
 
-test-all: ##@Project Run all project tests at once
+test-all: ##@Tests Run all project tests at once
 	@make test
 	@make codestyle
 
 
-test-bench:
-	@apib -1 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
-	@apib -c 100 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
+test-bench: ##@Tests Benchmarking and testing concurrency based on "apib" tool
+	$(call title,"Benchmarking and testing concurrency")
+	$(call title,"First request to warm-up Mock Server")
+	apib -1 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
+	$(call title,"Concurrency=100 Duration=10sec")
+	apib -c 100 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
 
 
-restart:
-	@make down
-	@make up
-
-
-up:
+up: ##@Project Start mock server (interactive mode)
 	@$(MOCK_SERVER_BIN)                 \
         --host=$(MOCK_SERVER_HOST)      \
         --port=$(MOCK_SERVER_PORT)      \
@@ -79,26 +77,27 @@ up:
         --ansi                          \
         -vvv
 
+up-bg: ##@Project Start mock server (non-interactive mode)
+	@AMP_LOG_COLOR=true make up 1>> "$(MOCK_SERVER_LOG)" 2>> "$(MOCK_SERVER_LOG)" &
 
-down:
+
+down: ##@Project Force killing Mock Server
 	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
 	@echo "Mock Server killed"
 
 
-up-bg:
-	@AMP_LOG_COLOR=true make up   \
-        1>> "$(MOCK_SERVER_LOG)"  \
-        2>> "$(MOCK_SERVER_LOG)"  \
-        &
+restart: ##@Project To kill and start mock server (interactive mode)
+	@make down
+	@make up
 
-up-phar:
+restart-bg: ##@Project Restart server (non-interactive mode)
+	@make down
+	@make up-bg
+
+
+up-phar: ##@Project Start mock server via phar file (interactive mode)
 	@MOCK_SERVER_BIN=$(PHAR_FILE) make up
 
 
-up-phar-bg:
+up-phar-bg: ##@Project Start mock server via phar file (non-interactive mode)
 	@MOCK_SERVER_BIN=$(PHAR_FILE) make up-bg
-
-
-dev-watcher:
-	@make down
-	@make up-bg
