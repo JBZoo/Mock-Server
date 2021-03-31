@@ -88,19 +88,6 @@ class MockServer
      */
     private $checkSyntax = false;
 
-    /**
-     * @var float
-     */
-    private $startTime;
-
-    /**
-     * MockServer constructor.
-     */
-    public function __construct()
-    {
-        $this->startTime = microtime(true);
-    }
-
     public function start(): void
     {
         $this->logger = self::initLogger();
@@ -113,7 +100,8 @@ class MockServer
 
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
             $this->logger->debug('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
-            $this->logger->debug('Time to start: ' . round((microtime(true) - $this->startTime), 3) . ' sec');
+            $bootstrapTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
+            $this->logger->debug("Time to start: {$bootstrapTime} sec");
             $this->logger->info('Ready to work.');
 
             // @phan-suppress-next-line PhanTypeMismatchArgument

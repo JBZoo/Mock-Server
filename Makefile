@@ -54,7 +54,8 @@ up-background:
 
 
 down:
-	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
+	@-pgrep -f "jbzoo-mock-server"      | xargs kill -15 || true
+	@-pgrep -f "jbzoo-mock-server.phar" | xargs kill -15 || true
 	@echo "Mock Server killed"
 
 
@@ -65,3 +66,24 @@ dev-watcher:
 bench:
 	@apib -1 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
 	@apib -c 100 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
+
+phar:
+	@wget https://github.com/box-project/box/releases/download/3.9.1/box.phar \
+        --output-document="$(PATH_ROOT)/vendor/bin/box.phar"                  \
+        --no-clobber                                                          \
+        --no-check-certificate                                                \
+        --quiet                                                               || true
+	@$(PHP_BIN) `pwd`/vendor/bin/box.phar --version
+	@$(PHP_BIN) `pwd`/vendor/bin/box.phar validate `pwd`/box.json.dist
+	@$(PHP_BIN) `pwd`/vendor/bin/box.phar compile --working-dir="`pwd`" --with-docker -vvv
+
+
+phar-test:
+	@make down
+	@$(PHP_BIN) `pwd`/build/jbzoo-mock-server.phar --help
+	@$(PHP_BIN) `pwd`/build/jbzoo-mock-server.phar \
+        --host=$(MOCK_SERVER_HOST)                 \
+        --port=$(MOCK_SERVER_PORT)                 \
+        --mocks=tests/mocks                        \
+        --ansi                                     \
+        -vvv
