@@ -15,16 +15,18 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\MockServer;
+namespace JBZoo\MockServer\Server;
 
 use Amp\Http\Server\FormParser\Form;
 use Amp\Http\Server\Request as ServerRequest;
 use JBZoo\Utils\Url;
 use Psr\Http\Message\UriInterface;
 
+use function Amp\Http\Server\FormParser\parseForm;
+
 /**
  * Class Request
- * @package JBZoo\MockServer
+ * @package JBZoo\MockServer\Server
  */
 class Request
 {
@@ -47,7 +49,6 @@ class Request
      * Request constructor.
      * @param int           $requestId
      * @param ServerRequest $request
-     * @param Form          $form
      */
     public function __construct(int $requestId, ServerRequest $request, Form $form)
     {

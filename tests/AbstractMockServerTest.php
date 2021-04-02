@@ -19,7 +19,7 @@ namespace JBZoo\PHPUnit;
 
 use JBZoo\HttpClient\HttpClient;
 use JBZoo\HttpClient\Response;
-use JBZoo\MockServer\MockServer;
+use JBZoo\MockServer\Server\MockServer;
 
 /**
  * Class AbstractMockServerTest

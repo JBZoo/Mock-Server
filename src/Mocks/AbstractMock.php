@@ -15,20 +15,51 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\MockServer;
+namespace JBZoo\MockServer\Mocks;
 
 use Amp\Http\Status;
 use JBZoo\Data\Data;
+use JBZoo\MockServer\Server\Request;
 use JBZoo\Utils\Cli;
 use JBZoo\Utils\Sys;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 /**
- * Class Mock
- * @package JBZoo\MockServer
+ * Class AbstractMock
+ * @package JBZoo\MockServer\Mocks
  */
-class Mock
+abstract class AbstractMock
 {
+    private const CRAZY_MAX_DELAY = 10000; // 10 seconds
+
+    private const CRAZY_POSSIBLE_BODIES = [
+        "",
+        "Crazy mode is enabled. Received unexpected response ;)",
+        '{"result": false}',
+        '{"error": "Crazy mode is enabled. Received unexpected response ;)"}',
+    ];
+
+    private const CRAZY_POSSIBLE_CODES = [
+        // 2xx
+        Status::OK,
+        // 3xx
+        Status::NOT_ACCEPTABLE,
+        Status::FORBIDDEN,
+        Status::NOT_FOUND,
+        // 5xx
+        Status::INTERNAL_SERVER_ERROR,
+        Status::NOT_IMPLEMENTED,
+        Status::BAD_GATEWAY,
+        Status::SERVICE_UNAVAILABLE,
+        Status::GATEWAY_TIMEOUT,
+        Status::HTTP_VERSION_NOT_SUPPORTED,
+        Status::VARIANT_ALSO_NEGOTIATES,
+        Status::INSUFFICIENT_STORAGE,
+        Status::LOOP_DETECTED,
+        Status::NOT_EXTENDED,
+        Status::NETWORK_AUTHENTICATION_REQUIRED,
+    ];
+
     /**
      * @var string
      */
@@ -140,7 +171,12 @@ class Mock
         $codeHandler = $this->data->find('response.code', Status::OK);
         $code = $this->handleCallable($codeHandler, 'int');
 
-        return (int)$code;
+        $result = (int)$code;
+        if ($this->isCrazyMode()) {
+            $result = array_rand(array_flip(self::CRAZY_POSSIBLE_CODES));
+        }
+
+        return $result;
     }
 
     /**
@@ -151,10 +187,16 @@ class Mock
         $headerHandler = $this->data->find('response.headers', ['content-type' => 'text/plain']);
         $headers = (array)$this->handleCallable($headerHandler, 'array');
 
-        $headers['X-Mock-Server-Fixture'] = $this->getFilename();
-        $headers['X-Mock-Server-Request-Id'] = $this->request->getId();
+        $debugHeaders = [
+            'X-Mock-Server-Fixture'    => $this->getFilename(),
+            'X-Mock-Server-Request-Id' => $this->request->getId(),
+        ];
 
-        return $headers;
+        if ($this->isCrazyMode()) {
+            return $debugHeaders;
+        }
+
+        return array_merge($debugHeaders, $headers);
     }
 
     /**
@@ -162,6 +204,10 @@ class Mock
      */
     public function getResponseBody(): string
     {
+        if ($this->isCrazyMode()) {
+            return array_rand(array_flip(self::CRAZY_POSSIBLE_BODIES));
+        }
+
         $bodyHandler = $this->data->find('response.body', '');
         $body = $this->handleCallable($bodyHandler, 'string');
 
@@ -199,15 +245,45 @@ class Mock
         $delayHandler = $this->data->find('control.delay', 0);
         $delay = $this->handleCallable($delayHandler, 'int');
 
+        //if ($this->isCrazyMode()) {
+            //$delay += random_int(0, self::CRAZY_MAX_DELAY);
+        //}
+
         return (int)$delay;
     }
 
     /**
-     * @param mixed  $handler
-     * @param string $expectedResultType
+     * @return bool
+     */
+    public function isCrazyMode(): bool
+    {
+        return false;
+        $result = false;
+        if ($this->isCrazyEnabled()) {
+            $result = random_int(0, 1) === 0; // 50%
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCrazyEnabled(): bool
+    {
+        return false;
+        $crazyHandler = $this->data->find('control.crazy', false);
+        $crazy = $this->handleCallable($crazyHandler, 'bool');
+
+        return (bool)$crazy;
+    }
+
+    /**
+     * @param mixed       $handler
+     * @param string|null $expectedResultType
      * @return mixed
      */
-    private function handleCallable($handler, string $expectedResultType)
+    private function handleCallable($handler, ?string $expectedResultType = null)
     {
         $result = $handler;
 
@@ -215,16 +291,22 @@ class Mock
             $result = $handler($this->request);
         }
 
-        if ($expectedResultType === 'int' && !is_int($result)) {
-            throw new Exception("Expected result of callback is integer");
-        }
+        if (null !== $expectedResultType) {
+            if ($expectedResultType === 'bool' && !is_bool($result)) {
+                throw new Exception("Expected result of callback is boolean");
+            }
 
-        if ($expectedResultType === 'string' && !is_string($result)) {
-            throw new Exception("Expected result of callback is string");
-        }
+            if ($expectedResultType === 'int' && !is_int($result)) {
+                throw new Exception("Expected result of callback is integer");
+            }
 
-        if ($expectedResultType === 'array' && !is_array($result)) {
-            throw new Exception("Expected result of callback is array");
+            if ($expectedResultType === 'string' && !is_string($result)) {
+                throw new Exception("Expected result of callback is string");
+            }
+
+            if ($expectedResultType === 'array' && !is_array($result)) {
+                throw new Exception("Expected result of callback is array");
+            }
         }
 
         return $result;

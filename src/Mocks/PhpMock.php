@@ -15,18 +15,13 @@
 
 declare(strict_types=1);
 
-use function JBZoo\Data\json;
+namespace JBZoo\MockServer\Mocks;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+/**
+ * Class PhpMock
+ * @package JBZoo\MockServer\Mocks
+ */
+class PhpMock extends AbstractMock
+{
 
-return [
-    'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
-    ],
-
-    'response' => [
-        'body' => static function (): string {
-            return (string)json(['name' => Faker\Factory::create()->name]);
-        }
-    ]
-];
+}

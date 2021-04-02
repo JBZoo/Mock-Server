@@ -39,19 +39,6 @@ build: ##@Project Install all 3rd party dependencies
 	@make build-phar
 
 
-build-phar: ##@Project Compile phar file
-	@wget $(PHAR_BOX_SOURCE)                                  \
-        --output-document="$(PATH_ROOT)/vendor/bin/box.phar"  \
-        --no-check-certificate                                \
-        --quiet                                               || true
-	@$(PHAR_BOX) --version
-	@$(PHAR_BOX) validate `pwd`/box.json.dist          -vvv
-	@composer config autoloader-suffix JBZooMockServer -v
-	@$(PHAR_BOX) compile --working-dir="`pwd`"         -v
-	@composer config autoloader-suffix --unset         -v
-	@$(PHAR_BOX) info $(PHAR_FILE) --metadata
-
-
 update: ##@Project Update all 3rd party dependencies
 	$(call title,"Update all 3rd party dependencies")
 	@composer update --optimize-autoloader
@@ -79,6 +66,7 @@ up: ##@Project Start mock server (interactive mode)
         -vvv
 
 up-bg: ##@Project Start mock server (non-interactive mode)
+	@rm -f $(MOCK_SERVER_LOG)
 	@AMP_LOG_COLOR=true make up 1>> "$(MOCK_SERVER_LOG)" 2>> "$(MOCK_SERVER_LOG)" &
 
 

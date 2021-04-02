@@ -19,25 +19,15 @@ return [
     'description' => 'Some text that describes the intended usage of the current configuration',
 
     'request' => [
-        'host'   => 'example.com',
-//        'method' => 'GET|POST|PUT|PATCH|...',
-//        'path'   => '/your/path/:variable',
-
-        'queryStringParameters' => [
-            'name' => ['value', 'value'],
-        ],
-
-        'headers' => ['name' => ['value',],],
-        'cookies' => ['name' => 'value',],
-
-        'body' => 'Expected Body',
+        'host'                  => 'example.com',
+        'queryStringParameters' => ['name' => ['value', 'value']],
+        'headers'               => ['name' => ['value']],
+        'cookies'               => ['name' => 'value'],
     ],
 
     'response' => [
         'statusCode' => 'int (2xx,4xx,5xx,xxx)',
-        'headers'    => [
-            'name' => ['value'],
-        ],
+        'headers'    => ['name' => ['value']],
         'cookies'    => ['name' => 'value'],
         'body'       => 'Response body',
     ],
@@ -65,7 +55,6 @@ return [
         ],
 
         'proxyBaseURL' => 'string (original URL endpoint)',
-        'delay'        => 'string (response delay in s,ms)',
         'crazy'        => 'bool (return random 5xx)',
         'priority'     => 'int (matching priority)',
         'webHookURL'   => 'string (URL endpoint)',

@@ -19,6 +19,7 @@ namespace JBZoo\PHPUnit;
 
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\RequestOptions;
+use JBZoo\Utils\Str;
 
 use function JBZoo\Data\json;
 
@@ -41,7 +42,7 @@ class MockServerTest extends AbstractMockServerTest
         isSame(200, $response->getCode());
         isSame('Hello', $response->getJSON()->get('message'));
         isSame('application/json', $response->getHeader('content-type'));
-        isContain("tests/mocks/{$this->getName()}.php", $response->getHeader('x-mock-server-fixture'));
+        isContain("tests/mocks/php/{$this->getName()}.php", $response->getHeader('x-mock-server-fixture'));
         isTrue((int)$response->getHeader('x-mock-server-request-id') > 0);
     }
 
@@ -83,6 +84,41 @@ class MockServerTest extends AbstractMockServerTest
         $response = $this->request();
         isSame(500, $response->getCode());
         isSame('fatal_error', $response->getJSON()->get('message'));
+    }
+
+    public function testUndefinedRoute(): void
+    {
+        $path = 'undefined-route-' . Str::random();
+        $response = $this->request('GET', null, $path);
+
+        isSame(500, $response->getCode());
+        isSame([
+            "fatal_error" => "500 Route not found or something went wrong. See server logs.",
+            "request"     => [
+                "uri"     => "http://0.0.0.0:8089/{$path}",
+                "headers" => [
+                    "host"       => ["0.0.0.0:8089"],
+                    "user-agent" => ["JBZoo/Http-Client (Guzzle)"]
+                ]
+            ]
+        ], $response->getJSON()->getArrayCopy());
+    }
+
+    public function testExceptionInMock(): void
+    {
+        $response = $this->request();
+
+        isSame(500, $response->getCode());
+        isSame([
+            "fatal_error" => "500 Route not found or something went wrong. See server logs.",
+            "request"     => [
+                "uri"     => "http://0.0.0.0:8089/testExceptionInMock",
+                "headers" => [
+                    "host"       => ["0.0.0.0:8089"],
+                    "user-agent" => ["JBZoo/Http-Client (Guzzle)"]
+                ]
+            ]
+        ], $response->getJSON()->getArrayCopy());
     }
 
     public function testFunctionAsResponseBody(): void
@@ -246,16 +282,14 @@ class MockServerTest extends AbstractMockServerTest
         isNotSame($this->request()->getJSON()->get('name'), $this->request()->getJSON()->get('name'));
     }
 
-    /**
-     * @depends testCustomDelay
-     */
     public function testConcurrency(): void
     {
-        $max = random_int(10, 100);
+        //$maxRequestsAtOnce = random_int(10, 100);
+        $maxRequestsAtOnce = 2;
 
         $requests = [];
-        for ($i = 0; $i < $max; $i++) {
-            $requests[] = [$this->prepareUrl() . "?anti-cache={$i}"];
+        for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
+            $requests[] = [$this->prepareUrl(), ['anti-cache' => $i]];
         }
 
         $start = microtime(true);
@@ -269,7 +303,9 @@ class MockServerTest extends AbstractMockServerTest
             $requestIds[] = $response->getJSON()->get('request_id');
         }
 
-        isCount($max, array_unique($requestIds));
+        dump($requestIds);
+
+        isCount($maxRequestsAtOnce, array_unique($requestIds));
     }
 
     /**
@@ -298,7 +334,6 @@ class MockServerTest extends AbstractMockServerTest
         $time = (microtime(true) - $start) * 1000;
 
         isAmount($response->getTime() * 1000, $time, '', 100);
-
         isTrue($time > 1000 && $time < 1300, "Expected elapsedMS between 1000 & 1300, got: {$time}");
     }
 
@@ -307,5 +342,38 @@ class MockServerTest extends AbstractMockServerTest
         $response = $this->request();
         isSame($response->getBody(), file_get_contents(__DIR__ . '/mocks/Example.jpg'));
         isSame('image/jpeg', $response->getHeader('Content-Type'));
+    }
+
+    /**
+     * @depends testConcurrency
+     */
+    public function testCrazy(): void
+    {
+        $methods = ['GET', 'DELETE']; // GET works in crazy mode
+        $maxRequestsAtOnce = 2;
+
+        foreach ($methods as $method) {
+            $requests = [];
+            for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
+                $requests[] = [$this->prepareUrl(), null, $method];
+            }
+
+            $responses = $this->createClient()->multiRequest($requests);
+
+            $requestIds = [];
+            foreach ($responses as $response) {
+                $headers = $response->getHeaders();
+                // remove random values to make predictable hash
+                unset($headers['content-length'], $headers['x-mock-server-request-id'], $headers['date']);
+
+                $requestIds[] = sha1(serialize([$response->getCode(), $response->getBody(), $headers]));
+            }
+
+            if ($method === 'GET') {
+                isTrue(count(array_unique($requestIds)) > 1);
+            } else {
+                isCount(1, array_unique($requestIds));
+            }
+        }
     }
 }

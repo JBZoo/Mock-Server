@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\MockServer;
+namespace JBZoo\MockServer\Server;
 
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
@@ -26,14 +26,16 @@ use function JBZoo\Data\json;
 
 /**
  * Class ErrorHandler
- * @package JBZoo\MockServer
+ * @package JBZoo\MockServer\Server
  */
 final class ErrorHandler implements \Amp\Http\Server\ErrorHandler
 {
     /** {@inheritdoc} */
     public function handleError(int $statusCode, string $reason = null, Request $request = null): Promise
     {
-        $message = "{$statusCode} {$reason}";
+        $reason = $reason ?: "Route not found or something went wrong. See server logs.";
+
+        $message = trim("{$statusCode} {$reason}");
         $body = $message;
 
         if ($request) {

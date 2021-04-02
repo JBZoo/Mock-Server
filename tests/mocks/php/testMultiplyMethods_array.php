@@ -15,13 +15,13 @@
 
 declare(strict_types=1);
 
-use JBZoo\MockServer\Request;
+use JBZoo\MockServer\Server\Request;
 
 use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'GET|POST|PUT|PATCH|HEAD|OPTIONS|DELETE',
+        'method' => ["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS", "DELETE"],
         'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 

@@ -15,17 +15,18 @@
 
 declare(strict_types=1);
 
-use JBZoo\MockServer\Request;
+use function JBZoo\Data\json;
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 return [
     'request' => [
-        'method' => 'PUT|POST',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code' => static function (Request $request): int {
-            return $request->getMethod() === 'PUT' ? 200 : 404;
-        },
+        'body' => static function (): string {
+            return (string)json(['name' => Faker\Factory::create()->name]);
+        }
     ]
 ];

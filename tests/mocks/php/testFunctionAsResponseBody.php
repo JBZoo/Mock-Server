@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-use JBZoo\MockServer\Request;
+use JBZoo\MockServer\Server\Request;
 
 use function JBZoo\Data\json;
 
@@ -26,7 +26,8 @@ return [
     ],
 
     'response' => [
-        'body' => static function (Request $request): string {
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => static function (Request $request): string {
             $uri = $request->getUri();
 
             return (string)json([

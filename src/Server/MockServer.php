@@ -15,22 +15,21 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\MockServer;
+namespace JBZoo\MockServer\Server;
 
-use Amp\ByteStream\ResourceOutputStream;
 use Amp\Delayed;
 use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
-use Amp\Log\ConsoleFormatter;
-use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\Socket\Server as SocketServer;
+use JBZoo\MockServer\Mocks\AbstractMock;
+use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -38,15 +37,12 @@ use function Amp\Http\Server\FormParser\parseForm;
 
 /**
  * Class MockServer
- * @package JBZoo\MockServer
+ * @package JBZoo\MockServer\Server
  */
 class MockServer
 {
     public const DEFAULT_HOST = '0.0.0.0';
     public const DEFAULT_PORT = 8089;
-
-    //private const LOG_FORMAT = "[%datetime%] %level_name%: %message% %context% %extra%\r\n";
-    private const LOG_FORMAT = "%level_name%: %message% %context% %extra%\r\n";
 
     /**
      * @var HttpServer
@@ -90,7 +86,7 @@ class MockServer
 
     public function start(): void
     {
-        $this->logger = self::initLogger();
+        $this->logger = $this->initLogger();
 
         $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
         $this->server->setErrorHandler(new ErrorHandler());
@@ -100,6 +96,8 @@ class MockServer
 
             $this->showDebugInfo();
             $this->logger->info('Ready to work.');
+
+            //Loop::repeat($msInterval = 10000, function () {$this->showDebugInfo(true);});
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
@@ -111,7 +109,6 @@ class MockServer
 
     /**
      * @return array
-     * @throws \Amp\Socket\SocketException
      */
     private function getServers(): array
     {
@@ -144,8 +141,7 @@ class MockServer
                 }
 
                 $this->requestId++;
-                $form = yield parseForm($request);
-                $mock->bindRequest(new Request($this->requestId, $request, $form));
+                $mock->bindRequest(new Request($this->requestId, $request, yield parseForm($request)));
 
                 $this->logger->debug(implode("\t", [
                     "#{$this->requestId}",
@@ -176,24 +172,21 @@ class MockServer
     /**
      * @return LoggerInterface
      */
-    private static function initLogger(): LoggerInterface
+    private function initLogger(): LoggerInterface
     {
-        $streamHandler = new StreamHandler(new ResourceOutputStream(\STDOUT));
-        $consoleFormatter = new ConsoleFormatter(self::LOG_FORMAT);
-        $consoleFormatter->ignoreEmptyContextAndExtra(true);
+        foreach ([$this->output, $this->output->getErrorOutput()] as $output) {
+            $formatter = $output->getFormatter();
+            $formatter->setStyle('debug', new OutputFormatterStyle('cyan'));
+            $formatter->setStyle('warning', new OutputFormatterStyle('yellow'));
+            $formatter->setStyle('important', new OutputFormatterStyle('red'));
+            $formatter->setStyle('filename', new OutputFormatterStyle('cyan'));
+        }
 
-        $streamHandler->setFormatter($consoleFormatter);
-        $streamHandler->setLevel(Logger::DEBUG);
-
-        $logger = new Logger('MockServer');
-        $logger->pushHandler($streamHandler);
-
-        return $logger;
-        //return new ConsoleLogger($this->output);
+        return new ConsoleLogger($this->output);
     }
 
     /**
-     * @return Mock[]
+     * @return AbstractMock[]
      */
     private function getMocks(): array
     {
@@ -214,11 +207,11 @@ class MockServer
 
             $validationErrors = null;
             if ($this->checkSyntax) {
-                $validationErrors = Mock::isSourceValid($filePath);
+                $validationErrors = AbstractMock::isSourceValid($filePath);
             }
 
             if (!$validationErrors) {
-                $mock = new Mock($filePath);
+                $mock = new PhpMock($filePath);
                 $mocks[$mock->getHash()] = $mock;
             } else {
                 $this->logger->warning("Fixture \"{$filePath}\" is invalid and skipped\n{$validationErrors}");
@@ -285,12 +278,19 @@ class MockServer
 
     /**
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @param bool $showOnlyMemory
      */
-    private function showDebugInfo(): void
+    private function showDebugInfo(bool $showOnlyMemory = false): void
     {
-        $this->logger->debug('PHP Version: ' . PHP_VERSION);
-        $this->logger->debug('Peak Usage Memory: ' . FS::format(memory_get_peak_usage(false)));
-        $bootstrapTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
-        $this->logger->debug("Time to start: {$bootstrapTime} sec");
+        $memory = FS::format(memory_get_usage(false)) . ' / ' . FS::format(memory_get_peak_usage(false));
+
+        if ($showOnlyMemory) {
+            $this->logger->debug("Peak Usage Memory: {$memory}");
+        } else {
+            $this->logger->debug('PHP Version: ' . PHP_VERSION);
+            $this->logger->debug("Peak Usage Memory: {$memory}");
+            $bootstrapTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
+            $this->logger->debug("Bootstap time: {$bootstrapTime} sec");
+        }
     }
 }
