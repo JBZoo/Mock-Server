@@ -95,7 +95,7 @@ class MockServer
             yield $this->server->start();
 
             $this->showDebugInfo();
-            $this->logger->info('Ready to work.');
+            $this->logger->notice('Ready to work.');
 
             //Loop::repeat($msInterval = 10000, function () {$this->showDebugInfo(true);});
 
@@ -125,7 +125,7 @@ class MockServer
             $this->logger->error('Mocks not found. Exit.');
         }
 
-        $this->logger->info('Mocks found: ' . count($mocks));
+        $this->logger->notice('Mocks found: ' . count($mocks));
 
         $router = new Router();
         $router->setFallback(new CallableRequestHandler(function (ServerRequest $request): void {
@@ -150,13 +150,15 @@ class MockServer
                 $responseHeaders = $mock->getResponseHeaders();
                 $responseBody = $mock->getResponseBody();
 
-                $this->logger->info(implode(" ", array_filter([
-                    "#{$this->requestId}",
-                    $crazyEnabled ? "<important>Crazy!</important>" : '',
-                    $customDelay > 0 ? "<warning>Delay:{$customDelay}ms</warning>" : '',
-                    $responseCode,
-                    " - {$request->getMethod()}\t{$request->getUri()}"
-                ])));
+                Loop::defer(function () use ($crazyEnabled, $customDelay, $responseCode, $request): void {
+                    $this->logger->info(implode(" ", array_filter([
+                        "#{$this->requestId}",
+                        $crazyEnabled ? "<important>Crazy!</important>" : '',
+                        $customDelay > 0 ? "<warning>{$customDelay}ms</warning>" : '',
+                        $responseCode,
+                        " - {$request->getMethod()}\t{$request->getUri()}"
+                    ])));
+                });
 
                 return new Response($responseCode, $responseHeaders, $responseBody);
             });
@@ -172,7 +174,7 @@ class MockServer
             }
         }
 
-        $this->logger->info("Routes added: {$totalRoutes}");
+        $this->logger->notice("Routes added: {$totalRoutes}");
 
         return $router;
     }
@@ -182,6 +184,7 @@ class MockServer
      */
     private function initLogger(): LoggerInterface
     {
+        /** @phpstan-ignore-next-line */
         foreach ([$this->output, $this->output->getErrorOutput()] as $output) {
             $formatter = $output->getFormatter();
             $formatter->setStyle('debug', new OutputFormatterStyle('cyan'));
@@ -198,7 +201,7 @@ class MockServer
      */
     private function getMocks(): array
     {
-        $this->logger->info("Mocks Path: {$this->mocksPath}");
+        $this->logger->notice("Mocks Path: {$this->mocksPath}");
 
         $finder = (new Finder())
             ->in($this->mocksPath)

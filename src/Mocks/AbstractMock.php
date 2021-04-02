@@ -173,7 +173,7 @@ abstract class AbstractMock
 
         $result = (int)$code;
         if ($this->isCrazyMode()) {
-            $result = array_rand(array_flip(self::CRAZY_POSSIBLE_CODES));
+            $result = (int)array_rand(array_flip(self::CRAZY_POSSIBLE_CODES));
         }
 
         return $result;
@@ -205,7 +205,7 @@ abstract class AbstractMock
     public function getResponseBody(): string
     {
         if ($this->isCrazyMode()) {
-            return array_rand(array_flip(self::CRAZY_POSSIBLE_BODIES));
+            return (string)array_rand(array_flip(self::CRAZY_POSSIBLE_BODIES));
         }
 
         $bodyHandler = $this->data->find('response.body', '');
@@ -245,9 +245,9 @@ abstract class AbstractMock
         $delayHandler = $this->data->find('control.delay', 0);
         $delay = $this->handleCallable($delayHandler, 'int');
 
-        //if ($this->isCrazyMode()) {
-            //$delay += random_int(0, self::CRAZY_MAX_DELAY);
-        //}
+//        if ($this->isCrazyMode()) {
+//            $delay += random_int(0, self::CRAZY_MAX_DELAY);
+//        }
 
         return (int)$delay;
     }
@@ -257,7 +257,6 @@ abstract class AbstractMock
      */
     public function isCrazyMode(): bool
     {
-        return false;
         $result = false;
         if ($this->isCrazyEnabled()) {
             $result = random_int(0, 1) === 0; // 50%
@@ -271,7 +270,6 @@ abstract class AbstractMock
      */
     public function isCrazyEnabled(): bool
     {
-        return false;
         $crazyHandler = $this->data->find('control.crazy', false);
         $crazy = $this->handleCallable($crazyHandler, 'bool');
 

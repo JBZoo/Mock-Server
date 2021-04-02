@@ -58,10 +58,13 @@ class ConsoleLogger extends AbstractLogger
         LogLevel::ALERT     => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::CRITICAL  => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::ERROR     => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::WARNING   => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::NOTICE    => OutputInterface::VERBOSITY_VERBOSE,
-        LogLevel::INFO      => OutputInterface::VERBOSITY_VERBOSE,
-        LogLevel::DEBUG     => OutputInterface::VERBOSITY_DEBUG,
+
+        LogLevel::WARNING => OutputInterface::VERBOSITY_VERBOSE,
+        LogLevel::NOTICE  => OutputInterface::VERBOSITY_VERBOSE,
+
+        LogLevel::INFO => OutputInterface::VERBOSITY_VERY_VERBOSE,
+
+        LogLevel::DEBUG => OutputInterface::VERBOSITY_DEBUG,
     ];
 
     /**
@@ -72,10 +75,13 @@ class ConsoleLogger extends AbstractLogger
         LogLevel::ALERT     => self::ERROR,
         LogLevel::CRITICAL  => self::ERROR,
         LogLevel::ERROR     => self::ERROR,
-        LogLevel::WARNING   => self::WARNING,
-        LogLevel::NOTICE    => self::INFO,
-        LogLevel::INFO      => self::INFO,
-        LogLevel::DEBUG     => self::DEBUG,
+
+        LogLevel::WARNING => self::WARNING,
+
+        LogLevel::NOTICE => self::INFO,
+        LogLevel::INFO   => self::INFO,
+
+        LogLevel::DEBUG => self::DEBUG,
     ];
 
     /**
@@ -189,7 +195,7 @@ class ConsoleLogger extends AbstractLogger
     private static function dumpTrace(array $trace): string
     {
         $result = [];
-        foreach ($trace as $key => $traceRow) {
+        foreach ($trace as $traceRow) {
             $result[] = self::getOneTrace($traceRow);
         }
 
@@ -203,7 +209,6 @@ class ConsoleLogger extends AbstractLogger
      */
     private static function getOneTrace(array $traceRow): string
     {
-        $function = null;
         $file = isset($traceRow['file'])
             ? self::getRelativePath($traceRow['file'], $traceRow['line'])
             : null;

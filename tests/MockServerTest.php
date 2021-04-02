@@ -347,10 +347,8 @@ class MockServerTest extends AbstractMockServerTest
      */
     public function testCrazy(): void
     {
-        incomplete('fixme');
-
         $methods = ['GET', 'DELETE']; // GET works in crazy mode
-        $maxRequestsAtOnce = 2;
+        $maxRequestsAtOnce = 10;
 
         foreach ($methods as $method) {
             $requests = [];
