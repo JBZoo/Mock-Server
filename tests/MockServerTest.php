@@ -19,6 +19,7 @@ namespace JBZoo\PHPUnit;
 
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\RequestOptions;
+use JBZoo\MockServer\Server\MockServer;
 use JBZoo\Utils\Str;
 
 use function JBZoo\Data\json;
@@ -373,5 +374,17 @@ class MockServerTest extends AbstractMockServerTest
                 isCount(1, array_unique($requestIds));
             }
         }
+    }
+
+    public function testTlsConnection(): void
+    {
+        $tlsHost = MockServer::DEFAULT_HOST . ':' . MockServer::DEFAULT_PORT_TLS;
+        $response = $this->createClient([
+            'verify'          => false,
+            'allow_redirects' => false
+        ])->request("https://{$tlsHost}/testTlsConnection");
+
+        isSame(200, $response->getCode());
+        isSame('Hi', $response->getBody());
     }
 }

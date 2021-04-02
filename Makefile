@@ -63,10 +63,9 @@ up: ##@Project Start mock server (interactive mode)
         --port=$(MOCK_SERVER_PORT)      \
         --mocks=tests/mocks             \
         --ansi                          \
-        -vv
+        -vvv
 
 up-bg: ##@Project Start mock server (non-interactive mode)
-	@rm -f $(MOCK_SERVER_LOG)
 	@AMP_LOG_COLOR=true make up 1>> "$(MOCK_SERVER_LOG)" 2>> "$(MOCK_SERVER_LOG)" &
 
 
@@ -90,3 +89,7 @@ up-phar: ##@Project Start mock server via phar file (interactive mode)
 
 up-phar-bg: ##@Project Start mock server via phar file (non-interactive mode)
 	@MOCK_SERVER_BIN=$(PHAR_FILE) make up-bg
+
+sleep: ##@Project Start mock server via phar file (non-interactive mode)
+	@sleep 2
+

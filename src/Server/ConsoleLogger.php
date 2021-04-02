@@ -35,15 +35,19 @@ use Throwable;
  */
 class ConsoleLogger extends AbstractLogger
 {
+    private const DATE_FORMAT = '[Y-m-d H:i:s] ';
+
     private const REMOVE_PREFIXES = [
         "Unexpected Exception thrown from RequestHandler::handleRequest(), falling back to error handler.",
         "Unexpected Error thrown from RequestHandler::handleRequest(), falling back to error handler."
     ];
 
-    public const INFO    = 'info';
     public const ERROR   = 'error';
+    public const WARNING = 'important';
+    public const NOTICE  = 'comment';
     public const DEBUG   = 'debug';
-    public const WARNING = 'comment';
+
+    public const INFO = 'info';
 
     /**
      * @var OutputInterface
@@ -60,11 +64,11 @@ class ConsoleLogger extends AbstractLogger
         LogLevel::ERROR     => OutputInterface::VERBOSITY_NORMAL,
 
         LogLevel::WARNING => OutputInterface::VERBOSITY_VERBOSE,
-        LogLevel::NOTICE  => OutputInterface::VERBOSITY_VERBOSE,
+        LogLevel::NOTICE  => OutputInterface::VERBOSITY_VERY_VERBOSE,
+        LogLevel::DEBUG   => OutputInterface::VERBOSITY_DEBUG,
 
-        LogLevel::INFO => OutputInterface::VERBOSITY_VERY_VERBOSE,
-
-        LogLevel::DEBUG => OutputInterface::VERBOSITY_DEBUG,
+        // Regular messages
+        LogLevel::INFO    => OutputInterface::VERBOSITY_NORMAL,
     ];
 
     /**
@@ -78,7 +82,7 @@ class ConsoleLogger extends AbstractLogger
 
         LogLevel::WARNING => self::WARNING,
 
-        LogLevel::NOTICE => self::INFO,
+        LogLevel::NOTICE => self::NOTICE,
         LogLevel::INFO   => self::INFO,
 
         LogLevel::DEBUG => self::DEBUG,
@@ -122,12 +126,17 @@ class ConsoleLogger extends AbstractLogger
         // the if condition check isn't necessary -- it's the same one that $output will do internally anyway.
         // We only do it for efficiency here as the message formatting is relatively expensive.
         if ($output->getVerbosity() >= $this->verbosityLevelMap[$level]) {
-            $output->writeln(sprintf(
-                '<%1$s>%2$s</%1$s>: %3$s',
+            $datetime = $this->output->isDebug() ? (new \DateTimeImmutable())->format(self::DATE_FORMAT) : '';
+
+            $messageLine = sprintf(
+                '%4$s<%1$s>%2$s</%1$s>: %3$s',
                 $this->formatLevelMap[$level],
                 $level,
-                $this->interpolate($message, $context)
-            ), $this->verbosityLevelMap[$level]);
+                $this->interpolate($message, $context),
+                $datetime
+            );
+
+            $output->writeln($messageLine, $this->verbosityLevelMap[$level]);
         }
     }
 

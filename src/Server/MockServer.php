@@ -24,10 +24,14 @@ use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
 use Amp\Loop;
+use Amp\Socket\BindContext;
+use Amp\Socket\Certificate;
 use Amp\Socket\Server as SocketServer;
+use Amp\Socket\ServerTlsContext;
 use JBZoo\MockServer\Mocks\AbstractMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
+use JBZoo\Utils\Timer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,8 +45,11 @@ use function Amp\Http\Server\FormParser\parseForm;
  */
 class MockServer
 {
-    public const DEFAULT_HOST = '0.0.0.0';
-    public const DEFAULT_PORT = 8089;
+    public const DEFAULT_HOST      = '0.0.0.0';
+    public const DEFAULT_HOST_IPV6 = '[::]';
+
+    public const DEFAULT_PORT     = 8089;
+    public const DEFAULT_PORT_TLS = 8090;
 
     /**
      * @var HttpServer
@@ -70,6 +77,16 @@ class MockServer
     private $port = self::DEFAULT_PORT;
 
     /**
+     * @var string
+     */
+    private $hostTls = self::DEFAULT_HOST;
+
+    /**
+     * @var int
+     */
+    private $portTls = self::DEFAULT_PORT_TLS;
+
+    /**
      * @var OutputInterface
      */
     private $output;
@@ -95,7 +112,7 @@ class MockServer
             yield $this->server->start();
 
             $this->showDebugInfo();
-            $this->logger->notice('Ready to work.');
+            $this->logger->info('Ready to work.');
 
             //Loop::repeat($msInterval = 10000, function () {$this->showDebugInfo(true);});
 
@@ -112,7 +129,13 @@ class MockServer
      */
     private function getServers(): array
     {
-        return [SocketServer::listen("{$this->host}:{$this->port}")];
+        $cert = new Certificate(__DIR__ . '/../../vendor/amphp/http-server/tools/tls/localhost.pem');
+        $context = (new BindContext())->withTlsContext((new ServerTlsContext())->withDefaultCertificate($cert));
+
+        return [
+            SocketServer::listen("{$this->host}:{$this->port}"),
+            SocketServer::listen("{$this->hostTls}:{$this->portTls}", $context),
+        ];
     }
 
     /**
@@ -123,9 +146,10 @@ class MockServer
         $mocks = $this->getMocks();
         if (count($mocks) === 0) {
             $this->logger->error('Mocks not found. Exit.');
+            die(1);
         }
 
-        $this->logger->notice('Mocks found: ' . count($mocks));
+        $this->logger->info('Mocks found: ' . count($mocks));
 
         $router = new Router();
         $router->setFallback(new CallableRequestHandler(function (ServerRequest $request): void {
@@ -151,7 +175,7 @@ class MockServer
                 $responseBody = $mock->getResponseBody();
 
                 Loop::defer(function () use ($crazyEnabled, $customDelay, $responseCode, $request): void {
-                    $this->logger->info(implode(" ", array_filter([
+                    $this->logger->notice(implode(" ", array_filter([
                         "#{$this->requestId}",
                         $crazyEnabled ? "<important>Crazy!</important>" : '',
                         $customDelay > 0 ? "<warning>{$customDelay}ms</warning>" : '',
@@ -174,7 +198,7 @@ class MockServer
             }
         }
 
-        $this->logger->notice("Routes added: {$totalRoutes}");
+        $this->logger->info("Routes added: {$totalRoutes}");
 
         return $router;
     }
@@ -184,6 +208,12 @@ class MockServer
      */
     private function initLogger(): LoggerInterface
     {
+        //$logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
+        //$logHandler->setFormatter(new ConsoleFormatter(null, null, true, true));
+        //$logger = new Logger('MockServer');
+        //$logger->pushHandler($logHandler);
+        //return $logger;
+
         /** @phpstan-ignore-next-line */
         foreach ([$this->output, $this->output->getErrorOutput()] as $output) {
             $formatter = $output->getFormatter();
@@ -201,7 +231,7 @@ class MockServer
      */
     private function getMocks(): array
     {
-        $this->logger->notice("Mocks Path: {$this->mocksPath}");
+        $this->logger->info("Mocks Path: {$this->mocksPath}");
 
         $finder = (new Finder())
             ->in($this->mocksPath)
@@ -253,6 +283,26 @@ class MockServer
     }
 
     /**
+     * @param string $host
+     * @return $this
+     */
+    public function setHostTls(string $hostTls): self
+    {
+        $this->hostTls = $hostTls;
+        return $this;
+    }
+
+    /**
+     * @param int $portTls
+     * @return $this
+     */
+    public function setPortTls(int $portTls): self
+    {
+        $this->portTls = $portTls;
+        return $this;
+    }
+
+    /**
      * @param OutputInterface $output
      * @return $this
      */
@@ -288,7 +338,6 @@ class MockServer
     }
 
     /**
-     * @SuppressWarnings(PHPMD.Superglobals)
      * @param bool $showOnlyMemory
      */
     private function showDebugInfo(bool $showOnlyMemory = false): void
@@ -296,12 +345,13 @@ class MockServer
         $memory = FS::format(memory_get_usage(false)) . ' / ' . FS::format(memory_get_peak_usage(false));
 
         if ($showOnlyMemory) {
-            $this->logger->debug("Peak Usage Memory: {$memory}");
+            $this->logger->debug("Memory Usage: {$memory}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            $this->logger->debug("Peak Usage Memory: {$memory}");
-            $bootstrapTime = round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3);
-            $this->logger->debug("Bootstap time: {$bootstrapTime} sec");
+            $this->logger->debug("Memory Usage: {$memory}");
+
+            $bootstrapTime = round(microtime(true) - Timer::getRequestTime(), 3);
+            $this->logger->debug("Bootstrap time: {$bootstrapTime} sec");
         }
     }
 }

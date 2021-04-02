@@ -39,12 +39,12 @@ class StartCommand extends Command
 
         $this
             ->setName('start')
-            ->setDescription('Try to connect to TransferWise account to check current keys and tokens')
             ->addOption('host', null, $req, "Host", MockServer::DEFAULT_HOST)
             ->addOption('port', null, $req, "Port", (string)MockServer::DEFAULT_PORT)
+            ->addOption('host-tls', null, $req, "Host", MockServer::DEFAULT_HOST)
+            ->addOption('port-tls', null, $req, "Port", (string)MockServer::DEFAULT_PORT_TLS)
             ->addOption('mocks', null, $req, "Mocks path", './mocks')
-            ->addOption('check-syntax', null, $none, 'Check syntax of PHP mock files before loading. ' .
-                'It can take some time on loading');
+            ->addOption('check-syntax', null, $none, 'Check syntax of PHP files before loading. It takes some time');
     }
 
     /**
@@ -54,8 +54,16 @@ class StartCommand extends Command
     {
         (new MockServer())
             ->setOutput($output)
+
+            // Http
             ->setHost(self::getOptionString('host', $input))
             ->setPort(self::getOptionInt('port', $input))
+
+            // HTTPs
+            ->setHostTls(self::getOptionString('host-tls', $input))
+            ->setPortTls(self::getOptionInt('port-tls', $input))
+
+            // Mocks
             ->setMocksPath(self::getOptionString('mocks', $input))
             ->setCheckSyntax(self::isOptionEnabled('check-syntax', $input))
             ->start();
