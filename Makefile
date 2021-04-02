@@ -63,7 +63,7 @@ up: ##@Project Start mock server (interactive mode)
         --port=$(MOCK_SERVER_PORT)      \
         --mocks=tests/mocks             \
         --ansi                          \
-        -vvv
+        -vv
 
 up-bg: ##@Project Start mock server (non-interactive mode)
 	@rm -f $(MOCK_SERVER_LOG)

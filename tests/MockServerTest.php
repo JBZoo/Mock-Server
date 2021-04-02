@@ -284,8 +284,8 @@ class MockServerTest extends AbstractMockServerTest
 
     public function testConcurrency(): void
     {
-        //$maxRequestsAtOnce = random_int(10, 100);
-        $maxRequestsAtOnce = 2;
+        $maxRequestsAtOnce = random_int(10, 100);
+        //$maxRequestsAtOnce = 2;
 
         $requests = [];
         for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
@@ -302,8 +302,6 @@ class MockServerTest extends AbstractMockServerTest
         foreach ($responses as $response) {
             $requestIds[] = $response->getJSON()->get('request_id');
         }
-
-        dump($requestIds);
 
         isCount($maxRequestsAtOnce, array_unique($requestIds));
     }
@@ -349,6 +347,8 @@ class MockServerTest extends AbstractMockServerTest
      */
     public function testCrazy(): void
     {
+        incomplete('fixme');
+
         $methods = ['GET', 'DELETE']; // GET works in crazy mode
         $maxRequestsAtOnce = 2;
 

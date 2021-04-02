@@ -129,28 +129,36 @@ class MockServer
 
         $router = new Router();
         $router->setFallback(new CallableRequestHandler(function (ServerRequest $request): void {
-            $this->logger->error("Route not found: \"{$request->getMethod()} {$request->getUri()}\"");
+            $this->logger->error(
+                "Route not found: <important>{$request->getMethod()} {$request->getUri()}</important>"
+            );
         }));
 
         $totalRoutes = 0;
         foreach ($mocks as $mock) {
             $requestHandler = new CallableRequestHandler(function (ServerRequest $request) use ($mock) {
-                $msDelay = $mock->getDelay();
-                if ($msDelay > 0) {
-                    yield new Delayed($msDelay);
+                $customDelay = $mock->getDelay();
+                if ($customDelay > 0) {
+                    yield new Delayed($customDelay);
                 }
 
                 $this->requestId++;
                 $mock->bindRequest(new Request($this->requestId, $request, yield parseForm($request)));
 
-                $this->logger->debug(implode("\t", [
-                    "#{$this->requestId}",
-                    $mock->getResponseCode(),
-                    $request->getMethod(),
-                    $request->getUri()
-                ]));
+                $crazyEnabled = $mock->isCrazyEnabled();
+                $responseCode = $mock->getResponseCode();
+                $responseHeaders = $mock->getResponseHeaders();
+                $responseBody = $mock->getResponseBody();
 
-                return new Response($mock->getResponseCode(), $mock->getResponseHeaders(), $mock->getResponseBody());
+                $this->logger->info(implode(" ", array_filter([
+                    "#{$this->requestId}",
+                    $crazyEnabled ? "<important>Crazy!</important>" : '',
+                    $customDelay > 0 ? "<warning>Delay:{$customDelay}ms</warning>" : '',
+                    $responseCode,
+                    " - {$request->getMethod()}\t{$request->getUri()}"
+                ])));
+
+                return new Response($responseCode, $responseHeaders, $responseBody);
             });
 
             try {

@@ -35,6 +35,11 @@ use Throwable;
  */
 class ConsoleLogger extends AbstractLogger
 {
+    private const REMOVE_PREFIXES = [
+        "Unexpected Exception thrown from RequestHandler::handleRequest(), falling back to error handler.",
+        "Unexpected Error thrown from RequestHandler::handleRequest(), falling back to error handler."
+    ];
+
     public const INFO    = 'info';
     public const ERROR   = 'error';
     public const DEBUG   = 'debug';
@@ -92,6 +97,8 @@ class ConsoleLogger extends AbstractLogger
      */
     public function log($level, $message, array $context = [])
     {
+        $message = str_replace(self::REMOVE_PREFIXES, '', $message);
+
         if (!isset($this->verbosityLevelMap[$level])) {
             throw new InvalidArgumentException(sprintf('The log level "%s" does not exist.', $level));
         }
@@ -162,13 +169,14 @@ class ConsoleLogger extends AbstractLogger
      */
     private function prettyPrintException(Throwable $exception): string
     {
+        $className = '[object ' . \get_class($exception) . ']';
         $message = [
-            "  Code #{$exception->getCode()}; {$exception->getMessage()}",
-            "  File: " . self::getRelativePath($exception->getFile(), $exception->getLine()),
+            "  {$className} <important>{$exception->getMessage()}</important> Code #{$exception->getCode()}",
+            "       File: " . self::getRelativePath($exception->getFile(), $exception->getLine()),
         ];
 
-        if ($this->output->isVeryVerbose()) {
-            $message[] = "  Stack trace:\n" . self::dumpTrace($exception->getTrace());
+        if ($this->output->isDebug()) {
+            $message[] = "       Stack trace:\n" . self::dumpTrace($exception->getTrace());
         }
 
         return implode("\n", $message);
@@ -185,7 +193,7 @@ class ConsoleLogger extends AbstractLogger
             $result[] = self::getOneTrace($traceRow);
         }
 
-        return "  - " . implode("\n  - ", $result);
+        return "       - " . implode("\n       - ", $result);
     }
 
     /**
