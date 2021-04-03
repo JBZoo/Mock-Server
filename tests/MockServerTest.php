@@ -346,7 +346,7 @@ class MockServerTest extends AbstractMockServerTest
     /**
      * @depends testConcurrency
      */
-    public function testCrazy(): void
+    public function testFunctionAsCrazy(): void
     {
         $methods = ['GET', 'DELETE']; // GET works in crazy mode
         $maxRequestsAtOnce = 10;
@@ -376,15 +376,65 @@ class MockServerTest extends AbstractMockServerTest
         }
     }
 
+    public function testCrazy(): void
+    {
+        $maxRequestsAtOnce = 10;
+
+        $requests = [];
+        for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
+            $requests[] = [$this->prepareUrl()];
+        }
+
+        $responses = $this->createClient()->multiRequest($requests);
+
+        $requestIds = [];
+        foreach ($responses as $response) {
+            $headers = $response->getHeaders();
+            // remove random values to make predictable hash
+            unset($headers['content-length'], $headers['x-mock-server-request-id'], $headers['date']);
+
+            $requestIds[] = sha1(serialize([$response->getCode(), $response->getBody(), $headers]));
+        }
+
+        isTrue(count(array_unique($requestIds)) > 1);
+    }
+
     public function testTlsConnection(): void
     {
-        $tlsHost = MockServer::DEFAULT_HOST . ':' . MockServer::DEFAULT_PORT_TLS;
-        $response = $this->createClient([
-            'verify'          => false,
-            'allow_redirects' => false
-        ])->request("https://{$tlsHost}/testTlsConnection");
+        $tlsHost = 'localhost:' . MockServer::DEFAULT_PORT_TLS;
 
-        isSame(200, $response->getCode());
-        isSame('Hi', $response->getBody());
+        $client = new \GuzzleHttp\Client(['base_uri' => "https://{$tlsHost}"]);
+        $response = $client->request('GET', '/testTlsConnection', [
+            'verify' => __DIR__ . '/../vendor/amphp/http-server/tools/tls/localhost.pem',
+        ]);
+
+        isSame(200, $response->getStatusCode());
+        isSame('Hi', $response->getBody()->getContents());
+    }
+
+    public function testProxyBaseUrl(): void
+    {
+        $random = Str::random();
+
+        // Mock
+        $actualResponse = $this->request('POST', ['data' => $random], self::TEST_URL . "?query={$random}", [
+            'X-Custom-Header' => $random
+        ]);
+        dump($actualResponse);
+        die;
+        $actualBody = $actualResponse->getJSON()->getArrayCopy();
+        unset($actualBody['headers']['X-Amzn-Trace-Id']);
+
+        // Direct
+        $expectedResponse = $this->createClient()
+            ->request("https://httpbin.org/post?query={$random}", ['data' => $random], 'POST', [
+                'headers' => ['X-Custom-Header' => $random]
+            ]);
+        $expectedBody = $expectedResponse->getJSON()->getArrayCopy();
+        unset($expectedBody['headers']['X-Amzn-Trace-Id']);
+
+        // Compare
+        isSame($expectedBody, $actualBody);
+        isSame($expectedResponse->getHeaders(), $actualResponse->getHeaders());
     }
 }

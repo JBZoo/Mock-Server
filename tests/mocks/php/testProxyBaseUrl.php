@@ -19,16 +19,19 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'GET|DELETE',
+        'method' => "POST",
         'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
-    'response' => [
-        'headers' => ['Content-Type' => 'application/json'],
-        'body'    => (string)json(['result' => true]),
+    'response' => [ // ignored if "control.proxyBaseUrl" is presented
+        'code'    => 404,
+        'headers' => static function (): array {
+            return ['x-random-value' => random_int(0, 10000000)];
+        },
+        'body'    => (string)json(['test' => 'failed'])
     ],
 
     'control' => [
-        'crazy' => true
+        'proxyBaseUrl' => 'https://httpbin.org/post'
     ]
 ];

@@ -29,9 +29,7 @@ return [
         'code'    => 200,
         'headers' => ['Content-Type' => 'application/json'],
         'body'    => static function (Request $request): string {
-            return (string)json([
-                'method' => $request->getMethod(),
-            ]);
+            return (string)json(['method' => $request->getMethod()]);
         }
     ]
 ];

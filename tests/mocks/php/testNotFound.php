@@ -26,8 +26,6 @@ return [
     'response' => [
         'code'    => 404,
         'headers' => ['Content-Type' => 'application/json'],
-        'body'    => (string)json([
-            'message' => 'not_found'
-        ])
+        'body'    => (string)json(['message' => 'not_found'])
     ]
 ];

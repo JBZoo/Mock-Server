@@ -17,10 +17,14 @@ ifneq (, $(wildcard ./vendor/jbzoo/codestyle/src/init.Makefile))
     include ./vendor/jbzoo/codestyle/src/init.Makefile
 endif
 
-MOCK_SERVER_HOST ?= 0.0.0.0
-MOCK_SERVER_PORT ?= 8089
-MOCK_SERVER_LOG  ?= `pwd`/build/server.log
-MOCK_SERVER_BIN  ?= $(PHP_BIN) `pwd`/jbzoo-mock-server
+AMP_LOOP_DRIVER=Amp\\Loop\\NativeDriver
+
+MOCK_SERVER_HOST     ?= 0.0.0.0
+MOCK_SERVER_PORT     ?= 8089
+MOCK_SERVER_HOST_TLS ?= localhost
+MOCK_SERVER_PORT_TLS ?= 8090
+MOCK_SERVER_LOG      ?= `pwd`/build/server.log
+MOCK_SERVER_BIN      ?= AMP_LOOP_DRIVER=$(AMP_LOOP_DRIVER) $(PHP_BIN) `pwd`/jbzoo-mock-server
 
 PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
 PHAR_FILE     ?= `pwd`/build/jbzoo-mock-server.phar
@@ -58,11 +62,13 @@ test-bench: ##@Tests Benchmarking and testing concurrency based on "apib" tool
 
 
 up: ##@Project Start mock server (interactive mode)
-	@$(MOCK_SERVER_BIN)                 \
-        --host=$(MOCK_SERVER_HOST)      \
-        --port=$(MOCK_SERVER_PORT)      \
-        --mocks=tests/mocks             \
-        --ansi                          \
+	@$(MOCK_SERVER_BIN)                     \
+        --host=$(MOCK_SERVER_HOST)          \
+        --port=$(MOCK_SERVER_PORT)          \
+        --host-tls=$(MOCK_SERVER_HOST_TLS)  \
+        --port-tls=$(MOCK_SERVER_PORT_TLS)  \
+        --mocks=tests/mocks                 \
+        --ansi                              \
         -vvv
 
 up-bg: ##@Project Start mock server (non-interactive mode)

@@ -149,7 +149,7 @@ class MockServer
             die(1);
         }
 
-        $this->logger->info('Mocks found: ' . count($mocks));
+        $this->logger->info('Mocks found: <comment>' . count($mocks) . '</comment>');
 
         $router = new Router();
         $router->setFallback(new CallableRequestHandler(function (ServerRequest $request): void {
@@ -161,26 +161,32 @@ class MockServer
         $totalRoutes = 0;
         foreach ($mocks as $mock) {
             $requestHandler = new CallableRequestHandler(function (ServerRequest $request) use ($mock) {
+                $mock->bindRequest(null);
+
                 $customDelay = $mock->getDelay();
                 if ($customDelay > 0) {
                     yield new Delayed($customDelay);
                 }
 
-                $this->requestId++;
-                $mock->bindRequest(new Request($this->requestId, $request, yield parseForm($request)));
+                $requestId = ++$this->requestId;
+                yield \Amp\call(static function () {
+                    return 1;
+                });
+
+                $mock->bindRequest(new Request($requestId, $request, yield parseForm($request)));
 
                 $crazyEnabled = $mock->isCrazyEnabled();
                 $responseCode = $mock->getResponseCode();
                 $responseHeaders = $mock->getResponseHeaders();
                 $responseBody = $mock->getResponseBody();
 
-                Loop::defer(function () use ($crazyEnabled, $customDelay, $responseCode, $request): void {
+                Loop::defer(function () use ($crazyEnabled, $customDelay, $responseCode, $request, $requestId): void {
                     $this->logger->notice(implode(" ", array_filter([
-                        "#{$this->requestId}",
-                        $crazyEnabled ? "<important>Crazy!</important>" : '',
-                        $customDelay > 0 ? "<warning>{$customDelay}ms</warning>" : '',
+                        "#{$requestId}",
                         $responseCode,
-                        " - {$request->getMethod()}\t{$request->getUri()}"
+                        "- {$request->getMethod()} {$request->getUri()}",
+                        $crazyEnabled ? "<important>Crazy</important>" : '',
+                        $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
                     ])));
                 });
 
@@ -198,7 +204,7 @@ class MockServer
             }
         }
 
-        $this->logger->info("Routes added: {$totalRoutes}");
+        $this->logger->info("Routes added: <comment>{$totalRoutes}</comment>");
 
         return $router;
     }
@@ -231,7 +237,8 @@ class MockServer
      */
     private function getMocks(): array
     {
-        $this->logger->info("Mocks Path: {$this->mocksPath}");
+        $relPath = FS::getRelative($this->mocksPath);
+        $this->logger->info(str_replace($relPath, "<comment>{$relPath}</comment>", "Mocks Path: {$this->mocksPath}"));
 
         $finder = (new Finder())
             ->in($this->mocksPath)
@@ -348,10 +355,9 @@ class MockServer
             $this->logger->debug("Memory Usage: {$memory}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
+            $this->logger->debug('Driver: ' . get_class(Loop::get()));
             $this->logger->debug("Memory Usage: {$memory}");
-
-            $bootstrapTime = round(microtime(true) - Timer::getRequestTime(), 3);
-            $this->logger->debug("Bootstrap time: {$bootstrapTime} sec");
+            $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }
     }
 }

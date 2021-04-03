@@ -215,9 +215,9 @@ abstract class AbstractMock
     }
 
     /**
-     * @param Request $request
+     * @param Request|null $request
      */
-    public function bindRequest(Request $request): void
+    public function bindRequest(?Request $request = null): void
     {
         $this->request = $request;
     }
@@ -245,9 +245,9 @@ abstract class AbstractMock
         $delayHandler = $this->data->find('control.delay', 0);
         $delay = $this->handleCallable($delayHandler, 'int');
 
-//        if ($this->isCrazyMode()) {
-//            $delay += random_int(0, self::CRAZY_MAX_DELAY);
-//        }
+        //if ($this->isCrazyEnabled()) {
+        //    $delay += random_int(0, self::CRAZY_MAX_DELAY);
+        //}
 
         return (int)$delay;
     }
@@ -259,7 +259,7 @@ abstract class AbstractMock
     {
         $result = false;
         if ($this->isCrazyEnabled()) {
-            $result = random_int(0, 1) === 0; // 50%
+            $result = random_int(0, 1) === 1; // 50%
         }
 
         return $result;

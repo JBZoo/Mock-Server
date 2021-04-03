@@ -26,9 +26,7 @@ return [
 
     'response' => [
         'body' => static function (Request $request): string {
-            return (string)json([
-                'request_id' => $request->getId()
-            ]);
+            return (string)json(['request_id' => $request->getId()]);
         }
     ],
 

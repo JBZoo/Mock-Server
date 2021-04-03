@@ -24,9 +24,7 @@ return [
 
     'response' => [
         'code'    => 301,
-        'headers' => [            'location' => '/testStructureOfResponse'        ],
-        'body'    => (string)json([
-            'message' => 'redirect'
-        ])
+        'headers' => ['location' => '/testStructureOfResponse'],
+        'body'    => (string)json(['message' => 'redirect'])
     ]
 ];

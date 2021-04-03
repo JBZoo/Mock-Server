@@ -55,7 +55,6 @@ return [
         ],
 
         'proxyBaseURL' => 'string (original URL endpoint)',
-        'crazy'        => 'bool (return random 5xx)',
         'priority'     => 'int (matching priority)',
         'webHookURL'   => 'string (URL endpoint)',
     ],

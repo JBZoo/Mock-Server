@@ -15,6 +15,8 @@
 
 declare(strict_types=1);
 
+use JBZoo\MockServer\Server\Request;
+
 use function JBZoo\Data\json;
 
 return [
@@ -29,6 +31,8 @@ return [
     ],
 
     'control' => [
-        'crazy' => true
+        'crazy' => static function (Request $request): bool {
+            return $request->getMethod() === 'GET';
+        }
     ]
 ];
