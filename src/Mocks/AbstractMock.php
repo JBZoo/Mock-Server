@@ -277,6 +277,17 @@ abstract class AbstractMock
     }
 
     /**
+     * @return string
+     */
+    public function getBaseProxyUrl(): string
+    {
+        $proxyUrlHandler = $this->data->find('control.proxyBaseUrl', false);
+        $proxyUrl = $this->handleCallable($proxyUrlHandler, 'string');
+
+        return (string)$proxyUrl;
+    }
+
+    /**
      * @param mixed       $handler
      * @param string|null $expectedResultType
      * @return mixed

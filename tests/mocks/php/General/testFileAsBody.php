@@ -23,6 +23,6 @@ return [
     'response' => [
         'code'    => 200,
         'headers' => ['Content-Type' => 'image/jpeg'],
-        'body'    => file_get_contents(__DIR__ . '/../Example.jpg'), // IT IS BLOCKING METHOD!!!
+        'body'    => file_get_contents(__DIR__ . '/../../Example.jpg'), // IT IS BLOCKING METHOD!!!
     ]
 ];

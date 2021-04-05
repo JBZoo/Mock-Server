@@ -53,12 +53,9 @@ test-all: ##@Tests Run all project tests at once
 	@make codestyle
 
 
-test-bench: ##@Tests Benchmarking and testing concurrency based on "apib" tool
-	$(call title,"Benchmarking and testing concurrency")
-	$(call title,"First request to warm-up Mock Server")
-	apib -1 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
-	$(call title,"Concurrency=100 Duration=10sec")
-	apib -c 100 -d 10 http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
+test-bench: ##@Tests Benchmarking and testing concurrency based on "wrk" tool
+	$(call title,"wrk: Connections=1000 Duration=10sec Treads=10")
+	@wrk -d10 -t10 -c1000 --latency http://$(MOCK_SERVER_HOST):$(MOCK_SERVER_PORT)/testMinimalMock
 
 
 up: ##@Project Start mock server (interactive mode)
@@ -98,4 +95,3 @@ up-phar-bg: ##@Project Start mock server via phar file (non-interactive mode)
 
 sleep: ##@Project Start mock server via phar file (non-interactive mode)
 	@sleep 2
-

@@ -18,6 +18,10 @@ declare(strict_types=1);
 namespace JBZoo\MockServer\Server;
 
 use Amp\Delayed;
+use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\Http\Client\Request as ClientRequest;
+use Amp\Http\Client\Response as ClientResponse;
 use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
@@ -32,12 +36,14 @@ use JBZoo\MockServer\Mocks\AbstractMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
 use JBZoo\Utils\Timer;
+use JBZoo\Utils\Url;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
 use function Amp\Http\Server\FormParser\parseForm;
+
 
 /**
  * Class MockServer
@@ -169,18 +175,52 @@ class MockServer
                 }
 
                 $requestId = ++$this->requestId;
-                yield \Amp\call(static function () {
-                    return 1;
-                });
+                $jbRequest = new Request($requestId, $request, yield parseForm($request));
+                $mock->bindRequest($jbRequest);
 
-                $mock->bindRequest(new Request($requestId, $request, yield parseForm($request)));
+                if ($proxyUrl = $mock->getBaseProxyUrl()) {
+                    $client = HttpClientBuilder::buildDefault();
 
-                $crazyEnabled = $mock->isCrazyEnabled();
-                $responseCode = $mock->getResponseCode();
-                $responseHeaders = $mock->getResponseHeaders();
-                $responseBody = $mock->getResponseBody();
+                    $clientRequest = new ClientRequest(
+                        Url::addArg($jbRequest->getUriParams(), $proxyUrl), $request->getMethod()
+                    );
+                    $clientRequest->setHeaders($request->getHeaders());
 
-                Loop::defer(function () use ($crazyEnabled, $customDelay, $responseCode, $request, $requestId): void {
+                    $body = new FormBody();
+                    foreach ($jbRequest->getBodyParams() as $key => $value) {
+                        $body->addField($key, $value);
+                    }
+                    $clientRequest->setBody($body);
+
+                    foreach ($jbRequest->getUriParams() as $key => $value) {
+                        $clientRequest->setAttribute($key, $value);
+                    }
+
+                    /** @var ClientResponse $clientResponse */
+                    $clientResponse = yield $client->request($clientRequest);
+
+                    $responseCode = $clientResponse->getStatus();
+                    $responseHeaders = $clientResponse->getHeaders();
+                    $responseBody = yield $clientResponse->getBody()->buffer();
+
+                    Loop::defer(function () use ($requestId, $proxyUrl): void {
+                        $this->logger->notice(implode(" ", array_filter([
+                            "#{$requestId}",
+                            '<warning>Proxy Url</warning>',
+                            $proxyUrl,
+                        ])));
+                    });
+                } else {
+                    $responseCode = $mock->getResponseCode();
+                    $responseHeaders = $mock->getResponseHeaders();
+                    $responseBody = $mock->getResponseBody();
+                }
+
+                ///
+
+                Loop::defer(function () use ($mock, $customDelay, $responseCode, $request, $requestId): void {
+                    $crazyEnabled = $mock->isCrazyEnabled();
+
                     $this->logger->notice(implode(" ", array_filter([
                         "#{$requestId}",
                         $responseCode,

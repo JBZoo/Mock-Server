@@ -28,7 +28,7 @@ use function JBZoo\Data\json;
  * Class MockServerTest
  * @package JBZoo\PHPUnit
  */
-class MockServerTest extends AbstractMockServerTest
+class MockServerGeneralTest extends AbstractMockServerTest
 {
     public function testMinimalMock(): void
     {
@@ -410,31 +410,5 @@ class MockServerTest extends AbstractMockServerTest
 
         isSame(200, $response->getStatusCode());
         isSame('Hi', $response->getBody()->getContents());
-    }
-
-    public function testProxyBaseUrl(): void
-    {
-        skip('fix me');
-        $random = Str::random();
-
-        // Mock
-        $actualResponse = $this->request('POST', ['data' => $random], self::TEST_URL . "?query={$random}", [
-            'X-Custom-Header' => $random
-        ]);
-
-        $actualBody = $actualResponse->getJSON()->getArrayCopy();
-        unset($actualBody['headers']['X-Amzn-Trace-Id']);
-
-        // Direct
-        $expectedResponse = $this->createClient()
-            ->request("https://httpbin.org/post?query={$random}", ['data' => $random], 'POST', [
-                'headers' => ['X-Custom-Header' => $random]
-            ]);
-        $expectedBody = $expectedResponse->getJSON()->getArrayCopy();
-        unset($expectedBody['headers']['X-Amzn-Trace-Id']);
-
-        // Compare
-        isSame($expectedBody, $actualBody);
-        isSame($expectedResponse->getHeaders(), $actualResponse->getHeaders());
     }
 }
