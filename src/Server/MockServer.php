@@ -28,6 +28,7 @@ use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
 use Amp\Loop;
+use Amp\Loop\NativeDriver;
 use Amp\Socket\BindContext;
 use Amp\Socket\Certificate;
 use Amp\Socket\Server as SocketServer;
@@ -44,8 +45,6 @@ use Symfony\Component\Finder\Finder;
 
 use function Amp\call;
 use function Amp\Http\Server\FormParser\parseForm;
-use function FastRoute\dumpRequestTrace1;
-
 
 /**
  * Class MockServer
@@ -148,6 +147,7 @@ class MockServer
 
     /**
      * @return Router
+     * @SuppressWarnings(PHPMD.ExitExpression)
      */
     private function initRouter(): Router
     {
@@ -184,7 +184,7 @@ class MockServer
                     $client = HttpClientBuilder::buildDefault();
 
                     /** @var ClientRequest $clientRequest */
-                    $clientRequest = yield call(function () use ($jbRequest, $proxyUrl, $request) {
+                    $clientRequest = yield call(static function () use ($jbRequest, $proxyUrl, $request) {
                         $url = Url::addArg($jbRequest->getUriParams(), $proxyUrl);
                         $clientRequest = new ClientRequest($url, $request->getMethod());
                         $clientRequest->setHeaders($request->getHeaders());
@@ -209,26 +209,22 @@ class MockServer
                     $responseHeaders = $clientResponse->getHeaders();
                     $responseBody = yield $clientResponse->getBody()->buffer();
 
-                    Loop::defer(function () use ($requestId, $proxyUrl): void {
-                        $this->logger->notice("#{$requestId} <warning>Proxy Url</warning> {$proxyUrl}");
-                    });
+                    $this->logger->notice("#{$requestId} <warning>Proxy Url</warning> {$proxyUrl}");
                 } else {
                     $responseCode = $mock->getResponseCode();
                     $responseHeaders = $mock->getResponseHeaders();
                     $responseBody = $mock->getResponseBody();
                 }
 
-                Loop::defer(function () use ($mock, $customDelay, $responseCode, $request, $requestId): void {
-                    $crazyEnabled = $mock->isCrazyEnabled();
+                $crazyEnabled = $mock->isCrazyEnabled();
 
-                    $this->logger->notice(implode(" ", array_filter([
-                        "#{$requestId}",
-                        $responseCode,
-                        "- {$request->getMethod()} {$request->getUri()}",
-                        $crazyEnabled ? "<important>Crazy</important>" : '',
-                        $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
-                    ])));
-                });
+                $this->logger->notice(implode(" ", array_filter([
+                    "#{$requestId}",
+                    $responseCode,
+                    "- {$request->getMethod()} {$request->getUri()}",
+                    $crazyEnabled ? "<important>Crazy</important>" : '',
+                    $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
+                ])));
 
                 return new Response($responseCode, $responseHeaders, $responseBody);
             });
@@ -330,7 +326,7 @@ class MockServer
     }
 
     /**
-     * @param string $host
+     * @param string $hostTls
      * @return $this
      */
     public function setHostTls(string $hostTls): self
@@ -395,7 +391,9 @@ class MockServer
             $this->logger->debug("Memory Usage: {$memory}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            $this->logger->debug('Driver: ' . get_class(Loop::get()));
+            /** @var NativeDriver $driver */
+            $driver = Loop::get();
+            $this->logger->debug('Driver: ' . get_class($driver));
             $this->logger->debug("Memory Usage: {$memory}");
             $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }

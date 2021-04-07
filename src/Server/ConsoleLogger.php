@@ -133,7 +133,7 @@ class ConsoleLogger extends AbstractLogger
                 $this->formatLevelMap[$level],
                 $level,
                 $this->interpolate($message, $context),
-                $datetime
+                (string)$datetime
             );
 
             $output->writeln($messageLine, $this->verbosityLevelMap[$level]);

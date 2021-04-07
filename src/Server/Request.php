@@ -22,8 +22,6 @@ use Amp\Http\Server\Request as ServerRequest;
 use JBZoo\Utils\Url;
 use Psr\Http\Message\UriInterface;
 
-use function Amp\Http\Server\FormParser\parseForm;
-
 /**
  * Class Request
  * @package JBZoo\MockServer\Server

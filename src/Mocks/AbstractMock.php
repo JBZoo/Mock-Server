@@ -71,7 +71,7 @@ abstract class AbstractMock
     private $data;
 
     /**
-     * @var Request
+     * @var Request|null
      */
     private $request;
 
@@ -189,7 +189,7 @@ abstract class AbstractMock
 
         $debugHeaders = [
             'X-Mock-Server-Fixture'    => $this->getFilename(),
-            'X-Mock-Server-Request-Id' => $this->request->getId(),
+            'X-Mock-Server-Request-Id' => isset($this->request) ? $this->request->getId() : null,
         ];
 
         if ($this->isCrazyMode()) {
@@ -291,6 +291,8 @@ abstract class AbstractMock
      * @param mixed       $handler
      * @param string|null $expectedResultType
      * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function handleCallable($handler, ?string $expectedResultType = null)
     {
