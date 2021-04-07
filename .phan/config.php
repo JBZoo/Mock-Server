@@ -30,5 +30,6 @@ return array_merge($default, [
         'vendor/symfony/process',
         'vendor/nikic/fast-route/src',
         'vendor/symfony/console',
+        'vendor/guzzlehttp/guzzle/src',
     ]
 ]);

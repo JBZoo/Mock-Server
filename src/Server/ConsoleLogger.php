@@ -35,7 +35,7 @@ use Throwable;
  */
 class ConsoleLogger extends AbstractLogger
 {
-    private const DATE_FORMAT = '[Y-m-d H:i:s] ';
+    private const DATE_FORMAT = '[Y-m-d H:i:s]';
 
     private const REMOVE_PREFIXES = [
         "Unexpected Exception thrown from RequestHandler::handleRequest(), falling back to error handler.",
@@ -126,15 +126,20 @@ class ConsoleLogger extends AbstractLogger
         // the if condition check isn't necessary -- it's the same one that $output will do internally anyway.
         // We only do it for efficiency here as the message formatting is relatively expensive.
         if ($output->getVerbosity() >= $this->verbosityLevelMap[$level]) {
-            $datetime = $this->output->isDebug() ? (new \DateTimeImmutable())->format(self::DATE_FORMAT) : '';
+            $datetime = $memoryStats = '';
+            if ($this->output->isDebug()) {
+                $datetime = (string)(new \DateTimeImmutable())->format(self::DATE_FORMAT);
+                $memoryStats = FS::format(memory_get_usage(false));
+            }
 
-            $messageLine = sprintf(
-                '%4$s<%1$s>%2$s</%1$s>: %3$s',
+            $messageLine = trim(sprintf(
+                '%4$s %5$s <%1$s>%2$s</%1$s>: %3$s',
                 $this->formatLevelMap[$level],
                 $level,
                 $this->interpolate($message, $context),
-                (string)$datetime
-            );
+                $datetime,
+                $memoryStats
+            ));
 
             $output->writeln($messageLine, $this->verbosityLevelMap[$level]);
         }

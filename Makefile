@@ -28,6 +28,8 @@ PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
 PHAR_FILE     ?= `pwd`/build/jbzoo-mock-server.phar
 PHAR_FILE_BIN ?= $(PHP_BIN) $(PHAR_FILE)
 
+BOX_PHAR    = https://github.com/box-project/box/releases/download/3.9.1/box.phar
+
 ifeq ($(strip $(PHP_VERSION_ALIAS)),72)
 	PHAR_BOX_SOURCE ?= https://github.com/box-project/box/releases/download/3.9.1/box.phar
 else
@@ -41,12 +43,25 @@ build: ##@Project Install all 3rd party dependencies
 	@make build-phar
 
 
+build-phar: ##@Project Compile phar file
+	$(call download_phar,$(BOX_PHAR),"box")
+	@$(PHP_BIN) `pwd`/vendor/bin/box.phar --version
+	@$(PHP_BIN) `pwd`/vendor/bin/box.phar validate -vvv
+	@composer config autoloader-suffix JBZooPhar   -v
+	@$(PHAR_BOX) compile --working-dir="`pwd`"     -v
+	@composer config autoloader-suffix --unset     -v
+
+
 update: ##@Project Update all 3rd party dependencies
 	$(call title,"Update all 3rd party dependencies")
 	@composer update --optimize-autoloader --no-progress
 
 
 test-all: ##@Tests Run all project tests at once
+	@rm -f $(MOCK_SERVER_LOG)
+	@make down up-bg sleep
+	@make test
+	@make down up-phar-bg sleep
 	@make test
 	@make codestyle
 
@@ -64,7 +79,7 @@ up: ##@Project Start mock server (interactive mode)
         --port-tls=$(MOCK_SERVER_PORT_TLS)  \
         --mocks=tests/mocks                 \
         --ansi                              \
-        -vv
+        -vvv
 
 up-bg: ##@Project Start mock server (non-interactive mode)
 	@AMP_LOG_COLOR=true make up 1>> "$(MOCK_SERVER_LOG)" 2>> "$(MOCK_SERVER_LOG)" &

@@ -18,7 +18,10 @@ declare(strict_types=1);
 namespace JBZoo\MockServer\Mocks;
 
 use Amp\Http\Status;
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\RequestOptions;
 use JBZoo\Data\Data;
+use JBZoo\MockServer\Server\MockServer;
 use JBZoo\MockServer\Server\Request;
 use JBZoo\Utils\Cli;
 use JBZoo\Utils\Sys;
@@ -285,6 +288,55 @@ abstract class AbstractMock
         $proxyUrl = $this->handleCallable($proxyUrlHandler, 'string');
 
         return $proxyUrl ?: null;
+    }
+
+    /**
+     * @param string $proxyUrl
+     * @return array
+     */
+    public function handleProxyUrl(string $proxyUrl): array
+    {
+        if (null === $this->request) {
+            throw new Exception('Request object is not set.');
+        }
+
+        $allFiles = $this->request->getFiles(false);
+        $guzzleMultipart = [];
+        foreach ($allFiles as $varName => $files) {
+            foreach ($files as $file) {
+                $guzzleMultipart[] = [
+                    'name'     => $varName,
+                    'contents' => $file['contents'],
+                    'filename' => $file['name'],
+                ];
+            }
+        }
+
+        $options = [
+            RequestOptions::HEADERS         => $this->request->getHeaders(false),
+            RequestOptions::TIMEOUT         => MockServer::LIMIT_TIMEOUT,
+            RequestOptions::CONNECT_TIMEOUT => MockServer::LIMIT_TIMEOUT,
+            RequestOptions::READ_TIMEOUT    => MockServer::LIMIT_TIMEOUT,
+            RequestOptions::DEBUG           => MockServer::PROXY_DEBUG_MODE,
+            RequestOptions::HTTP_ERRORS     => false,
+        ];
+
+        $isGet = $this->request->getMethod() === 'GET';
+        if ($isGet) {
+            $options[RequestOptions::QUERY] = $this->request->getUriParams();
+        } elseif (count($guzzleMultipart) > 0) {
+            $options[RequestOptions::MULTIPART] = $guzzleMultipart;
+        } else {
+            $options[RequestOptions::FORM_PARAMS] = $this->request->getBodyParams();
+        }
+
+        $response = (new GuzzleHttpClient())->request($this->request->getMethod(), $proxyUrl, $options);
+
+        return [
+            $response->getStatusCode(),
+            $response->getHeaders(),
+            $response->getBody()->getContents()
+        ];
     }
 
     /**

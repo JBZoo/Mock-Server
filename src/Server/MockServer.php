@@ -18,10 +18,8 @@ declare(strict_types=1);
 namespace JBZoo\MockServer\Server;
 
 use Amp\Delayed;
-use Amp\Http\Client\Body\FormBody;
-use Amp\Http\Client\HttpClientBuilder;
-use Amp\Http\Client\Request as ClientRequest;
 use Amp\Http\Server\HttpServer;
+use Amp\Http\Server\Options;
 use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
@@ -35,7 +33,6 @@ use JBZoo\MockServer\Mocks\AbstractMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
 use JBZoo\Utils\Timer;
-use JBZoo\Utils\Url;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -55,6 +52,18 @@ class MockServer
 
     public const DEFAULT_PORT     = 8089;
     public const DEFAULT_PORT_TLS = 8090;
+
+    // Looks like, it's good for local testing, experiments
+    public const LIMIT_BODY_SIZE          = 20 * 1024 * 1024;
+    public const LIMIT_HEADER_SIZE        = 64 * 1024;
+    public const LIMIT_TIMEOUT            = 60;
+    public const LIMIT_TIMEOUT_TLS_SETUP  = 30;
+    public const LIMIT_TIMEOUT_TRANSFER   = 0;
+    public const LIMIT_CONNECTIONS_PER_IP = 200;
+    public const LIMIT_CONNECTIONS        = 20000;
+    public const LIMIT_CONCURRENT_STREAM  = 1024;
+
+    public const PROXY_DEBUG_MODE = false;
 
     /**
      * @var HttpServer
@@ -110,7 +119,18 @@ class MockServer
     {
         $this->logger = $this->initLogger();
 
-        $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger);
+        // Almost unlimited
+        $serverOption = (new Options())
+            ->withBodySizeLimit(self::LIMIT_BODY_SIZE)
+            ->withHeaderSizeLimit(self::LIMIT_HEADER_SIZE)
+            ->withHttp1Timeout(self::LIMIT_TIMEOUT)
+            ->withHttp2Timeout(self::LIMIT_TIMEOUT)
+            ->withTlsSetupTimeout(self::LIMIT_TIMEOUT_TLS_SETUP)
+            ->withConnectionsPerIpLimit(self::LIMIT_CONNECTIONS_PER_IP)
+            ->withConnectionLimit(self::LIMIT_CONNECTIONS)
+            ->withConcurrentStreamLimit(self::LIMIT_CONCURRENT_STREAM);
+
+        $this->server = new HttpServer($this->getServers(), $this->initRouter(), $this->logger, $serverOption);
         $this->server->setErrorHandler(new ErrorHandler());
 
         Loop::run(function () {
@@ -176,79 +196,32 @@ class MockServer
                 }
 
                 $requestId = ++$this->requestId;
-                $jbRequest = new Request($requestId, $request, yield parseForm($request));
+
+                /** @var Request $jbRequest */
+                $jbRequest = yield call(static function () use ($requestId, $request) {
+                    return new Request($requestId, $request, yield parseForm($request));
+                });
+
                 $mock->bindRequest($jbRequest);
 
                 if ($proxyUrl = $mock->getBaseProxyUrl()) {
-                    $client = (new HttpClientBuilder())
-                        ->retry(0)
-                        ->build();
-
-                    /** @var ClientRequest $clientRequest */
-                    $clientRequest = yield call(static function () use ($jbRequest, $proxyUrl, $request) {
-                        $url = Url::addArg($jbRequest->getUriParams(), $proxyUrl);
-                        $clientRequest = new ClientRequest($url, $request->getMethod());
-
-                        $headers = $request->getHeaders();
-                        unset(
-                            $headers['Content-Length'],
-                            $headers['content-length'],
-                            $headers['Content-Type'],
-                            $headers['content-type'],
-                            $headers['Host'],
-                            $headers['host']
-                        );
-
-                        $clientRequest->setHeaders($headers);
-
-                        foreach ($jbRequest->getUriParams() as $key => $value) {
-                            $clientRequest->setAttribute($key, $value);
-                        }
-
-                        $body = new FormBody();
-                        foreach ($jbRequest->getBodyParams() as $key => $value) {
-                            $body->addField($key, $value);
-                        }
-
-                        $allFiles = $jbRequest->getFiles();
-                        foreach ($allFiles as $fileName => $files) {
-                            foreach ($files as $fileData) {
-                                $tmpFile = __DIR__ . "/../../build/{$fileData['name']}";
-                                if (file_exists($tmpFile)) {
-                                    unlink($tmpFile);
-                                }
-
-                                file_put_contents($tmpFile, $fileData['contents']);
-                                $body->addFile($fileName, $tmpFile, $fileData['mime']);
-                            }
-                        }
-
-                        $clientRequest->setBody($body);
-
-                        return $clientRequest;
-                    });
-
-                    $clientResponse = yield $client->request($clientRequest);
-                    $responseCode = $clientResponse->getStatus();
-                    $responseHeaders = $clientResponse->getHeaders();
-                    $responseBody = yield $clientResponse->getBody()->buffer();
-
-                    $this->logger->notice("#{$requestId} <warning>Proxy Url</warning> {$proxyUrl}");
+                    [$responseCode, $responseHeaders, $responseBody] =
+                        yield call(static function () use ($mock, $proxyUrl) {
+                            return $mock->handleProxyUrl($proxyUrl);
+                        });
+                    $this->logger->notice("#{$requestId} <warning>Proxy</warning> {$proxyUrl}");
                 } else {
                     $responseCode = $mock->getResponseCode();
                     $responseHeaders = $mock->getResponseHeaders();
                     $responseBody = $mock->getResponseBody();
                 }
 
-                $crazyEnabled = $mock->isCrazyEnabled();
-
                 $this->logger->notice(implode(" ", array_filter([
                     "#{$requestId}",
                     $responseCode,
                     "- {$request->getMethod()} {$request->getUri()}",
-                    $crazyEnabled ? "<important>Crazy</important>" : '',
-                    $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
-                    "({$this->getMemoryUsage()})"
+                    $mock->isCrazyEnabled() ? "<important>Crazy</important>" : '',
+                    $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : ''
                 ])));
 
                 return new Response($responseCode, $responseHeaders, $responseBody);

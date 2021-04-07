@@ -64,14 +64,27 @@ class Request
     }
 
     /**
+     * @param bool $allKeys
      * @return array
      */
-    public function getHeaders(): array
+    public function getHeaders(bool $allKeys = true): array
     {
+        $excludedKeys = [
+            'Host',
+            'Content-Type',
+            'Content-Length',
+        ];
+
         $headerKeys = array_keys($this->request->getHeaders());
         $result = [];
         foreach ($headerKeys as $headerKey) {
             $result[$headerKey] = $this->request->getHeader((string)$headerKey);
+        }
+
+        if (!$allKeys) {
+            foreach ($excludedKeys as $excludedKey) {
+                unset($result[$excludedKey], $result[strtolower($excludedKey)]);
+            }
         }
 
         return $result;
