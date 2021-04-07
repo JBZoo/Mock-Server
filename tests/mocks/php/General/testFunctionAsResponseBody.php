@@ -21,7 +21,7 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'GET|POST',
+        'method' => '*',
         'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 

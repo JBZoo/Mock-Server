@@ -119,7 +119,7 @@ class MockServer
             $this->showDebugInfo();
             $this->logger->info('Ready to work.');
 
-            //Loop::repeat($msInterval = 10000, function () {$this->showDebugInfo(true);});
+            //Loop::repeat($msInterval = 10000, function () { $this->showDebugInfo(true);});
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
@@ -146,6 +146,7 @@ class MockServer
     /**
      * @return Router
      * @SuppressWarnings(PHPMD.ExitExpression)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function initRouter(): Router
     {
@@ -185,17 +186,42 @@ class MockServer
                     $clientRequest = yield call(static function () use ($jbRequest, $proxyUrl, $request) {
                         $url = Url::addArg($jbRequest->getUriParams(), $proxyUrl);
                         $clientRequest = new ClientRequest($url, $request->getMethod());
-                        $clientRequest->setHeaders($request->getHeaders());
+
+                        $headers = $request->getHeaders();
+                        unset(
+                            $headers['Content-Length'],
+                            $headers['content-length'],
+                            $headers['Content-Type'],
+                            $headers['content-type'],
+                            $headers['Host'],
+                            $headers['host']
+                        );
+
+                        $clientRequest->setHeaders($headers);
+
+                        foreach ($jbRequest->getUriParams() as $key => $value) {
+                            $clientRequest->setAttribute($key, $value);
+                        }
 
                         $body = new FormBody();
                         foreach ($jbRequest->getBodyParams() as $key => $value) {
                             $body->addField($key, $value);
                         }
-                        $clientRequest->setBody($body);
 
-                        foreach ($jbRequest->getUriParams() as $key => $value) {
-                            $clientRequest->setAttribute($key, $value);
+                        $allFiles = $jbRequest->getFiles();
+                        foreach ($allFiles as $fileName => $files) {
+                            foreach ($files as $fileData) {
+                                $tmpFile = __DIR__ . "/../../build/{$fileData['name']}";
+                                if (file_exists($tmpFile)) {
+                                    unlink($tmpFile);
+                                }
+
+                                file_put_contents($tmpFile, $fileData['contents']);
+                                $body->addFile($fileName, $tmpFile, $fileData['mime']);
+                            }
                         }
+
+                        $clientRequest->setBody($body);
 
                         return $clientRequest;
                     });
@@ -220,6 +246,7 @@ class MockServer
                     "- {$request->getMethod()} {$request->getUri()}",
                     $crazyEnabled ? "<important>Crazy</important>" : '',
                     $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
+                    $this->getMemoryUsage()
                 ])));
 
                 return new Response($responseCode, $responseHeaders, $responseBody);
@@ -376,15 +403,22 @@ class MockServer
      */
     private function showDebugInfo(bool $showOnlyMemory = false): void
     {
-        $memory = FS::format(memory_get_usage(false)) . ' / ' . FS::format(memory_get_peak_usage(false));
-
         if ($showOnlyMemory) {
-            $this->logger->debug("Memory Usage: {$memory}");
+            $this->logger->debug("Memory Usage: {$this->getMemoryUsage()}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
             $this->logger->debug('Driver: ' . get_class(Loop::get()));
-            $this->logger->debug("Memory Usage: {$memory}");
+            $this->logger->debug("Memory Usage: {$this->getMemoryUsage()}");
             $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }
+    }
+
+    /**
+     * @return string
+     * @phan-suppress PhanPluginPossiblyStaticPrivateMethod
+     */
+    private function getMemoryUsage(): string
+    {
+        return FS::format(memory_get_usage(false)) . ' / ' . FS::format(memory_get_peak_usage(false));
     }
 }

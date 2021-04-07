@@ -94,12 +94,12 @@ class MockServerGeneralTest extends AbstractMockServerTest
 
         isSame(500, $response->getCode());
         isSame([
-            "fatal_error" => "500 Route not found or something went wrong. See server logs.",
-            "request"     => [
-                "uri"     => "http://0.0.0.0:8089/{$path}",
-                "headers" => [
-                    "host"       => ["0.0.0.0:8089"],
-                    "user-agent" => ["JBZoo/Http-Client (Guzzle)"]
+            'fatal_error' => '500 Route not found or something went wrong. See server logs.',
+            'request'     => [
+                'uri'     => "http://0.0.0.0:8089/{$path}",
+                'headers' => [
+                    'host'       => ['0.0.0.0:8089'],
+                    'user-agent' => ['JBZoo/Http-Client (Guzzle)']
                 ]
             ]
         ], $response->getJSON()->getArrayCopy());
@@ -111,12 +111,12 @@ class MockServerGeneralTest extends AbstractMockServerTest
 
         isSame(500, $response->getCode());
         isSame([
-            "fatal_error" => "500 Route not found or something went wrong. See server logs.",
-            "request"     => [
-                "uri"     => "http://0.0.0.0:8089/testExceptionInMock",
-                "headers" => [
-                    "host"       => ["0.0.0.0:8089"],
-                    "user-agent" => ["JBZoo/Http-Client (Guzzle)"]
+            'fatal_error' => '500 Route not found or something went wrong. See server logs.',
+            'request'     => [
+                'uri'     => 'http://0.0.0.0:8089/testExceptionInMock',
+                'headers' => [
+                    'host'       => ['0.0.0.0:8089'],
+                    'user-agent' => ['JBZoo/Http-Client (Guzzle)']
                 ]
             ]
         ], $response->getJSON()->getArrayCopy());
@@ -131,31 +131,31 @@ class MockServerGeneralTest extends AbstractMockServerTest
         isTrue($resultGet['id'] > 0);
         unset($resultGet['id']);
         isSame([
-            "protocol"       => "1.1",
-            "method"         => "GET",
-            "headers"        => [
-                "host"       => "0.0.0.0:8089",
-                "user-agent" => "JBZoo/Http-Client (Guzzle)"
+            'protocol'       => '1.1',
+            'method'         => 'GET',
+            'headers'        => [
+                'host'       => '0.0.0.0:8089',
+                'user-agent' => 'JBZoo/Http-Client (Guzzle)'
             ],
-            "cookies"        => [],
-            "user_agent"     => "JBZoo/Http-Client (Guzzle)",
-            'client_ip'      => "127.0.0.1",
-            "uri"            => [
-                "full"      => "http://0.0.0.0:8089/testFunctionAsResponseBody",
-                "scheme"    => "http",
-                "host"      => "0.0.0.0",
-                "port"      => 8089,
-                "authority" => "0.0.0.0:8089",
-                "path"      => "/testFunctionAsResponseBody",
-                "query"     => "",
-                "user_info" => ""
+            'cookies'        => [],
+            'user_agent'     => 'JBZoo/Http-Client (Guzzle)',
+            'client_ip'      => '127.0.0.1',
+            'uri'            => [
+                'full'      => 'http://0.0.0.0:8089/testFunctionAsResponseBody',
+                'scheme'    => 'http',
+                'host'      => '0.0.0.0',
+                'port'      => 8089,
+                'authority' => '0.0.0.0:8089',
+                'path'      => '/testFunctionAsResponseBody',
+                'query'     => '',
+                'user_info' => ''
             ],
             'params'         => [
-                "query" => [],
-                "body"  => [],
-                "all"   => [],
+                'query' => [],
+                'body'  => [],
+                'all'   => [],
             ],
-            "uploaded_files" => [],
+            'uploaded_files' => [],
         ], $resultGet);
 
         // test POST + complex request
@@ -175,39 +175,39 @@ class MockServerGeneralTest extends AbstractMockServerTest
         isTrue($responsePost['id'] > 0);
         unset($responsePost['id']);
         isSame([
-            "protocol"       => "1.1",
-            "method"         => "POST",
-            "headers"        => [
-                "host"            => "0.0.0.0:8089",
-                "content-type"    => "application/x-www-form-urlencoded",
-                "cookie"          => "PHPSESSID=poiuytrewq; RMT=qwerty123",
-                "x-custom-header" => $random,
-                "user-agent"      => "JBZoo/Http-Client (Guzzle)",
-                "content-length"  => "93"
+            'protocol'       => '1.1',
+            'method'         => 'POST',
+            'headers'        => [
+                'host'            => '0.0.0.0:8089',
+                'content-type'    => 'application/x-www-form-urlencoded',
+                'cookie'          => 'PHPSESSID=poiuytrewq; RMT=qwerty123',
+                'x-custom-header' => $random,
+                'user-agent'      => 'JBZoo/Http-Client (Guzzle)',
+                'content-length'  => '93'
             ],
-            "cookies"        => ["PHPSESSID" => "poiuytrewq", "RMT" => "qwerty123"],
-            "user_agent"     => "JBZoo/Http-Client (Guzzle)",
-            "client_ip"      => "127.0.0.1",
-            "uri"            => [
-                "full"      => "http://0.0.0.0:8089/testFunctionAsResponseBody?" .
+            'cookies'        => ['PHPSESSID' => 'poiuytrewq', 'RMT' => 'qwerty123'],
+            'user_agent'     => 'JBZoo/Http-Client (Guzzle)',
+            'client_ip'      => '127.0.0.1',
+            'uri'            => [
+                'full'      => 'http://0.0.0.0:8089/testFunctionAsResponseBody?' .
                     "test={$random}&array%5B%5D=123456&array%5B%5D=654987&message=123",
-                "scheme"    => "http",
-                "host"      => "0.0.0.0",
-                "port"      => 8089,
-                "authority" => "0.0.0.0:8089",
-                "path"      => "/testFunctionAsResponseBody",
-                "query"     => "test={$random}&array%5B%5D=123456&array%5B%5D=654987&message=123",
-                "user_info" => ""
+                'scheme'    => 'http',
+                'host'      => '0.0.0.0',
+                'port'      => 8089,
+                'authority' => '0.0.0.0:8089',
+                'path'      => '/testFunctionAsResponseBody',
+                'query'     => "test={$random}&array%5B%5D=123456&array%5B%5D=654987&message=123",
+                'user_info' => ''
             ],
-            "params"         => [
-                "query" => ["test" => $random, "array" => ["123456", "654987"], "message" => "123"],
-                "body"  => ["test" => $random, "array" => ["value_1" => $random, "nested" => [$random, $random]]],
-                "all"   => [
-                    "test"      => $random,
-                    "array"     => ["value_1" => $random, "nested" => [$random, $random]],
-                    "message"   => "123",
-                    "PHPSESSID" => "poiuytrewq",
-                    "RMT"       => "qwerty123"
+            'params'         => [
+                'query' => ['test' => $random, 'array' => ['123456', '654987'], 'message' => '123'],
+                'body'  => ['test' => $random, 'array' => ['value_1' => $random, 'nested' => [$random, $random]]],
+                'all'   => [
+                    'test'      => $random,
+                    'array'     => ['value_1' => $random, 'nested' => [$random, $random]],
+                    'message'   => '123',
+                    'PHPSESSID' => 'poiuytrewq',
+                    'RMT'       => 'qwerty123'
                 ]
             ],
             "uploaded_files" => []
@@ -229,38 +229,38 @@ class MockServerGeneralTest extends AbstractMockServerTest
         isContain('multipart/form-data; boundary=', $responseUpload['headers']['content-type']);
         unset($responseUpload['headers']['content-type']);
         isSame([
-            "protocol"       => "1.1",
-            "method"         => "POST",
-            "headers"        => [
-                "host"           => "0.0.0.0:8089",
-                "user-agent"     => "GuzzleHttp/7",
-                "content-length" => "27625"
+            'protocol'       => '1.1',
+            'method'         => 'POST',
+            'headers'        => [
+                'host'           => '0.0.0.0:8089',
+                'user-agent'     => 'GuzzleHttp/7',
+                'content-length' => '27625'
             ],
-            "cookies"        => [],
-            "user_agent"     => "GuzzleHttp/7",
-            "client_ip"      => "127.0.0.1",
-            "uri"            => [
-                "full"      => "http://0.0.0.0:8089/testFunctionAsResponseBody",
-                "scheme"    => "http",
-                "host"      => "0.0.0.0",
-                "port"      => 8089,
-                "authority" => "0.0.0.0:8089",
-                "path"      => "/testFunctionAsResponseBody",
-                "query"     => "",
-                "user_info" => ""
+            'cookies'        => [],
+            'user_agent'     => 'GuzzleHttp/7',
+            'client_ip'      => '127.0.0.1',
+            'uri'            => [
+                'full'      => 'http://0.0.0.0:8089/testFunctionAsResponseBody',
+                'scheme'    => 'http',
+                'host'      => '0.0.0.0',
+                'port'      => 8089,
+                'authority' => '0.0.0.0:8089',
+                'path'      => '/testFunctionAsResponseBody',
+                'query'     => '',
+                'user_info' => ''
             ],
-            "params"         => [
-                "query" => [],
-                "body"  => [],
-                "all"   => []
+            'params'         => [
+                'query' => [],
+                'body'  => [],
+                'all'   => []
             ],
-            "uploaded_files" => [
-                "image_1" => [
-                    ["name" => "Example_10.jpg", "mime" => "image/jpeg", "contents" => base64_encode($exampleFile)],
-                    ["name" => "Example_11.jpg", "mime" => "image/jpeg", "contents" => base64_encode($exampleFile)],
+            'uploaded_files' => [
+                'image_1' => [
+                    ['name' => 'Example_10.jpg', 'mime' => 'image/jpeg', 'contents' => base64_encode($exampleFile)],
+                    ['name' => 'Example_11.jpg', 'mime' => 'image/jpeg', 'contents' => base64_encode($exampleFile)],
                 ],
-                "image_2" => [
-                    ["name" => "Example_20.jpg", "mime" => "image/jpeg", "contents" => base64_encode($exampleFile)]
+                'image_2' => [
+                    ['name' => 'Example_20.jpg', 'mime' => 'image/jpeg', 'contents' => base64_encode($exampleFile)]
                 ]
             ]
         ], $responseUpload);

@@ -17,8 +17,12 @@ declare(strict_types=1);
 
 namespace JBZoo\PHPUnit;
 
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\RequestOptions;
 use JBZoo\HttpClient\Response;
 use JBZoo\Utils\Str;
+
+use function JBZoo\Data\json;
 
 /**
  * Class ProxyUrlTest
@@ -26,15 +30,9 @@ use JBZoo\Utils\Str;
  */
 class MockServerProxyUrlTest extends AbstractMockServerTest
 {
-    public function testPoxyUrlAllMethods(): void
+    public function testPoxyUrlAllMethodsToHttpBin(): void
     {
-        $methods = [
-            'GET',
-            'POST',
-            'PUT',
-            'DELETE',
-            'PATCH',
-        ];
+        $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
         foreach ($methods as $method) {
             $random = Str::random();
@@ -46,7 +44,58 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
             $actualResponse = $this->request($method, ['query' => $random], self::TEST_URL, ['X-Custom' => $random]);
 
             $this->sameResponses($expectedResponse, $actualResponse);
+
+            isSame($random, $expectedResponse->getJSON()->find('headers.X-Custom'));
         }
+    }
+
+    public function testPoxyUrlAllMethodsToSelf(): void
+    {
+        $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+
+        foreach ($methods as $method) {
+            $random = Str::random();
+
+            $url = $this->prepareUrl('testFunctionAsResponseBody');
+
+            $expectedResponse = $this->createClient()->request(
+                $url,
+                ['query' => $random],
+                $method,
+                ['headers' => ['X-Custom' => $random]]
+            );
+
+            $actualResponse = $this->request($method, ['query' => $random], self::TEST_URL, ['X-Custom' => $random]);
+
+            $this->sameResponses($expectedResponse, $actualResponse);
+
+            isSame($random, $expectedResponse->getJSON()->find('headers.x-custom'));
+        }
+    }
+
+    public function testPoxyUrlUploadFiles(): void
+    {
+        $exampleFile = file_get_contents(__DIR__ . '/mocks/Example.jpg');
+        $files = [
+            RequestOptions::MULTIPART => [
+                ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_10.jpg'],
+                ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_11.jpg'],
+                ['name' => 'image_2', 'contents' => $exampleFile, 'filename' => 'Example_20.jpg']
+            ]
+        ];
+
+        $expectedResponse = json((new GuzzleHttpClient())
+            ->request('POST', $this->prepareUrl(), $files)
+            ->getBody()->getContents()
+        )->getArrayCopy();
+
+        $actualResponse = json((new GuzzleHttpClient())
+            ->request('POST', 'http://httpbin.org/post', $files)
+            ->getBody()->getContents()
+        )->getArrayCopy();
+
+
+        $this->sameBody($expectedResponse, $actualResponse);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,13 +128,21 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
         $actualHeaders = array_change_key_case($actualHeaders);
 
         $excludeKeys = [
+            'vary',
             'content-length',
             'x-amzn-trace-id',
             'date',
             'keep-alive',
+            'x-mock-server-request-id',
+            'x-mock-server-fixture',
         ];
 
         foreach ($excludeKeys as $excludeKey) {
+            if (isset($expectedHeaders[$excludeKey])) {
+                isNotEmpty($expectedHeaders[$excludeKey]);
+                isNotEmpty($actualHeaders[$excludeKey]);
+            }
+
             unset(
                 $expectedHeaders[$excludeKey],
                 $actualHeaders[$excludeKey]
@@ -105,23 +162,46 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
      */
     private function sameBody(array $expectedBody, array $actualBody, string $message = ''): void
     {
-        $excludeKeys = [
+        $excludeHeaderKeys = [
             'Accept',
             'Accept-Encoding',
+            'Content-Length',
             'Content-Type',
             'Host',
             'X-Amzn-Trace-Id',
             'Origin'
         ];
 
-        foreach ($excludeKeys as $excludeKey) {
+        foreach ($excludeHeaderKeys as $excludeHeaderKey) {
+            $excludeHeaderKeyLower = strtolower($excludeHeaderKey);
+
+            if (isset($expectedBody[$excludeHeaderKey])) {
+                isNotEmpty($expectedBody[$excludeHeaderKey]);
+                isNotEmpty($actualBody[$excludeHeaderKey]);
+            }
+
+            if (isset($expectedBody[$excludeHeaderKeyLower])) {
+                isNotEmpty($expectedBody[$excludeHeaderKeyLower]);
+                isNotEmpty($actualBody[$excludeHeaderKeyLower]);
+            }
+
             unset(
-                $expectedBody['headers'][$excludeKey],
-                $actualBody['headers'][$excludeKey]
+                $expectedBody['headers'][$excludeHeaderKey],
+                $actualBody['headers'][$excludeHeaderKey],
+                $expectedBody['headers'][$excludeHeaderKeyLower],
+                $actualBody['headers'][$excludeHeaderKeyLower]
             );
         }
 
-        unset($expectedBody['url'], $actualBody['url'], $expectedBody['origin'], $actualBody['origin']);
+        $excludeBodyKeys = [
+            'id',
+            'url',
+            'origin'
+        ];
+
+        foreach ($excludeBodyKeys as $excludeBodyKey) {
+            unset($expectedBody[$excludeBodyKey], $actualBody[$excludeBodyKey]);
+        }
 
         isSame($expectedBody, $actualBody, $message);
     }
