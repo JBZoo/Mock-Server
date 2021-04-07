@@ -17,14 +17,12 @@ ifneq (, $(wildcard ./vendor/jbzoo/codestyle/src/init.Makefile))
     include ./vendor/jbzoo/codestyle/src/init.Makefile
 endif
 
-AMP_LOOP_DRIVER=Amp\\Loop\\NativeDriver
-
 MOCK_SERVER_HOST     ?= 0.0.0.0
 MOCK_SERVER_PORT     ?= 8089
 MOCK_SERVER_HOST_TLS ?= localhost
 MOCK_SERVER_PORT_TLS ?= 8090
 MOCK_SERVER_LOG      ?= `pwd`/build/server.log
-MOCK_SERVER_BIN      ?= AMP_LOOP_DRIVER=$(AMP_LOOP_DRIVER) $(PHP_BIN) `pwd`/jbzoo-mock-server
+MOCK_SERVER_BIN      ?= $(PHP_BIN) `pwd`/jbzoo-mock-server
 
 PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
 PHAR_FILE     ?= `pwd`/build/jbzoo-mock-server.phar

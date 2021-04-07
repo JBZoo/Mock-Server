@@ -21,7 +21,6 @@ use Amp\Delayed;
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request as ClientRequest;
-use Amp\Http\Client\Response as ClientResponse;
 use Amp\Http\Server\HttpServer;
 use Amp\Http\Server\Request as ServerRequest;
 use Amp\Http\Server\RequestHandler\CallableRequestHandler;
@@ -35,7 +34,6 @@ use Amp\Socket\ServerTlsContext;
 use JBZoo\MockServer\Mocks\AbstractMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
-use JBZoo\Utils\Str;
 use JBZoo\Utils\Timer;
 use JBZoo\Utils\Url;
 use Psr\Log\LoggerInterface;
@@ -202,9 +200,7 @@ class MockServer
                         return $clientRequest;
                     });
 
-                    /** @var ClientResponse $clientResponse */
                     $clientResponse = yield $client->request($clientRequest);
-
                     $responseCode = $clientResponse->getStatus();
                     $responseHeaders = $clientResponse->getHeaders();
                     $responseBody = yield $clientResponse->getBody()->buffer();
@@ -386,7 +382,7 @@ class MockServer
             $this->logger->debug("Memory Usage: {$memory}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            $this->logger->debug('Driver: ' . Str::getClassName(Loop::get()));
+            $this->logger->debug('Driver: ' .get_class(Loop::get()));
             $this->logger->debug("Memory Usage: {$memory}");
             $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }
