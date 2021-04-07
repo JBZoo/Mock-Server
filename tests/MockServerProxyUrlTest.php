@@ -110,7 +110,8 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
             'Accept-Encoding',
             'Content-Type',
             'Host',
-            'X-Amzn-Trace-Id'
+            'X-Amzn-Trace-Id',
+            'Origin'
         ];
 
         foreach ($excludeKeys as $excludeKey) {
