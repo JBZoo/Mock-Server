@@ -43,7 +43,7 @@ build: ##@Project Install all 3rd party dependencies
 
 update: ##@Project Update all 3rd party dependencies
 	$(call title,"Update all 3rd party dependencies")
-	@composer update --optimize-autoloader
+	@composer update --optimize-autoloader --no-progress
 
 
 test-all: ##@Tests Run all project tests at once
