@@ -180,7 +180,9 @@ class MockServer
                 $mock->bindRequest($jbRequest);
 
                 if ($proxyUrl = $mock->getBaseProxyUrl()) {
-                    $client = HttpClientBuilder::buildDefault();
+                    $client = (new HttpClientBuilder())
+                        ->retry(0)
+                        ->build();
 
                     /** @var ClientRequest $clientRequest */
                     $clientRequest = yield call(static function () use ($jbRequest, $proxyUrl, $request) {
@@ -246,7 +248,7 @@ class MockServer
                     "- {$request->getMethod()} {$request->getUri()}",
                     $crazyEnabled ? "<important>Crazy</important>" : '',
                     $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
-                    $this->getMemoryUsage()
+                    "({$this->getMemoryUsage()})"
                 ])));
 
                 return new Response($responseCode, $responseHeaders, $responseBody);
@@ -419,6 +421,6 @@ class MockServer
      */
     private function getMemoryUsage(): string
     {
-        return FS::format(memory_get_usage(false)) . ' / ' . FS::format(memory_get_peak_usage(false));
+        return FS::format(memory_get_usage(false)) . '/' . FS::format(memory_get_peak_usage(false));
     }
 }

@@ -64,7 +64,7 @@ up: ##@Project Start mock server (interactive mode)
         --port-tls=$(MOCK_SERVER_PORT_TLS)  \
         --mocks=tests/mocks                 \
         --ansi                              \
-        -vvv
+        -vv
 
 up-bg: ##@Project Start mock server (non-interactive mode)
 	@AMP_LOG_COLOR=true make up 1>> "$(MOCK_SERVER_LOG)" 2>> "$(MOCK_SERVER_LOG)" &
