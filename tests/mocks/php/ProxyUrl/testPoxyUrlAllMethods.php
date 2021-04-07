@@ -15,11 +15,13 @@
 
 declare(strict_types=1);
 
+use JBZoo\MockServer\Server\Request;
+
 use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => "GET",
+        'method' => "*",
         'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
@@ -32,7 +34,8 @@ return [
     ],
 
     'control' => [
-        'proxyBaseUrl' => 'https://httpbin.org/get'
+        'proxyBaseUrl' => static function (Request $request) {
+            return 'http://httpbin.org/' . strtolower($request->getMethod());
+        }
     ]
 ];
-

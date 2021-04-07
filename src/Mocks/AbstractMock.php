@@ -277,14 +277,14 @@ abstract class AbstractMock
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getBaseProxyUrl(): string
+    public function getBaseProxyUrl(): ?string
     {
-        $proxyUrlHandler = $this->data->find('control.proxyBaseUrl', false);
+        $proxyUrlHandler = $this->data->find('control.proxyBaseUrl');
         $proxyUrl = $this->handleCallable($proxyUrlHandler, 'string');
 
-        return (string)$proxyUrl;
+        return $proxyUrl ?: null;
     }
 
     /**
@@ -300,21 +300,25 @@ abstract class AbstractMock
             $result = $handler($this->request);
         }
 
+        if (null === $result) {
+            return null;
+        }
+
         if (null !== $expectedResultType) {
             if ($expectedResultType === 'bool' && !is_bool($result)) {
-                throw new Exception("Expected result of callback is boolean");
+                throw new Exception("Expected result of callback is boolean. " . gettype($result) . ' given');
             }
 
             if ($expectedResultType === 'int' && !is_int($result)) {
-                throw new Exception("Expected result of callback is integer");
+                throw new Exception("Expected result of callback is integer. " . gettype($result) . ' given');
             }
 
             if ($expectedResultType === 'string' && !is_string($result)) {
-                throw new Exception("Expected result of callback is string");
+                throw new Exception("Expected result of callback is string. " . gettype($result) . ' given');
             }
 
             if ($expectedResultType === 'array' && !is_array($result)) {
-                throw new Exception("Expected result of callback is array");
+                throw new Exception("Expected result of callback is array. " . gettype($result) . ' given');
             }
         }
 

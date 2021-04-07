@@ -33,6 +33,7 @@ abstract class AbstractMockServerTest extends PHPUnit
         'exceptions'      => false,
         'allow_redirects' => false,
         'max_redirects'   => 2,
+        'timeout'         => 20,
     ];
 
     /**

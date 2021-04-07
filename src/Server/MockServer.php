@@ -42,7 +42,9 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
+use function Amp\call;
 use function Amp\Http\Server\FormParser\parseForm;
+use function FastRoute\dumpRequestTrace1;
 
 
 /**
@@ -181,20 +183,24 @@ class MockServer
                 if ($proxyUrl = $mock->getBaseProxyUrl()) {
                     $client = HttpClientBuilder::buildDefault();
 
-                    $clientRequest = new ClientRequest(
-                        Url::addArg($jbRequest->getUriParams(), $proxyUrl), $request->getMethod()
-                    );
-                    $clientRequest->setHeaders($request->getHeaders());
+                    /** @var ClientRequest $clientRequest */
+                    $clientRequest = yield call(function () use ($jbRequest, $proxyUrl, $request) {
+                        $url = Url::addArg($jbRequest->getUriParams(), $proxyUrl);
+                        $clientRequest = new ClientRequest($url, $request->getMethod());
+                        $clientRequest->setHeaders($request->getHeaders());
 
-                    $body = new FormBody();
-                    foreach ($jbRequest->getBodyParams() as $key => $value) {
-                        $body->addField($key, $value);
-                    }
-                    $clientRequest->setBody($body);
+                        $body = new FormBody();
+                        foreach ($jbRequest->getBodyParams() as $key => $value) {
+                            $body->addField($key, $value);
+                        }
+                        $clientRequest->setBody($body);
 
-                    foreach ($jbRequest->getUriParams() as $key => $value) {
-                        $clientRequest->setAttribute($key, $value);
-                    }
+                        foreach ($jbRequest->getUriParams() as $key => $value) {
+                            $clientRequest->setAttribute($key, $value);
+                        }
+
+                        return $clientRequest;
+                    });
 
                     /** @var ClientResponse $clientResponse */
                     $clientResponse = yield $client->request($clientRequest);
@@ -204,19 +210,13 @@ class MockServer
                     $responseBody = yield $clientResponse->getBody()->buffer();
 
                     Loop::defer(function () use ($requestId, $proxyUrl): void {
-                        $this->logger->notice(implode(" ", array_filter([
-                            "#{$requestId}",
-                            '<warning>Proxy Url</warning>',
-                            $proxyUrl,
-                        ])));
+                        $this->logger->notice("#{$requestId} <warning>Proxy Url</warning> {$proxyUrl}");
                     });
                 } else {
                     $responseCode = $mock->getResponseCode();
                     $responseHeaders = $mock->getResponseHeaders();
                     $responseBody = $mock->getResponseBody();
                 }
-
-                ///
 
                 Loop::defer(function () use ($mock, $customDelay, $responseCode, $request, $requestId): void {
                     $crazyEnabled = $mock->isCrazyEnabled();

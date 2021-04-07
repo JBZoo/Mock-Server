@@ -26,27 +26,27 @@ use JBZoo\Utils\Str;
  */
 class MockServerProxyUrlTest extends AbstractMockServerTest
 {
-    public function testPoxyUrlGet(): void
+    public function testPoxyUrlAllMethods(): void
     {
-        $random = Str::random();
+        $methods = [
+            'GET',
+            'POST',
+            'PUT',
+            'DELETE',
+            'PATCH',
+        ];
 
-        $expectedResponse = $this->createClient()->request('https://httpbin.org/get', ['query' => $random]);
+        foreach ($methods as $method) {
+            $random = Str::random();
 
+            $expectedResponse = $this->createClient()->request('http://httpbin.org/' . strtolower($method), [
+                'query' => $random
+            ], $method, ['headers' => ['X-Custom' => $random]]);
 
-        $actualResponse = $this->request('GET', ['query' => $random]);
-        dump($actualResponse);
+            $actualResponse = $this->request($method, ['query' => $random], self::TEST_URL, ['X-Custom' => $random]);
 
-        $this->sameResponses($expectedResponse, $actualResponse);
-    }
-
-    public function testPoxyUrlPostComplex(): void
-    {
-        $random = Str::random();
-
-        $expectedResponse = $this->createClient()->request('https://httpbin.org/post', ['data' => $random]);
-        $actualResponse = $this->request('POST', ['data' => $random]);
-
-        $this->sameResponses($expectedResponse, $actualResponse);
+            $this->sameResponses($expectedResponse, $actualResponse);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,50 +64,64 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
         isNotSame(405, $actualResponse->getCode(), $actualResponse->getBody());
 
         isSame($expectedResponse->getCode(), $actualResponse->getCode());
-
-        $this->sameBody(
-            $expectedResponse->getJSON()->getArrayCopy(),
-            $actualResponse->getJSON()->getArrayCopy()
-        );
-
-        $this->sameHeaders(
-            $expectedResponse->getHeaders(),
-            $actualResponse->getHeaders()
-        );
+        $this->sameBody($expectedResponse->getJSON()->getArrayCopy(), $actualResponse->getJSON()->getArrayCopy());
+        $this->sameHeaders($expectedResponse->getHeaders(), $actualResponse->getHeaders());
     }
 
     /**
-     * @param array       $expected
-     * @param array       $actual
+     * @param array       $expectedHeaders
+     * @param array       $actualHeaders
      * @param string|null $message
      */
-    private function sameHeaders(array $expected, array $actual, ?string $message = null): void
+    private function sameHeaders(array $expectedHeaders, array $actualHeaders, string $message = ''): void
     {
-        $expected = array_change_key_case($expected);
-        $actual = array_change_key_case($actual);
+        $expectedHeaders = array_change_key_case($expectedHeaders);
+        $actualHeaders = array_change_key_case($actualHeaders);
 
-        unset(
-            $expected['x-amzn-trace-id'],
-            $actual['x-amzn-trace-id'],
-            $expected['date'],
-            $actual['date'],
-            $expected['keep-alive'],
-            $actual['keep-alive']
-        );
-        ksort($expected);
-        ksort($actual);
+        $excludeKeys = [
+            'content-length',
+            'x-amzn-trace-id',
+            'date',
+            'keep-alive',
+        ];
 
-        isSame($expected, $actual, $message);
+        foreach ($excludeKeys as $excludeKey) {
+            unset(
+                $expectedHeaders[$excludeKey],
+                $actualHeaders[$excludeKey]
+            );
+        }
+
+        ksort($expectedHeaders);
+        ksort($actualHeaders);
+
+        isSame($expectedHeaders, $actualHeaders, $message);
     }
 
     /**
-     * @param array       $expected
-     * @param array       $actual
+     * @param array       $expectedBody
+     * @param array       $actualBody
      * @param string|null $message
      */
-    private function sameBody(array $expected, array $actual, ?string $message = null): void
+    private function sameBody(array $expectedBody, array $actualBody, string $message = ''): void
     {
-        unset($expected['headers']['X-Amzn-Trace-Id'], $actual['headers']['X-Amzn-Trace-Id']);
-        isSame($expected, $actual, $message);
+        $excludeKeys = [
+            'Accept',
+            'Accept-Encoding',
+            'Content-Type',
+            'Host',
+            'X-Amzn-Trace-Id'
+        ];
+
+        foreach ($excludeKeys as $excludeKey) {
+            unset(
+                $expectedBody['headers'][$excludeKey],
+                $actualBody['headers'][$excludeKey]
+            );
+        }
+
+        unset($expectedBody['url'], $actualBody['url']);
+
+        isSame($expectedBody, $actualBody, $message);
     }
 }
