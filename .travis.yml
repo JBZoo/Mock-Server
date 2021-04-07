@@ -33,11 +33,11 @@ before_script:
 
 script:
   - make update                --no-print-directory
-  - make build-phar            --no-print-directory
+#  - make build-phar            --no-print-directory
   - make down up-bg sleep      --no-print-directory
   - make test                  --no-print-directory
-  - make down up-phar-bg sleep --no-print-directory
-  - make test                  --no-print-directory
+#  - make down up-phar-bg sleep --no-print-directory
+#  - make test                  --no-print-directory
   - make codestyle             --no-print-directory
 
 after_script:
