@@ -121,7 +121,7 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
             );
         }
 
-        unset($expectedBody['url'], $actualBody['url']);
+        unset($expectedBody['url'], $actualBody['url'], $expectedBody['origin'], $actualBody['origin']);
 
         isSame($expectedBody, $actualBody, $message);
     }
