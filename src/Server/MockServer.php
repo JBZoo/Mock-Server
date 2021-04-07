@@ -382,7 +382,7 @@ class MockServer
             $this->logger->debug("Memory Usage: {$memory}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            $this->logger->debug('Driver: ' .get_class(Loop::get()));
+            $this->logger->debug('Driver: ' . get_class(Loop::get()));
             $this->logger->debug("Memory Usage: {$memory}");
             $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }
