@@ -28,7 +28,6 @@ use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Response;
 use Amp\Http\Server\Router;
 use Amp\Loop;
-use Amp\Loop\NativeDriver;
 use Amp\Socket\BindContext;
 use Amp\Socket\Certificate;
 use Amp\Socket\Server as SocketServer;
@@ -36,6 +35,7 @@ use Amp\Socket\ServerTlsContext;
 use JBZoo\MockServer\Mocks\AbstractMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
+use JBZoo\Utils\Str;
 use JBZoo\Utils\Timer;
 use JBZoo\Utils\Url;
 use Psr\Log\LoggerInterface;
@@ -247,17 +247,12 @@ class MockServer
 
     /**
      * @return LoggerInterface
+     * @phan-suppress PhanUndeclaredMethod
      */
     private function initLogger(): LoggerInterface
     {
-        //$logHandler = new StreamHandler(new ResourceOutputStream(STDOUT));
-        //$logHandler->setFormatter(new ConsoleFormatter(null, null, true, true));
-        //$logger = new Logger('MockServer');
-        //$logger->pushHandler($logHandler);
-        //return $logger;
-
         /** @phpstan-ignore-next-line */
-        foreach ([$this->output, $this->output->getErrorOutput()] as $output) {
+        foreach ([$this->output, $this->output->getErrorOutput()] as $output) { //
             $formatter = $output->getFormatter();
             $formatter->setStyle('debug', new OutputFormatterStyle('cyan'));
             $formatter->setStyle('warning', new OutputFormatterStyle('yellow'));
@@ -391,9 +386,7 @@ class MockServer
             $this->logger->debug("Memory Usage: {$memory}");
         } else {
             $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            /** @var NativeDriver $driver */
-            $driver = Loop::get();
-            $this->logger->debug('Driver: ' . get_class($driver));
+            $this->logger->debug('Driver: ' . Str::getClassName(Loop::get()));
             $this->logger->debug("Memory Usage: {$memory}");
             $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }
