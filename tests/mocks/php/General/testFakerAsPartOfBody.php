@@ -15,25 +15,18 @@
 
 declare(strict_types=1);
 
-use Amp\Http\Server\Request;
-
 use function JBZoo\Data\json;
+
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 return [
     'request' => [
-        'method' => 'GET|POST|PUT|PATCH|HEAD|OPTIONS|DELETE',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code'    => 200,
-        'headers' => [
-            'Content-Type' => 'application/json'
-        ],
-        'body'    => static function (Request $request): string {
-            return (string)json([
-                'method' => $request->getMethod(),
-            ]);
+        'body' => static function (): string {
+            return (string)json(['name' => Faker\Factory::create()->name]);
         }
     ]
 ];

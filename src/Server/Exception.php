@@ -15,17 +15,13 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\PHPUnit;
+namespace JBZoo\MockServer\Server;
 
 /**
- * Class MockServerCodestyleTest
- *
- * @package JBZoo\PHPUnit
+ * Class Exception
+ * @package JBZoo\MockServer\Server
  */
-class MockServerCodestyleTest extends AbstractCodestyleTest
+class Exception extends \JBZoo\MockServer\Exception
 {
-    public function testMakefilePhony(): void
-    {
-        skip('Custom "build" is used');
-    }
+
 }

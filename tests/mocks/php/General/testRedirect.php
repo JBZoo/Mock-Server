@@ -19,17 +19,12 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'get',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code'    => 200,
-        'headers' => [
-            'Content-Type' => 'application/json'
-        ],
-        'body'    => (string)json([
-            'message' => 'Hello'
-        ])
+        'code'    => 301,
+        'headers' => ['location' => '/testStructureOfResponse'],
+        'body'    => (string)json(['message' => 'redirect'])
     ]
 ];

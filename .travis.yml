@@ -20,14 +20,22 @@ php:
   - 7.3
   - 7.4
   - 8.0
+  - nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: 8.0
+    - php: nightly
 
 before_script:
   - composer self-update
 
 script:
-  - make update        --no-print-directory
-  - make up-background --no-print-directory
-  - make test-all      --no-print-directory
+  - make build    --no-print-directory
+  - make test-all --no-print-directory
+
 
 after_script:
+  - cat ./build/server.log
   - make report-coveralls

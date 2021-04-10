@@ -15,22 +15,12 @@
 
 declare(strict_types=1);
 
-use function JBZoo\Data\json;
-
 return [
     'request' => [
         'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'body' => static function ($request, $requestId): string {
-            return (string)json([
-                'request_id' => $requestId
-            ]);
-        }
-    ],
-
-    'control' => [
-        'delay' => 1000 // 1 second
+        'body' => 'Hi'
     ]
 ];

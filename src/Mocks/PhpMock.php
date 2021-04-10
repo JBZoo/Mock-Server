@@ -15,17 +15,13 @@
 
 declare(strict_types=1);
 
-use Amp\Http\Server\Request;
+namespace JBZoo\MockServer\Mocks;
 
-return [
-    'request' => [
-        'method' => 'GET|POST',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
-    ],
+/**
+ * Class PhpMock
+ * @package JBZoo\MockServer\Mocks
+ */
+class PhpMock extends AbstractMock
+{
 
-    'response' => [
-        'code' => static function (Request $request, int $requestId): int {
-            return $request->getMethod() === 'GET' ? 200 : 404;
-        },
-    ]
-];
+}

@@ -15,21 +15,21 @@
 
 declare(strict_types=1);
 
+use JBZoo\MockServer\Server\Request;
+
 use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => 'get',
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'method' => ["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS", "DELETE"],
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
     ],
 
     'response' => [
-        'code'    => 404,
-        'headers' => [
-            'Content-Type' => 'application/json'
-        ],
-        'body'    => (string)json([
-            'message' => 'not_found'
-        ])
+        'code'    => 200,
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => static function (Request $request): string {
+            return (string)json(['method' => $request->getMethod()]);
+        }
     ]
 ];

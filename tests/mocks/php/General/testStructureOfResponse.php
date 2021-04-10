@@ -15,17 +15,17 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\PHPUnit;
+use function JBZoo\Data\json;
 
-/**
- * Class MockServerCodestyleTest
- *
- * @package JBZoo\PHPUnit
- */
-class MockServerCodestyleTest extends AbstractCodestyleTest
-{
-    public function testMakefilePhony(): void
-    {
-        skip('Custom "build" is used');
-    }
-}
+return [
+    'request' => [
+        'method' => 'get',
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+    ],
+
+    'response' => [
+        'code'    => 200,
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => (string)json(['message' => 'Hello'])
+    ]
+];

@@ -15,17 +15,14 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\PHPUnit;
+return [
+    'request' => [
+        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+    ],
 
-/**
- * Class MockServerCodestyleTest
- *
- * @package JBZoo\PHPUnit
- */
-class MockServerCodestyleTest extends AbstractCodestyleTest
-{
-    public function testMakefilePhony(): void
-    {
-        skip('Custom "build" is used');
-    }
-}
+    'control' => [
+        'delay' => static function (): int {
+            return 1000;
+        }
+    ]
+];

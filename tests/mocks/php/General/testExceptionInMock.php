@@ -15,8 +15,6 @@
 
 declare(strict_types=1);
 
-use function JBZoo\Data\json;
-
 return [
     'request' => [
         'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
@@ -24,7 +22,7 @@ return [
 
     'response' => [
         'body' => static function (): string {
-            return (string)json(['name' => Faker\Factory::create()->name]);
+            throw new \Exception('Some message');
         }
     ]
 ];

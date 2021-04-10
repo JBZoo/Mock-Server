@@ -15,17 +15,17 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\PHPUnit;
+use JBZoo\MockServer\Server\Request;
 
-/**
- * Class MockServerCodestyleTest
- *
- * @package JBZoo\PHPUnit
- */
-class MockServerCodestyleTest extends AbstractCodestyleTest
-{
-    public function testMakefilePhony(): void
-    {
-        skip('Custom "build" is used');
-    }
-}
+return [
+    'request' => [
+        'method' => 'PUT|POST',
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+    ],
+
+    'response' => [
+        'code' => static function (Request $request): int {
+            return $request->getMethod() === 'PUT' ? 200 : 404;
+        },
+    ]
+];
