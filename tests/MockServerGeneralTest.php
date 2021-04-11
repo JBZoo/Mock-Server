@@ -297,7 +297,7 @@ class MockServerGeneralTest extends AbstractMockServerTest
         $responses = $this->createClient()->multiRequest($requests);
         $time = (microtime(true) - $start) * 1000;
 
-        isTrue($time > 1000 && $time < 1500, "Expected elapsedMS between 1000 & 1300, got: {$time}");
+        isTrue($time > 1000 && $time < 1600, "Expected elapsedMS between 1000 & 1600, got: {$time}");
 
         $requestIds = [];
         foreach ($responses as $response) {
