@@ -13,12 +13,9 @@
 
 FROM php:7.4-cli-alpine
 
-RUN apk add --no-cache libpng libpng-dev  \
-    && docker-php-ext-install gd          \
-    && apk del libpng-dev                 \
-    && docker-php-ext-install pcntl       \
-    && docker-php-ext-install filter      \
-    && docker-php-ext-install json
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/install-php-extensions && sync && install-php-extensions gd pcntl
 
 COPY build/jbzoo-mock-server.phar /jbzoo-mock-server.phar
 
