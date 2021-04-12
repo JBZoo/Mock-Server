@@ -41,7 +41,6 @@ build: ##@Project Install all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
 	@composer install --optimize-autoloader --no-progress
 	@make build-phar
-	@make build-docker
 
 
 build-phar: ##@Project Compile phar file
@@ -51,6 +50,7 @@ build-phar: ##@Project Compile phar file
 	@composer config autoloader-suffix JBZooPhar   -v
 	@$(PHAR_BOX) compile --working-dir="`pwd`"     -v
 	@composer config autoloader-suffix --unset     -v
+
 
 build-docker:
 	$(call title,"Building Docker Image")

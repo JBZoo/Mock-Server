@@ -16,7 +16,11 @@ FROM php:7.4-cli-alpine
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && install-php-extensions gd pcntl
+RUN install-php-extensions @composer
 
-COPY build/jbzoo-mock-server.phar /jbzoo-mock-server.phar
+COPY . /app
+RUN cd /app                             \
+    && composer install --no-dev        \
+    && chmod +x /app/jbzoo-mock-server
 
-ENTRYPOINT ["/jbzoo-mock-server.phar"]
+ENTRYPOINT ["/app/jbzoo-mock-server"]
