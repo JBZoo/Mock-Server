@@ -43,7 +43,7 @@ class StartCommand extends Command
             ->addOption('port', null, $req, "Port", (string)MockServer::DEFAULT_PORT)
             ->addOption('host-tls', null, $req, "Host", MockServer::DEFAULT_HOST)
             ->addOption('port-tls', null, $req, "Port", (string)MockServer::DEFAULT_PORT_TLS)
-            ->addOption('mocks', null, $req, "Mocks path", './mocks')
+            ->addOption('mocks', null, $req, "Mocks path", '/mocks')
             ->addOption('check-syntax', null, $none, 'Check syntax of PHP files before loading. It takes some time');
     }
 
