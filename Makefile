@@ -23,6 +23,12 @@ MOCK_SERVER_HOST_TLS ?= localhost
 MOCK_SERVER_PORT_TLS ?= 8090
 MOCK_SERVER_LOG      ?= `pwd`/build/server.log
 MOCK_SERVER_BIN      ?= $(PHP_BIN) `pwd`/jbzoo-mock-server
+MOCK_SERVER_DOCKER   ?= docker run --rm    \
+    --name="jbzoo-mock-server"             \
+    -v `pwd`/tests/mocks:/mocks            \
+    -p $(MOCK_SERVER_PORT):8089            \
+    -p $(MOCK_SERVER_PORT_TLS):8089        \
+    jbzoo-mock-server
 
 PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
 PHAR_FILE     ?= `pwd`/build/jbzoo-mock-server.phar
@@ -55,7 +61,6 @@ build-phar: ##@Project Compile phar file
 build-docker:
 	$(call title,"Building Docker Image")
 	@docker build -t jbzoo-mock-server .
-	@docker run --rm jbzoo-mock-server --help -vvv --ansi
 
 
 update: ##@Project Update all 3rd party dependencies
@@ -91,8 +96,20 @@ up-bg: ##@Project Start mock server (non-interactive mode)
 	@AMP_LOG_COLOR=true make up 1>> "$(MOCK_SERVER_LOG)" 2>> "$(MOCK_SERVER_LOG)" &
 
 
+up-docker: ##@Project Start mock server (Docker Image)
+	@$(MOCK_SERVER_DOCKER)           \
+        --host=0.0.0.0               \
+        --port=8089                  \
+        --host-tls=localhost         \
+        --port-tls=8090              \
+        --ansi                       \
+        -vvv
+
+
 down: ##@Project Force killing Mock Server
+	@pgrep -f "jbzoo-mock-server" || true
 	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
+	@-docker kill jbzoo-mock-server
 	@echo "Mock Server killed"
 
 
