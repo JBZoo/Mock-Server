@@ -11,6 +11,17 @@
 # @link       https://github.com/JBZoo/Mock-Server
 #
 
+/build               export-ignore
+/mocks               export-ignore
+/examples            export-ignore
+/tests               export-ignore
+/.editorconfig       export-ignore
+/.gitattributes      export-ignore
+/.gitignore          export-ignore
+/.phpstorm.meta.php  export-ignore
+/.travis.yml         export-ignore
+/phpunit.xml.dist    export-ignore
+
 * text eol=lf
 
 # (binary is a macro for -text -diff)
