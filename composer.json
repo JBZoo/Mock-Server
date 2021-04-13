@@ -39,7 +39,7 @@
 
     "require-dev"       : {
         "jbzoo/http-client" : "^3.4.2",
-        "jbzoo/toolbox-dev" : "^2.8.0",
+        "jbzoo/toolbox-dev" : "^2.9.0",
         "guzzlehttp/guzzle" : "^7.3.0"
     },
 

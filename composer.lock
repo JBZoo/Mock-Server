@@ -4848,16 +4848,16 @@
         },
         {
             "name": "jbzoo/codestyle",
-            "version": "2.9.1",
+            "version": "2.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JBZoo/Codestyle.git",
-                "reference": "d165d84805261d7b0be8756085c3800c992fd778"
+                "reference": "8324b74daf61d08076847764c04e43ec3460615a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JBZoo/Codestyle/zipball/d165d84805261d7b0be8756085c3800c992fd778",
-                "reference": "d165d84805261d7b0be8756085c3800c992fd778",
+                "url": "https://api.github.com/repos/JBZoo/Codestyle/zipball/8324b74daf61d08076847764c04e43ec3460615a",
+                "reference": "8324b74daf61d08076847764c04e43ec3460615a",
                 "shasum": ""
             },
             "require": {
@@ -4867,22 +4867,22 @@
                 "php": ">=7.2",
                 "phpcompatibility/php-compatibility": ">=9.3.5",
                 "phpmetrics/phpmetrics": ">=2.7.4",
-                "phpstan/phpstan": ">=0.12.82",
+                "phpstan/phpstan": ">=0.12.83",
                 "phpstan/phpstan-strict-rules": ">=0.12.9",
                 "povils/phpmnd": ">=2.4.0",
                 "psalm/phar": ">=4.7.0",
                 "roave/security-advisories": "dev-master",
-                "squizlabs/php_codesniffer": ">=3.5.8",
+                "squizlabs/php_codesniffer": ">=3.6.0",
                 "symfony/console": ">=4.4.16",
                 "symfony/yaml": ">=4.4.16"
             },
             "require-dev": {
                 "jbzoo/composer-diff": "^1.1.2",
                 "jbzoo/composer-graph": "^1.0.4",
-                "jbzoo/phpunit": "^4.5.0",
+                "jbzoo/phpunit": "^4.6.0",
                 "jbzoo/toolbox-ci": "^1.3.5",
                 "jbzoo/utils": "^4.2.3",
-                "phpbench/phpbench": ">=0.17.1"
+                "phpbench/phpbench": "^0.17.1"
             },
             "type": "library",
             "extra": {
@@ -4917,9 +4917,9 @@
             ],
             "support": {
                 "issues": "https://github.com/JBZoo/Codestyle/issues",
-                "source": "https://github.com/JBZoo/Codestyle/tree/2.9.1"
+                "source": "https://github.com/JBZoo/Codestyle/tree/2.9.2"
             },
-            "time": "2021-03-30T13:38:26+00:00"
+            "time": "2021-04-13T18:16:30+00:00"
         },
         {
             "name": "jbzoo/composer-diff",
@@ -5252,16 +5252,16 @@
         },
         {
             "name": "jbzoo/phpunit",
-            "version": "4.5.0",
+            "version": "4.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JBZoo/PHPUnit.git",
-                "reference": "d557b208acf2f93aa704146857b2d3eacf6cab7e"
+                "reference": "42135ef88f909ec7518a4a67b32b2c69e3c7381f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JBZoo/PHPUnit/zipball/d557b208acf2f93aa704146857b2d3eacf6cab7e",
-                "reference": "d557b208acf2f93aa704146857b2d3eacf6cab7e",
+                "url": "https://api.github.com/repos/JBZoo/PHPUnit/zipball/42135ef88f909ec7518a4a67b32b2c69e3c7381f",
+                "reference": "42135ef88f909ec7518a4a67b32b2c69e3c7381f",
                 "shasum": ""
             },
             "require": {
@@ -5276,15 +5276,15 @@
                 "ulrichsg/getopt-php": "^3.4.0"
             },
             "require-dev": {
-                "guzzlehttp/guzzle": ">=6.5.5",
-                "jbzoo/codestyle": "^2.8.1",
+                "guzzlehttp/guzzle": ">=7.3.0",
+                "jbzoo/codestyle": "^2.9.2",
                 "jbzoo/composer-graph": "^1.0.4",
                 "jbzoo/data": "^4.1.3",
                 "jbzoo/http-client": "^3.4.2",
-                "jbzoo/jbdump": "^1.5.4",
+                "jbzoo/jbdump": "^1.5.6",
                 "jbzoo/toolbox-ci": "^1.3.5",
-                "jbzoo/toolbox-dev": "^2.6.2",
-                "symfony/process": ">=5.2.3"
+                "jbzoo/toolbox-dev": "^2.8.0",
+                "symfony/process": ">=5.2.4"
             },
             "type": "library",
             "extra": {
@@ -5326,9 +5326,9 @@
             ],
             "support": {
                 "issues": "https://github.com/JBZoo/PHPUnit/issues",
-                "source": "https://github.com/JBZoo/PHPUnit/tree/4.5.0"
+                "source": "https://github.com/JBZoo/PHPUnit/tree/4.6.1"
             },
-            "time": "2021-03-27T23:22:31+00:00"
+            "time": "2021-04-13T18:33:30+00:00"
         },
         {
             "name": "jbzoo/toolbox-ci",
@@ -5389,29 +5389,29 @@
         },
         {
             "name": "jbzoo/toolbox-dev",
-            "version": "2.8.0",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JBZoo/Toolbox-Dev.git",
-                "reference": "6803ccd0d579b6c145219b2f387368aa8ab61595"
+                "reference": "4419cf2cc6d0c914c1f87ddfa5558850ef176e96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JBZoo/Toolbox-Dev/zipball/6803ccd0d579b6c145219b2f387368aa8ab61595",
-                "reference": "6803ccd0d579b6c145219b2f387368aa8ab61595",
+                "url": "https://api.github.com/repos/JBZoo/Toolbox-Dev/zipball/4419cf2cc6d0c914c1f87ddfa5558850ef176e96",
+                "reference": "4419cf2cc6d0c914c1f87ddfa5558850ef176e96",
                 "shasum": ""
             },
             "require": {
                 "fakerphp/faker": "^1.14.1",
-                "jbzoo/codestyle": "^2.9.1",
+                "jbzoo/codestyle": "^2.9.2",
                 "jbzoo/composer-diff": "^1.1.2",
                 "jbzoo/composer-graph": "^1.0.4",
                 "jbzoo/jbdump": "^1.5.6",
-                "jbzoo/phpunit": "^4.5.0",
+                "jbzoo/phpunit": "^4.6.1",
                 "jbzoo/toolbox-ci": "^1.3.5",
                 "php": ">=7.2",
                 "php-coveralls/php-coveralls": "^2.4.3",
-                "phpbench/phpbench": ">=0.17.1",
+                "phpbench/phpbench": "^0.17.1",
                 "roave/security-advisories": "dev-master",
                 "symfony/var-dumper": "^4.4|^5.2.5"
             },
@@ -5443,9 +5443,9 @@
             "description": "Developer toolbox only for JBZoo libs on github+travis",
             "support": {
                 "issues": "https://github.com/JBZoo/Toolbox-Dev/issues",
-                "source": "https://github.com/JBZoo/Toolbox-Dev/tree/2.8.0"
+                "source": "https://github.com/JBZoo/Toolbox-Dev/tree/2.9.0"
             },
-            "time": "2021-03-31T21:43:08+00:00"
+            "time": "2021-04-13T18:44:27+00:00"
         },
         {
             "name": "lstrojny/functional-php",
@@ -7384,12 +7384,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "f3d64e623a75abaababa97e02a31e3771dea481a"
+                "reference": "7cc7126a8a1c71197c85c04b147b24257393cd11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/f3d64e623a75abaababa97e02a31e3771dea481a",
-                "reference": "f3d64e623a75abaababa97e02a31e3771dea481a",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/7cc7126a8a1c71197c85c04b147b24257393cd11",
+                "reference": "7cc7126a8a1c71197c85c04b147b24257393cd11",
                 "shasum": ""
             },
             "conflict": {
@@ -7534,6 +7534,7 @@
                 "phpmyadmin/phpmyadmin": "<4.9.6|>=5,<5.0.3",
                 "phpoffice/phpexcel": "<1.8.2",
                 "phpoffice/phpspreadsheet": "<1.16",
+                "phpseclib/phpseclib": "<2.0.31|>=3,<3.0.7",
                 "phpunit/phpunit": ">=4.8.19,<4.8.28|>=5.0.10,<5.6.3",
                 "phpwhois/phpwhois": "<=4.2.5",
                 "phpxmlrpc/extras": "<0.6.1",
@@ -7551,6 +7552,7 @@
                 "propel/propel1": ">=1,<=1.7.1",
                 "pterodactyl/panel": "<0.7.19|>=1-rc.0,<=1-rc.6",
                 "pusher/pusher-php-server": "<2.2.1",
+                "pwweb/laravel-core": "<=0.3.6-beta",
                 "rainlab/debugbar-plugin": "<3.1",
                 "robrichards/xmlseclibs": "<3.0.4",
                 "sabberworm/php-css-parser": ">=1,<1.0.1|>=2,<2.0.1|>=3,<3.0.1|>=4,<4.0.1|>=5,<5.0.9|>=5.1,<5.1.3|>=5.2,<5.2.1|>=6,<6.0.2|>=7,<7.0.4|>=8,<8.0.1|>=8.1,<8.1.1|>=8.2,<8.2.1|>=8.3,<8.3.1",
@@ -7558,8 +7560,9 @@
                 "scheb/two-factor-bundle": ">=0,<3.26|>=4,<4.11",
                 "sensiolabs/connect": "<4.2.3",
                 "serluck/phpwhois": "<=4.2.6",
-                "shopware/core": "<=6.3.4",
-                "shopware/platform": "<=6.3.5.1",
+                "shopware/core": "<=6.3.5.2",
+                "shopware/platform": "<=6.3.5.2",
+                "shopware/production": "<=6.3.5.2",
                 "shopware/shopware": "<5.6.9",
                 "silverstripe/admin": ">=1.0.3,<1.0.4|>=1.1,<1.1.1",
                 "silverstripe/assets": ">=1,<1.4.7|>=1.5,<1.5.2",
@@ -7645,6 +7648,7 @@
                 "verot/class.upload.php": "<=1.0.3|>=2,<=2.0.4",
                 "vrana/adminer": "<4.7.9",
                 "wallabag/tcpdf": "<6.2.22",
+                "wikimedia/parsoid": "<0.12.2",
                 "willdurand/js-translation-bundle": "<2.1.1",
                 "yii2mod/yii2-cms": "<1.9.2",
                 "yiisoft/yii": ">=1.1.14,<1.1.15",
@@ -7714,7 +7718,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-04-06T18:11:53+00:00"
+            "time": "2021-04-13T16:02:59+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -8558,16 +8562,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.8",
+            "version": "3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "9d583721a7157ee997f235f327de038e7ea6dac4"
+                "reference": "ffced0d2c8fa8e6cdc4d695a743271fab6c38625"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/9d583721a7157ee997f235f327de038e7ea6dac4",
-                "reference": "9d583721a7157ee997f235f327de038e7ea6dac4",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/ffced0d2c8fa8e6cdc4d695a743271fab6c38625",
+                "reference": "ffced0d2c8fa8e6cdc4d695a743271fab6c38625",
                 "shasum": ""
             },
             "require": {
@@ -8610,7 +8614,7 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer",
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
-            "time": "2020-10-23T02:01:07+00:00"
+            "time": "2021-04-09T00:54:41+00:00"
         },
         {
             "name": "symfony/config",
