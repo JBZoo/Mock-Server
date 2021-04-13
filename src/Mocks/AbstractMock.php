@@ -192,7 +192,7 @@ abstract class AbstractMock
 
         $debugHeaders = [
             'X-Mock-Server-Fixture'    => $this->getFilename(),
-            'X-Mock-Server-Request-Id' => isset($this->request) ? $this->request->getId() : null,
+            'X-Mock-Server-Request-Id' => $this->request !== null ? $this->request->getId() : null,
         ];
 
         if ($this->isCrazyMode()) {
