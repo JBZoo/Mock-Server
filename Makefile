@@ -27,7 +27,7 @@ MOCK_SERVER_DOCKER   ?= docker run --rm    \
     --name="jbzoo-mock-server"             \
     -v `pwd`/tests/mocks:/mocks            \
     -p $(MOCK_SERVER_PORT):8089            \
-    -p $(MOCK_SERVER_PORT_TLS):8089        \
+    -p $(MOCK_SERVER_PORT_TLS):8090        \
     jbzoo-mock-server
 
 PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
