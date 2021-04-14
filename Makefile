@@ -31,7 +31,7 @@ MOCK_SERVER_DOCKER   ?= docker run --rm    \
     jbzoo-mock-server
 
 PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
-PHAR_FILE     ?= `pwd`/build/jbzoo-mock-server.phar
+PHAR_FILE     ?= `pwd`/build/mock-server.phar
 PHAR_FILE_BIN ?= $(PHP_BIN) $(PHAR_FILE)
 
 BOX_PHAR    = https://github.com/box-project/box/releases/download/3.9.1/box.phar

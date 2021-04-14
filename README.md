@@ -23,26 +23,25 @@ docker pull jbzoo/mock-server:latest
 
 ```shell
 # Mock-Server is built-in into your project
-php `pwd`/jbzoo-mock-server    \
-        --host=0.0.0.0         \
-        --port=8089            \
-        --host-tls=localhost   \
-        --port-tls=8090        \
-        --mocks=./mocks        \
-        --ansi                 \
-        -vvv
-
-# Or Docker image
-docker run                       \
-    --rm                         \
-    --name="mock-server"         \
-    -v `pwd`/tests/mocks:/mocks  \
-    -p 8089:8089                 \
-    -p 8090:8090                 \
-    jbzoo/mock-server:latest     \
-    --ansi                       \
+php `pwd`/jbzoo-mock-server     \
+    --host=0.0.0.0              \
+    --port=8089                 \
+    --host-tls=localhost        \
+    --port-tls=8090             \
+    --mocks=./mocks             \
+    --ansi                      \
     -vvv
 
+# Or Docker image
+docker run                      \
+    --rm                        \
+    --name="mock-server"        \
+    -v `pwd`/tests/mocks:/mocks \
+    -p 8089:8089                \
+    -p 8090:8090                \
+    jbzoo/mock-server:latest    \
+    --ansi                      \
+    -vvv
 ```
 
 
