@@ -17,13 +17,9 @@ declare(strict_types=1);
 
 namespace JBZoo\PHPUnit;
 
-use JBZoo\Data\PhpArray;
-use JBZoo\MockServer\Mocks\AbstractMock;
 use JBZoo\MockServer\Mocks\JsonMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\MockServer\Mocks\YmlMock;
-
-use function JBZoo\Data\json;
 
 /**
  * Class MockServerMocksTest

@@ -32,6 +32,8 @@
         "jbzoo/utils"                   : "^4.2.3",
 
         "symfony/console"               : ">=4.4.21",
+        "symfony/yaml"                  : ">=5.2.5",
+
         "monolog/monolog"               : "^2.2.0",
         "yosymfony/resource-watcher"    : "^3.0.0",
         "winzou/state-machine"          : "^0.4.1"
