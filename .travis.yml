@@ -49,4 +49,4 @@ deploy:
   on:
     tags: true
   overwrite: true
-  cleanup: false
+  skip_cleanup: true
