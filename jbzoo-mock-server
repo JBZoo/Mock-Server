@@ -34,7 +34,7 @@ if (!class_exists(Server::class)) {
 #define('MOCK_SERVER_IN_DOCKER', Env::bool('MOCK_SERVER_IN_DOCKER'));
 #putenv('AMP_LOOP_DRIVER=' . NativeDriver::class);
 
-$application = new Application();
+$application = new Application('JBZoo/Mock-Server', '@git-version@');
 $application->add(new StartCommand());
 $application->setDefaultCommand('start');
 $application->run();
