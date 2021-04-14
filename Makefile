@@ -97,13 +97,7 @@ up-bg: ##@Project Start mock server (non-interactive mode)
 
 
 up-docker: ##@Project Start mock server (Docker Image)
-	@$(MOCK_SERVER_DOCKER)           \
-        --host=0.0.0.0               \
-        --port=8089                  \
-        --host-tls=localhost         \
-        --port-tls=8090              \
-        --ansi                       \
-        -vvv
+	@$(MOCK_SERVER_DOCKER) --ansi -vvv
 
 
 down: ##@Project Force killing Mock Server
