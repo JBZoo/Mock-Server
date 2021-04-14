@@ -63,6 +63,8 @@ abstract class AbstractMock
         Status::NETWORK_AUTHENTICATION_REQUIRED,
     ];
 
+    protected const FORMAT_CLASS = Data::class;
+
     /**
      * @var string
      */
@@ -94,9 +96,10 @@ abstract class AbstractMock
     private function parseSource(): Data
     {
         if (file_exists($this->sourcePath)) {
-            /** @noinspection PhpIncludeInspection */
-            $rawData = (array)include $this->sourcePath;
-            return new Data($rawData);
+            /** @var Data $formatClassName */
+            $formatClassName = static::FORMAT_CLASS;
+
+            return new $formatClassName($this->sourcePath);
         }
 
         throw new Exception("File not found: {$this->sourcePath}");
@@ -351,7 +354,7 @@ abstract class AbstractMock
         $result = $handler;
 
         if (is_callable($handler)) {
-            $result = $handler($this->request);
+            $result = $handler($this->request ?? null);
         }
 
         if (null === $result) {

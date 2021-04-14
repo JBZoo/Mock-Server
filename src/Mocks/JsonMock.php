@@ -17,13 +17,13 @@ declare(strict_types=1);
 
 namespace JBZoo\MockServer\Mocks;
 
-use JBZoo\Data\PhpArray;
+use JBZoo\Data\JSON;
 
 /**
- * Class PhpMock
+ * Class JsonMock
  * @package JBZoo\MockServer\Mocks
  */
-class PhpMock extends AbstractMock
+class JsonMock extends AbstractMock
 {
-    protected const FORMAT_CLASS = PhpArray::class;
+    protected const FORMAT_CLASS = JSON::class;
 }
