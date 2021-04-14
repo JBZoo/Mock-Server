@@ -101,8 +101,8 @@ up-docker: ##@Project Start mock server (Docker Image)
 
 
 down: ##@Project Force killing Mock Server
-	@pgrep -f "jbzoo-mock-server" || true
-	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
+	@pgrep -f "mock-server" || true
+	@-pgrep -f "mock-server" | xargs kill -15 || true
 	@-docker kill jbzoo-mock-server
 	@echo "Mock Server killed"
 
