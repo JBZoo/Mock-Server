@@ -19,7 +19,7 @@ response:
   code: 200
   headers:
     Content-Type: application/json
-  body: |-
+  body: |
     {
         "result": "ok"
     }
