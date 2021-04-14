@@ -12,7 +12,7 @@
         "@link       https://github.com/JBZoo/Mock-Server"
     ],
 
-    "output"      : "build/jbzoo-mock-server.phar",
+    "output"      : "build/mock-server.phar",
 
     "directories" : ["src"],
     "git-version" : "git-version",

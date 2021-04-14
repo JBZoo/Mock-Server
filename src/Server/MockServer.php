@@ -29,14 +29,11 @@ use Amp\Socket\BindContext;
 use Amp\Socket\Certificate;
 use Amp\Socket\Server as SocketServer;
 use Amp\Socket\ServerTlsContext;
-use JBZoo\MockServer\Mocks\AbstractMock;
-use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\Utils\FS;
 use JBZoo\Utils\Timer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 
 use function Amp\call;
 use function Amp\Http\Server\FormParser\parseForm;
@@ -170,7 +167,7 @@ class MockServer
      */
     private function initRouter(): Router
     {
-        $mocks = $this->getMocks();
+        $mocks = (new MockFinder($this->mocksPath, $this->logger, $this->checkSyntax))->getMocks();
         if (count($mocks) === 0) {
             $this->logger->error('Mocks not found. Exit.');
             die(1);
@@ -259,43 +256,6 @@ class MockServer
         }
 
         return new ConsoleLogger($this->output);
-    }
-
-    /**
-     * @return AbstractMock[]
-     */
-    private function getMocks(): array
-    {
-        $relPath = FS::getRelative($this->mocksPath);
-        $this->logger->info(str_replace($relPath, "<comment>{$relPath}</comment>", "Mocks Path: {$this->mocksPath}"));
-
-        $finder = (new Finder())
-            ->in($this->mocksPath)
-            ->files()
-            ->name(".php")
-            ->name("*.php")
-            ->name(".*.php")
-            ->ignoreDotFiles(false)
-            ->followLinks();
-
-        $mocks = [];
-        foreach ($finder as $file) {
-            $filePath = $file->getPathname();
-
-            $validationErrors = null;
-            if ($this->checkSyntax) {
-                $validationErrors = AbstractMock::isSourceValid($filePath);
-            }
-
-            if (!$validationErrors) {
-                $mock = new PhpMock($filePath);
-                $mocks[$mock->getHash()] = $mock;
-            } else {
-                $this->logger->warning("Fixture \"{$filePath}\" is invalid and skipped\n{$validationErrors}");
-            }
-        }
-
-        return $mocks;
     }
 
     /**

@@ -15,21 +15,15 @@
 
 declare(strict_types=1);
 
+namespace JBZoo\MockServer\Mocks;
+
+use JBZoo\Data\JSON;
+
 /**
- * Class SystemCall
+ * Class JsonMock
+ * @package JBZoo\MockServer\Mocks
  */
-class SystemCall
+class JsonMock extends AbstractMock
 {
-    protected $callback;
-
-    public function __construct(callable $callback)
-    {
-        $this->callback = $callback;
-    }
-
-    public function __invoke(Task $task, Scheduler $scheduler)
-    {
-        $callback = $this->callback; // Can't call it directly in PHP :/
-        return $callback($task, $scheduler);
-    }
+    protected const FORMAT_CLASS = JSON::class;
 }

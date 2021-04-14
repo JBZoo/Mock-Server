@@ -412,4 +412,18 @@ class MockServerGeneralTest extends AbstractMockServerTest
         isSame(200, $response->getStatusCode());
         isSame('Hi', $response->getBody()->getContents());
     }
+
+    public function testStaticYml(): void
+    {
+        $response = $this->request();
+        isSame(200, $response->getCode());
+        isSame('ok', $response->getJSON()->get('result'));
+    }
+
+    public function testStaticJson(): void
+    {
+        $response = $this->request();
+        isSame(200, $response->getCode());
+        isSame('ok', $response->getJSON()->get('result'));
+    }
 }

@@ -15,15 +15,22 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\MockServer\Mocks;
+use function JBZoo\Data\json;
 
-use JBZoo\Data\PhpArray;
+return [
+    'request' => [
+        'method' => "ANY",
+        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+    ],
 
-/**
- * Class PhpMock
- * @package JBZoo\MockServer\Mocks
- */
-class PhpMock extends AbstractMock
-{
-    protected const FORMAT_CLASS = PhpArray::class;
-}
+    'response' => [
+        'code'    => 200,
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => (string)json(['result' => 'ok']),
+    ],
+
+    'control' => [
+        'crazy' => false,
+        'delay' => 1000
+    ]
+];

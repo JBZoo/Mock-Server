@@ -27,11 +27,11 @@ MOCK_SERVER_DOCKER   ?= docker run --rm    \
     --name="jbzoo-mock-server"             \
     -v `pwd`/tests/mocks:/mocks            \
     -p $(MOCK_SERVER_PORT):8089            \
-    -p $(MOCK_SERVER_PORT_TLS):8089        \
+    -p $(MOCK_SERVER_PORT_TLS):8090        \
     jbzoo-mock-server
 
 PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
-PHAR_FILE     ?= `pwd`/build/jbzoo-mock-server.phar
+PHAR_FILE     ?= `pwd`/build/mock-server.phar
 PHAR_FILE_BIN ?= $(PHP_BIN) $(PHAR_FILE)
 
 BOX_PHAR    = https://github.com/box-project/box/releases/download/3.9.1/box.phar
@@ -97,18 +97,12 @@ up-bg: ##@Project Start mock server (non-interactive mode)
 
 
 up-docker: ##@Project Start mock server (Docker Image)
-	@$(MOCK_SERVER_DOCKER)           \
-        --host=0.0.0.0               \
-        --port=8089                  \
-        --host-tls=localhost         \
-        --port-tls=8090              \
-        --ansi                       \
-        -vvv
+	@$(MOCK_SERVER_DOCKER) --ansi -vvv
 
 
 down: ##@Project Force killing Mock Server
-	@pgrep -f "jbzoo-mock-server" || true
-	@-pgrep -f "jbzoo-mock-server" | xargs kill -15 || true
+	@pgrep -f "mock-server" || true
+	@-pgrep -f "mock-server" | xargs kill -15 || true
 	@-docker kill jbzoo-mock-server
 	@echo "Mock Server killed"
 
