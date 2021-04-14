@@ -39,3 +39,16 @@ script:
 after_script:
   - cat ./build/server.log
   - make report-coveralls
+
+
+deploy:
+  provider: releases
+  api_key:
+    secure: d7hazE8qinWxCZ9tjcTGGu8Xr/hAaSNzOKvsr0j9GVbYDjD0DS+q16jmRWOJHDKEW6WpCh81+Uhp3UspsaMyntI7/Rp0PBKAzYBlMvsqKS/ZiSBuHy2z+AzkK7OOa8wOG2O0M54ytfJLGYKOizdw+yPFiom/1Cyd9z2ER4d7Po/ZNwHxCoyg8ug9zgzP5T52u31kyBEGVeRBfMLdWw1/DQsR5Jw6Zv9Bgr1i/Z9nLhxUosFPKldlnGM5pZfQmBff/k7xSZKuh+FgP7KBZcco+QZ5zqlGN6JPWjkOLjqP0qCSjcsrtDg3c3wu2PKbKziEbGuyjrMbGjatK02ayg3HXur07Lq2QJskTTRtRQ8t1QvGXB73hvzS8NPa93MHy4Mjotzg1NqVcDGoBK6arUMbGgXhN75W4g9GygTHGjBKx7DUcYBPsayqjtlWEMhAcXTclVopGtcH5+jXOyQ0zzm+4bB3wVhVHXiaQmkhosz26wrgBkmpZnvYm1m/Lh1GyCPYfjtCxRifkAsFSj50JuLzcLnwsBP5sax2JSnfFjnSlbROJA0CbDkpGK2GghXCrurHGD1EVkFBfoGF/vJ95x7vt9LfEXNhYxMQ2qzRjV0WBs0i3lAbpzP8Wu0rPY0WzOcjEU/YK+OLpSyuX2eiDfX/0fJWBircBMShnkXJxyOU3nU=
+  file:
+    - "./build/mock-server.phar"
+  on:
+    repo: JBZoo/Mock-Server
+    tags: true
+  overwrite: true
+  skip_cleanup: 'true'
