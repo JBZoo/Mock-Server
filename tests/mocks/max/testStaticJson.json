@@ -1,0 +1,17 @@
+{
+    "request"  : {
+        "method" : "ANY",
+        "path"   : "\/testStaticJson"
+    },
+    "response" : {
+        "code"    : 200,
+        "headers" : {
+            "Content-Type" : "application\/json"
+        },
+        "body"    : "{\n    \"result\": \"ok\"\n}"
+    },
+    "control"  : {
+        "crazy" : false,
+        "delay" : 1000
+    }
+}

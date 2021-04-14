@@ -61,6 +61,8 @@ abstract class AbstractMock
         Status::NETWORK_AUTHENTICATION_REQUIRED,
     ];
 
+    protected const FORMAT_CLASS = Data::class;
+
     /**
      * @var string
      */
@@ -92,9 +94,10 @@ abstract class AbstractMock
     private function parseSource(): Data
     {
         if (file_exists($this->sourcePath)) {
-            /** @noinspection PhpIncludeInspection */
-            $rawData = (array)include $this->sourcePath;
-            return new Data($rawData);
+            /** @var Data $formatClassName */
+            $formatClassName = static::FORMAT_CLASS;
+
+            return new $formatClassName($this->sourcePath);
         }
 
         throw new Exception("File not found: {$this->sourcePath}");
@@ -190,7 +193,7 @@ abstract class AbstractMock
 
         $debugHeaders = [
             'X-Mock-Server-Fixture'    => $this->getFilename(),
-            'X-Mock-Server-Request-Id' => isset($this->request) ? $this->request->getId() : null,
+            'X-Mock-Server-Request-Id' => $this->request !== null ? $this->request->getId() : null,
         ];
 
         if ($this->isCrazyMode()) {
@@ -351,7 +354,7 @@ abstract class AbstractMock
         $result = $handler;
 
         if (is_callable($handler)) {
-            $result = $handler($this->request);
+            $result = $handler($this->request ?? null);
         }
 
         if (null === $result) {
