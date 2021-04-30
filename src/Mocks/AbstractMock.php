@@ -18,10 +18,8 @@ declare(strict_types=1);
 namespace JBZoo\MockServer\Mocks;
 
 use Amp\Http\Status;
-use GuzzleHttp\Client as GuzzleHttpClient;
-use GuzzleHttp\RequestOptions;
 use JBZoo\Data\Data;
-use JBZoo\MockServer\Server\MockServer;
+use JBZoo\MockServer\Server\Helper;
 use JBZoo\MockServer\Server\Request;
 use JBZoo\Utils\Cli;
 use JBZoo\Utils\Sys;
@@ -303,43 +301,45 @@ abstract class AbstractMock
             throw new Exception('Request object is not set.');
         }
 
-        $allFiles = $this->request->getFiles(false);
-        $guzzleMultipart = [];
-        foreach ($allFiles as $varName => $files) {
-            foreach ($files as $file) {
-                $guzzleMultipart[] = [
-                    'name'     => $varName,
-                    'contents' => $file['contents'],
-                    'filename' => $file['name'],
-                ];
-            }
-        }
+        return Helper::syncHttpRequest(
+            $proxyUrl,
+            $this->request->getMethod(),
+            $this->request->getHeaders(false),
+            $this->request->getUriParams(),
+            $this->request->getBodyParams(),
+            $this->request->getFiles(false)
+        );
+    }
 
-        $options = [
-            RequestOptions::HEADERS         => $this->request->getHeaders(false),
-            RequestOptions::TIMEOUT         => MockServer::LIMIT_TIMEOUT,
-            RequestOptions::CONNECT_TIMEOUT => MockServer::LIMIT_TIMEOUT,
-            RequestOptions::READ_TIMEOUT    => MockServer::LIMIT_TIMEOUT,
-            RequestOptions::DEBUG           => MockServer::PROXY_DEBUG_MODE,
-            RequestOptions::HTTP_ERRORS     => false,
-        ];
+    /**
+     * @return string|null
+     */
+    public function getWebHookUrl(): ?string
+    {
+        return $this->handleCallable($this->data->find('webhook.url'), 'string');
+    }
 
-        $isGet = $this->request->getMethod() === 'GET';
-        if ($isGet) {
-            $options[RequestOptions::QUERY] = $this->request->getUriParams();
-        } elseif (count($guzzleMultipart) > 0) {
-            $options[RequestOptions::MULTIPART] = $guzzleMultipart;
-        } else {
-            $options[RequestOptions::FORM_PARAMS] = $this->request->getBodyParams();
-        }
+    /**
+     * @return int
+     */
+    public function getWebhookDelay(): int
+    {
+        return $this->handleCallable($this->data->find('webhook.delay', 0), 'int');
+    }
 
-        $response = (new GuzzleHttpClient())->request($this->request->getMethod(), $proxyUrl, $options);
-
-        return [
-            $response->getStatusCode(),
-            $response->getHeaders(),
-            $response->getBody()->getContents()
-        ];
+    /**
+     * @param string $webhookUrl
+     * @return array
+     */
+    public function sendWebhookRequest(string $webhookUrl): array
+    {
+        return Helper::syncHttpRequest(
+            $webhookUrl,
+            $this->handleCallable($this->data->find('webhook.method', 'GET'), 'string'),
+            $this->handleCallable($this->data->find('webhook.headers', []), 'array'),
+            $this->handleCallable($this->data->find('webhook.query', []), 'array'),
+            $this->handleCallable($this->data->find('webhook.form_params', []), 'array')
+        );
     }
 
     /**

@@ -1,14 +1,14 @@
 {
-    "name"              : "jbzoo/mock-server",
-    "type"              : "library",
-    "description"       : "Flexible HTTP mocking application for testing and fast prototyping",
-    "keywords"          : [
+    "name"         : "jbzoo/mock-server",
+    "type"         : "project",
+    "description"  : "Flexible HTTP mocking application for testing and fast prototyping",
+    "license"      : "MIT",
+    "keywords"     : [
         "testing", "mock", "php", "http", "mock-server", "stubbing",
         "http-server", "prototyping", "jbzoo", "httpmock", "mmock"
     ],
-    "license"           : "MIT",
 
-    "authors"           : [
+    "authors"      : [
         {
             "name"  : "Denis Smetannikov",
             "email" : "admin@jbzoo.com",
@@ -16,7 +16,7 @@
         }
     ],
 
-    "require"           : {
+    "require"      : {
         "php"                           : ">=7.2",
         "ext-pcntl"                     : "*",
 
@@ -24,12 +24,12 @@
         "amphp/log"                     : "^1.1.0",
         "amphp/file"                    : "^1.0.2",
         "amphp/http-client"             : "^4.5.5",
-        "amphp/http-server"             : "^2.1.0",
+        "amphp/http-server"             : "^2.1.2",
         "amphp/http-server-router"      : "^1.0.2",
         "amphp/http-server-form-parser" : "^1.1.4",
 
-        "jbzoo/data"                    : "^4.1.3",
-        "jbzoo/utils"                   : "^4.2.3",
+        "jbzoo/data"                    : "^4.2.1",
+        "jbzoo/utils"                   : "^4.3.0",
 
         "symfony/console"               : ">=4.4.21",
         "symfony/yaml"                  : ">=5.2.5",
@@ -39,31 +39,30 @@
         "winzou/state-machine"          : "^0.4.1"
     },
 
-    "require-dev"       : {
-        "jbzoo/http-client" : "^3.4.2",
-        "jbzoo/toolbox-dev" : "^2.9.0",
+    "require-dev"  : {
+        "jbzoo/http-client" : "^3.5.0",
+        "jbzoo/toolbox-dev" : "^2.10.0",
         "guzzlehttp/guzzle" : "^7.3.0"
     },
 
-    "bin"               : ["jbzoo-mock-server"],
+    "bin"          : ["jbzoo-mock-server"],
 
-    "autoload"          : {
+    "autoload"     : {
         "psr-4" : {
             "JBZoo\\MockServer\\" : "src"
         },
         "files" : ["src/functions.php"]
     },
-    "autoload-dev"      : {
+
+    "autoload-dev" : {
         "classmap" : ["tests"]
     },
 
-    "minimum-stability" : "dev",
-    "prefer-stable"     : true,
-    "config"            : {
+    "config"       : {
         "optimize-autoloader" : true
     },
 
-    "extra"             : {
+    "extra"        : {
         "branch-alias" : {
             "dev-master" : "1.x-dev"
         }

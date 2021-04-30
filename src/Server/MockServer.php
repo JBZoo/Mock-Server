@@ -213,6 +213,27 @@ class MockServer
                     $responseBody = $mock->getResponseBody();
                 }
 
+                if ($webhookUrl = $mock->getWebHookUrl()) {
+                    Loop::defer(function () use ($mock, $webhookUrl, $requestId) {
+                        $webhookDelay = $mock->getWebhookDelay();
+                        if ($webhookDelay > 0) {
+                            yield new Delayed($webhookDelay);
+                        }
+
+                        yield call(function () use ($mock, $webhookUrl, $webhookDelay, $requestId) {
+                            [$responseCode, , $responseBody] = $mock->sendWebhookRequest($webhookUrl);
+                            $this->logger->notice(
+                                "#{$requestId} <warning>Webhook</warning> {$responseCode} {$webhookUrl}"
+                                . ($webhookDelay > 0 ? "<warning>Delay: {$webhookDelay}ms</warning>" : '')
+                            );
+
+                            if (!$responseCode) {
+                                $this->logger->warning("#{$requestId} Webhook Error: {$responseBody}");
+                            }
+                        });
+                    });
+                }
+
                 $this->logger->notice(implode(" ", array_filter([
                     "#{$requestId}",
                     $responseCode,
