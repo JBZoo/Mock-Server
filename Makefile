@@ -70,10 +70,10 @@ update: ##@Project Update all 3rd party dependencies
 
 test-all: ##@Tests Run all project tests at once
 	@rm -f $(MOCK_SERVER_LOG)
-	@make down up-bg sleep
-	@make test
-	@make down up-phar-bg sleep
-	@make test
+#	@make down up-bg sleep
+#	@make test
+#	@make down up-phar-bg sleep
+#	@make test
 	@make codestyle
 
 
