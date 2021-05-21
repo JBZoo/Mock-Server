@@ -53,8 +53,8 @@ jobs:
       - name: Build the Project
         run: make build --no-print-directory
 
-      - name: 🧪 PHPUnit Tests
-        run: make test --no-print-directory
+#      - name: 🧪 PHPUnit Tests
+#        run: make test --no-print-directory
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
