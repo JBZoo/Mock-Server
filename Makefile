@@ -17,7 +17,7 @@ ifneq (, $(wildcard ./vendor/jbzoo/codestyle/src/init.Makefile))
     include ./vendor/jbzoo/codestyle/src/init.Makefile
 endif
 
-MOCK_SERVER_HOST     ?= 0.0.0.0
+MOCK_SERVER_HOST     ?= localhost
 MOCK_SERVER_PORT     ?= 8089
 MOCK_SERVER_HOST_TLS ?= localhost
 MOCK_SERVER_PORT_TLS ?= 8090
