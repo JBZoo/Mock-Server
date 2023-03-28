@@ -18,10 +18,6 @@ namespace JBZoo\MockServer\Mocks;
 
 use JBZoo\Data\PhpArray;
 
-/**
- * Class PhpMock
- * @package JBZoo\MockServer\Mocks
- */
 class PhpMock extends AbstractMock
 {
     protected const FORMAT_CLASS = PhpArray::class;

@@ -16,11 +16,6 @@ declare(strict_types=1);
 
 namespace JBZoo\PHPUnit;
 
-/**
- * Class MockServerCopyrightTest
- *
- * @package JBZoo\PHPUnit
- */
 class MockServerCopyrightTest extends AbstractCopyrightTest
 {
     protected $packageName     = 'Mock-Server';

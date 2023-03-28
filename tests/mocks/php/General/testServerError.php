@@ -18,13 +18,13 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
-        'code'    => 500,
-        'body'    => (string)json([
-            'message' => 'fatal_error'
-        ])
-    ]
+        'code' => 500,
+        'body' => (string)json([
+            'message' => 'fatal_error',
+        ]),
+    ],
 ];

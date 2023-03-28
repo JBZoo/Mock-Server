@@ -19,7 +19,7 @@ use function JBZoo\Data\json;
 return [
     'request' => [
         'method' => 'GET|DELETE',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
@@ -28,6 +28,6 @@ return [
     ],
 
     'control' => [
-        'crazy' => true
-    ]
+        'crazy' => true,
+    ],
 ];

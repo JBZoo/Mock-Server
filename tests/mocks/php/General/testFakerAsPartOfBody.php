@@ -20,12 +20,10 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
-        'body' => static function (): string {
-            return (string)json(['name' => Faker\Factory::create()->name]);
-        }
-    ]
+        'body' => static fn (): string => (string)json(['name' => Faker\Factory::create()->name]),
+    ],
 ];

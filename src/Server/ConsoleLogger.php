@@ -22,40 +22,32 @@ use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Throwable;
 
 /**
- * Class ConsoleLogger
  * PSR-3 compliant console logger.
- * @package JBZoo\MockServer\Server
  *
  * @see     https://www.php-fig.org/psr/psr-3/
  * @author  Kévin Dunglas <dunglas@gmail.com>
  */
 class ConsoleLogger extends AbstractLogger
 {
-    private const DATE_FORMAT = '[Y-m-d H:i:s]';
-
-    private const REMOVE_PREFIXES = [
-        "Unexpected Exception thrown from RequestHandler::handleRequest(), falling back to error handler.",
-        "Unexpected Error thrown from RequestHandler::handleRequest(), falling back to error handler."
-    ];
-
     public const ERROR   = 'error';
     public const WARNING = 'important';
     public const NOTICE  = 'comment';
     public const DEBUG   = 'debug';
 
-    public const INFO = 'info';
+    public const INFO         = 'info';
+    private const DATE_FORMAT = '[Y-m-d H:i:s]';
 
-    /**
-     * @var OutputInterface
-     */
+    private const REMOVE_PREFIXES = [
+        'Unexpected Exception thrown from RequestHandler::handleRequest(), falling back to error handler.',
+        'Unexpected Error thrown from RequestHandler::handleRequest(), falling back to error handler.',
+    ];
+
+    /** @var OutputInterface */
     private $output;
 
-    /**
-     * @var int[]
-     */
+    /** @var int[] */
     private $verbosityLevelMap = [
         LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::ALERT     => OutputInterface::VERBOSITY_NORMAL,
@@ -67,12 +59,10 @@ class ConsoleLogger extends AbstractLogger
         LogLevel::DEBUG   => OutputInterface::VERBOSITY_DEBUG,
 
         // Regular messages
-        LogLevel::INFO    => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
     ];
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $formatLevelMap = [
         LogLevel::EMERGENCY => self::ERROR,
         LogLevel::ALERT     => self::ERROR,
@@ -87,35 +77,29 @@ class ConsoleLogger extends AbstractLogger
         LogLevel::DEBUG => self::DEBUG,
     ];
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $errored = false;
 
-    /**
-     * ConsoleLogger constructor.
-     * @param OutputInterface $output
-     */
     public function __construct(OutputInterface $output)
     {
         $this->output = $output;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
-        $message = str_replace(self::REMOVE_PREFIXES, '', (string)$message);
+        $message = \str_replace(self::REMOVE_PREFIXES, '', (string)$message);
 
         if (!isset($this->verbosityLevelMap[$level])) {
-            throw new InvalidArgumentException(sprintf('The log level "%s" does not exist.', $level));
+            throw new InvalidArgumentException(\sprintf('The log level "%s" does not exist.', $level));
         }
 
         $output = $this->output;
 
         // Write to the error output if necessary and available
-        if (self::ERROR === $this->formatLevelMap[$level]) {
+        if ($this->formatLevelMap[$level] === self::ERROR) {
             if ($this->output instanceof ConsoleOutputInterface) {
                 $output = $this->output->getErrorOutput();
             }
@@ -127,17 +111,17 @@ class ConsoleLogger extends AbstractLogger
         if ($output->getVerbosity() >= $this->verbosityLevelMap[$level]) {
             $datetime = $memoryStats = '';
             if ($this->output->isDebug()) {
-                $datetime = (string)(new \DateTimeImmutable())->format(self::DATE_FORMAT);
-                $memoryStats = FS::format(memory_get_usage(false));
+                $datetime    = (string)(new \DateTimeImmutable())->format(self::DATE_FORMAT);
+                $memoryStats = FS::format(\memory_get_usage(false));
             }
 
-            $messageLine = trim(sprintf(
+            $messageLine = \trim(\sprintf(
                 '%4$s %5$s <%1$s>%2$s</%1$s>: %3$s',
                 $this->formatLevelMap[$level],
                 $level,
                 $this->interpolate($message, $context),
                 $datetime,
-                $memoryStats
+                $memoryStats,
             ));
 
             $output->writeln($messageLine, $this->verbosityLevelMap[$level]);
@@ -146,7 +130,6 @@ class ConsoleLogger extends AbstractLogger
 
     /**
      * Returns true when any messages have been logged at error levels.
-     * @return bool
      */
     public function hasErrored(): bool
     {
@@ -156,69 +139,58 @@ class ConsoleLogger extends AbstractLogger
     /**
      * Interpolates context values into the message placeholders.
      *
-     * @param string $message
-     * @param array  $context
-     * @return string
-     *
      * @author PHP Framework Interoperability Group
      */
     private function interpolate(string $message, array $context): string
     {
         $replacements = [];
+
         foreach ($context as $key => $val) {
-            if ($val instanceof Throwable) {
+            if ($val instanceof \Throwable) {
                 $replacements["{{$key}}"] = $this->prettyPrintException($val);
-            } elseif (null === $val || is_scalar($val) || (\is_object($val) && method_exists($val, '__toString'))) {
+            } elseif ($val === null || \is_scalar($val) || (\is_object($val) && \method_exists($val, '__toString'))) {
                 $replacements["{{$key}}"] = $val;
             } elseif ($val instanceof \DateTimeInterface) {
                 $replacements["{{$key}}"] = $val->format(\DateTime::RFC3339);
             } elseif (\is_object($val)) {
-                $replacements["{{$key}}"] = '[object ' . \get_class($val) . ']';
+                $replacements["{{$key}}"] = '[object ' . $val::class . ']';
             } else {
                 $replacements["{{$key}}"] = '[' . \gettype($val) . ']';
             }
         }
 
-        return trim($message . "\n" . implode(' ', $replacements));
+        return \trim($message . "\n" . \implode(' ', $replacements));
     }
 
-    /**
-     * @param Throwable $exception
-     * @return string
-     */
-    private function prettyPrintException(Throwable $exception): string
+    private function prettyPrintException(\Throwable $exception): string
     {
-        $className = '[object ' . \get_class($exception) . ']';
-        $message = [
+        $className = '[object ' . $exception::class . ']';
+        $message   = [
             "  {$className} <important>{$exception->getMessage()}</important> Code #{$exception->getCode()}",
-            "       File: " . self::getRelativePath($exception->getFile(), $exception->getLine()),
+            '       File: ' . self::getRelativePath($exception->getFile(), $exception->getLine()),
         ];
 
         if ($this->output->isDebug()) {
             $message[] = "       Stack trace:\n" . self::dumpTrace($exception->getTrace());
         }
 
-        return implode("\n", $message);
+        return \implode("\n", $message);
     }
 
-    /**
-     * @param array $trace
-     * @return string
-     */
     private static function dumpTrace(array $trace): string
     {
         $result = [];
+
         foreach ($trace as $traceRow) {
             $result[] = self::getOneTrace($traceRow);
         }
 
-        return "       - " . implode("\n       - ", $result);
+        return '       - ' . \implode("\n       - ", $result);
     }
 
     /**
-     * Get formated one trace info
+     * Get formated one trace info.
      * @param array $traceRow One trace element
-     * @return string
      */
     private static function getOneTrace(array $traceRow): string
     {
@@ -226,38 +198,31 @@ class ConsoleLogger extends AbstractLogger
             ? self::getRelativePath($traceRow['file'], $traceRow['line'])
             : null;
 
-        $isIncluding = in_array($traceRow['function'], ['include', 'include_once', 'require', 'require_once'], true);
+        $isIncluding = \in_array($traceRow['function'], ['include', 'include_once', 'require', 'require_once'], true);
 
         if ($isIncluding) {
             $includedFile = self::getRelativePath($traceRow['args'][0] ?? '');
-            $function = "{$traceRow['function']} ('{$includedFile}')";
+            $function     = "{$traceRow['function']} ('{$includedFile}')";
         } elseif (isset($traceRow['type'], $traceRow['class'])) {
             $function = "{$traceRow['class']}{$traceRow['type']}{$traceRow['function']}()";
         } else {
             $function = $traceRow['function'] . '()';
         }
 
-        return trim("{$file} <comment>{$function}</comment>");
+        return \trim("{$file} <comment>{$function}</comment>");
     }
 
-    /**
-     * @param string   $filepath
-     * @param int|null $line
-     * @return string
-     */
     private static function getRelativePath(string $filepath, ?int $line = null): string
     {
         $lineFormated = $line > 0 ? ":{$line}" : '';
-        $filename = pathinfo($filepath, PATHINFO_BASENAME) . $lineFormated;
+        $filename     = \pathinfo($filepath, \PATHINFO_BASENAME) . $lineFormated;
 
-        $relPath = str_replace(
+        $relPath = \str_replace(
             $filename,
             "<filename>{$filename}</filename>",
-            './' . FS::getRelative($filepath) . $lineFormated
+            './' . FS::getRelative($filepath) . $lineFormated,
         );
 
-        $relPath = \strpos($relPath, './vendor/') === 0 ? $relPath : "<info>{$relPath}</info>";
-
-        return $relPath;
+        return \str_starts_with($relPath, './vendor/') ? $relPath : "<info>{$relPath}</info>";
     }
 }

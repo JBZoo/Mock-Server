@@ -16,12 +16,10 @@ declare(strict_types=1);
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'control' => [
-        'delay' => static function (): int {
-            return 1000;
-        }
-    ]
+        'delay' => static fn (): int => 1000,
+    ],
 ];

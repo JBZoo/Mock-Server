@@ -24,37 +24,21 @@ use JBZoo\Utils\FS;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
 
-/**
- * Class MockFinder
- * @package JBZoo\MockServer\Server
- */
 class MockFinder
 {
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $mocksPath;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $checkSyntax;
 
-    /**
-     * MockFinder constructor.
-     * @param string          $mocksPath
-     * @param LoggerInterface $logger
-     * @param bool            $checkSyntax
-     */
     public function __construct(string $mocksPath, LoggerInterface $logger, bool $checkSyntax)
     {
-        $this->mocksPath = $mocksPath;
-        $this->logger = $logger;
+        $this->mocksPath   = $mocksPath;
+        $this->logger      = $logger;
         $this->checkSyntax = $checkSyntax;
     }
 
@@ -64,7 +48,7 @@ class MockFinder
     public function getMocks(): array
     {
         $relPath = FS::getRelative($this->mocksPath);
-        $this->logger->info(str_replace($relPath, "<comment>{$relPath}</comment>", "Mocks Path: {$this->mocksPath}"));
+        $this->logger->info(\str_replace($relPath, "<comment>{$relPath}</comment>", "Mocks Path: {$this->mocksPath}"));
 
         $types = [
             'php'  => PhpMock::class,
@@ -79,7 +63,7 @@ class MockFinder
             ->ignoreDotFiles(true)
             ->followLinks();
 
-        foreach (array_keys($types) as $fileExt) {
+        foreach (\array_keys($types) as $fileExt) {
             $finder
                 ->name(".{$fileExt}")
                 ->name("*.{$fileExt}")
@@ -87,9 +71,10 @@ class MockFinder
         }
 
         $mocks = [];
+
         foreach ($finder as $file) {
             $filePath = $file->getPathname();
-            $fileExt = $file->getExtension();
+            $fileExt  = $file->getExtension();
 
             $validationErrors = null;
             if ($this->checkSyntax) {
@@ -98,8 +83,8 @@ class MockFinder
 
             if (!$validationErrors) {
                 /** @var AbstractMock $mockClass */
-                $mockClass = $types[$fileExt];
-                $mock = new $mockClass($filePath);
+                $mockClass               = $types[$fileExt];
+                $mock                    = new $mockClass($filePath);
                 $mocks[$mock->getHash()] = $mock;
             } else {
                 $this->logger->warning("Fixture \"{$filePath}\" is invalid and skipped\n{$validationErrors}");

@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 ];

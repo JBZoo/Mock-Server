@@ -20,15 +20,13 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => "*",
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'method' => '*',
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
         'code'    => 200,
         'headers' => ['Content-Type' => 'application/json'],
-        'body'    => static function (Request $request): string {
-            return (string)json(['method' => $request->getMethod()]);
-        }
-    ]
+        'body'    => static fn (Request $request): string => (string)json(['method' => $request->getMethod()]),
+    ],
 ];

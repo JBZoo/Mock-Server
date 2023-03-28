@@ -16,21 +16,12 @@ declare(strict_types=1);
 
 namespace JBZoo\PHPUnit;
 
-/**
- * Class MockServerReadmeTest
- *
- * @package JBZoo\PHPUnit
- */
 class MockServerReadmeTest extends AbstractReadmeTest
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $packageName = 'Mock-Server';
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     protected $badgesTemplate = [
         'travis',
         'docker_build',
@@ -49,11 +40,11 @@ class MockServerReadmeTest extends AbstractReadmeTest
     ];
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
-        $this->params = array_merge($this->params, [
+        $this->params = \array_merge($this->params, [
             'docker_build' => true,
             'docker_pulls' => true,
             'scrutinizer'  => true,

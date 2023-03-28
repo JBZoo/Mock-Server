@@ -22,32 +22,28 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class StartCommand
- * @package JBZoo\MockServer
- */
 class StartCommand extends Command
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function configure(): void
     {
-        $req = InputOption::VALUE_REQUIRED;
+        $req  = InputOption::VALUE_REQUIRED;
         $none = InputOption::VALUE_NONE;
 
         $this
             ->setName('start')
-            ->addOption('host', null, $req, "Host", MockServer::DEFAULT_HOST)
-            ->addOption('port', null, $req, "Port", (string)MockServer::DEFAULT_PORT)
-            ->addOption('host-tls', null, $req, "Host", MockServer::DEFAULT_HOST)
-            ->addOption('port-tls', null, $req, "Port", (string)MockServer::DEFAULT_PORT_TLS)
-            ->addOption('mocks', null, $req, "Mocks path", '/mocks')
+            ->addOption('host', null, $req, 'Host', MockServer::DEFAULT_HOST)
+            ->addOption('port', null, $req, 'Port', (string)MockServer::DEFAULT_PORT)
+            ->addOption('host-tls', null, $req, 'Host', MockServer::DEFAULT_HOST)
+            ->addOption('port-tls', null, $req, 'Port', (string)MockServer::DEFAULT_PORT_TLS)
+            ->addOption('mocks', null, $req, 'Mocks path', '/mocks')
             ->addOption('check-syntax', null, $none, 'Check syntax of PHP files before loading. It takes some time');
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -70,31 +66,16 @@ class StartCommand extends Command
         return 0;
     }
 
-    /**
-     * @param string         $option
-     * @param InputInterface $input
-     * @return int
-     */
     private static function getOptionInt(string $option, InputInterface $input): int
     {
-        return (int)implode('', (array)$input->getOption($option));
+        return (int)\implode('', (array)$input->getOption($option));
     }
 
-    /**
-     * @param string         $option
-     * @param InputInterface $input
-     * @return string
-     */
     private static function getOptionString(string $option, InputInterface $input): string
     {
-        return (string)implode('', (array)$input->getOption($option));
+        return (string)\implode('', (array)$input->getOption($option));
     }
 
-    /**
-     * @param string         $option
-     * @param InputInterface $input
-     * @return bool
-     */
     private static function isOptionEnabled(string $option, InputInterface $input): bool
     {
         return (bool)$input->getOption($option);

@@ -20,16 +20,14 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
-        'body' => static function (Request $request): string {
-            return (string)json(['request_id' => $request->getId()]);
-        }
+        'body' => static fn (Request $request): string => (string)json(['request_id' => $request->getId()]),
     ],
 
     'control' => [
-        'delay' => 1000 // 1 second
-    ]
+        'delay' => 1000, // 1 second
+    ],
 ];

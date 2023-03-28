@@ -19,12 +19,12 @@ use function JBZoo\Data\json;
 return [
     'request' => [
         'method' => 'get',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
         'code'    => 404,
         'headers' => ['Content-Type' => 'application/json'],
-        'body'    => (string)json(['message' => 'not_found'])
-    ]
+        'body'    => (string)json(['message' => 'not_found']),
+    ],
 ];

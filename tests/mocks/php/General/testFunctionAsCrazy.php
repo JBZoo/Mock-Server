@@ -21,7 +21,7 @@ use function JBZoo\Data\json;
 return [
     'request' => [
         'method' => 'GET|DELETE',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
@@ -30,8 +30,6 @@ return [
     ],
 
     'control' => [
-        'crazy' => static function (Request $request): bool {
-            return $request->getMethod() === 'GET';
-        }
-    ]
+        'crazy' => static fn (Request $request): bool => $request->getMethod() === 'GET',
+    ],
 ];

@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
         'code'    => 200,
         'headers' => ['Content-Type' => 'image/jpeg'],
-        'body'    => file_get_contents(__DIR__ . '/../../Example.jpg'), // IT IS BLOCKING METHOD!!!
-    ]
+        'body'    => \file_get_contents(__DIR__ . '/../../Example.jpg'), // IT IS BLOCKING METHOD!!!
+    ],
 ];

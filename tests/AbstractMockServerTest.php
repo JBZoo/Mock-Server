@@ -20,10 +20,6 @@ use JBZoo\HttpClient\HttpClient;
 use JBZoo\HttpClient\Response;
 use JBZoo\MockServer\Server\MockServer;
 
-/**
- * Class AbstractMockServerTest
- * @package JBZoo\PHPUnit
- */
 abstract class AbstractMockServerTest extends PHPUnit
 {
     protected const TEST_URL = '__SELF__';
@@ -35,9 +31,7 @@ abstract class AbstractMockServerTest extends PHPUnit
         'timeout'         => 20,
     ];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $testHost;
 
     protected function setUp(): void
@@ -47,37 +41,26 @@ abstract class AbstractMockServerTest extends PHPUnit
     }
 
     /**
-     * @param string            $relativePath
-     * @param array|string|null $args
-     * @param string            $method
-     * @param array             $headers
-     * @return Response
+     * @param null|array|string $args
      */
     protected function request(
         string $method = 'GET',
         $args = null,
         string $relativePath = self::TEST_URL,
-        array $headers = []
+        array $headers = [],
     ): Response {
         $client = $this->createClient();
+
         return $client->request($this->prepareUrl($relativePath), $args, $method, ['headers' => $headers]);
     }
 
-    /**
-     * @param array $options
-     * @return HttpClient
-     */
     protected function createClient(array $options = self::DEFAULT_HTTP_OPTIONS): HttpClient
     {
         return new HttpClient($options);
     }
 
-    /**
-     * @param string $relativePath
-     * @return string
-     */
     protected function prepareUrl(string $relativePath = self::TEST_URL): string
     {
-        return str_replace(self::TEST_URL, $this->getName(), "http://{$this->testHost}/{$relativePath}");
+        return \str_replace(self::TEST_URL, $this->getName(), "http://{$this->testHost}/{$relativePath}");
     }
 }

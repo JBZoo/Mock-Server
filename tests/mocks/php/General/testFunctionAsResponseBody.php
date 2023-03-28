@@ -21,7 +21,7 @@ use function JBZoo\Data\json;
 return [
     'request' => [
         'method' => '*',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
@@ -58,6 +58,6 @@ return [
 
                 'uploaded_files' => $request->getFiles(true),
             ]);
-        }
-    ]
+        },
+    ],
 ];

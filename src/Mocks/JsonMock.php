@@ -18,10 +18,6 @@ namespace JBZoo\MockServer\Mocks;
 
 use JBZoo\Data\JSON;
 
-/**
- * Class JsonMock
- * @package JBZoo\MockServer\Mocks
- */
 class JsonMock extends AbstractMock
 {
     protected const FORMAT_CLASS = JSON::class;

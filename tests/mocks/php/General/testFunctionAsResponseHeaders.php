@@ -16,12 +16,10 @@ declare(strict_types=1);
 
 return [
     'request' => [
-        'path' => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path' => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
-        'headers' => static function (): array {
-            return ['x-random-value' => random_int(0, 10000000)];
-        }
-    ]
+        'headers' => static fn (): array => ['x-random-value' => \random_int(0, 10000000)],
+    ],
 ];

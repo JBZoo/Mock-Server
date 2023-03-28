@@ -18,8 +18,8 @@ use function JBZoo\Data\json;
 
 return [
     'request' => [
-        'method' => "ANY",
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'method' => 'ANY',
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
@@ -30,6 +30,6 @@ return [
 
     'control' => [
         'crazy' => false,
-        'delay' => 1000
-    ]
+        'delay' => 1000,
+    ],
 ];

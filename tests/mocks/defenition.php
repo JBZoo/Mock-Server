@@ -38,7 +38,7 @@ return [
         'headers' => [
             'name' => ['value'],
         ],
-        'body'    => 'Response body',
+        'body' => 'Response body',
     ],
 
     'control' => [

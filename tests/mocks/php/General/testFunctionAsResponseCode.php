@@ -19,12 +19,10 @@ use JBZoo\MockServer\Server\Request;
 return [
     'request' => [
         'method' => 'PUT|POST',
-        'path'   => '/' . pathinfo(__FILE__, PATHINFO_FILENAME)
+        'path'   => '/' . \pathinfo(__FILE__, \PATHINFO_FILENAME),
     ],
 
     'response' => [
-        'code' => static function (Request $request): int {
-            return $request->getMethod() === 'PUT' ? 200 : 404;
-        },
-    ]
+        'code' => static fn (Request $request): int => $request->getMethod() === 'PUT' ? 200 : 404,
+    ],
 ];

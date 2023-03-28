@@ -18,10 +18,6 @@ namespace JBZoo\MockServer\Mocks;
 
 use JBZoo\Data\Yml;
 
-/**
- * Class YmlMock
- * @package JBZoo\MockServer\Mocks
- */
 class YmlMock extends AbstractMock
 {
     protected const FORMAT_CLASS = Yml::class;

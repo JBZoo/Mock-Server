@@ -16,10 +16,6 @@ declare(strict_types=1);
 
 namespace JBZoo\MockServer\Mocks;
 
-/**
- * Class Exception
- * @package JBZoo\MockServer\Mocks
- */
 class Exception extends \JBZoo\MockServer\Exception
 {
 }

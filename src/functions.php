@@ -18,11 +18,8 @@ namespace FastRoute;
 
 use FastRoute\RouteParser\Std;
 
-if (!function_exists('FastRoute\simpleDispatcher')) {
+if (!\function_exists('FastRoute\simpleDispatcher')) {
     /**
-     * @param callable $routeDefinitionCallback
-     * @param array    $options
-     * @return Dispatcher
      * @phan-suppress PhanRedefineFunction
      */
     function simpleDispatcher(callable $routeDefinitionCallback, array $options = []): Dispatcher
@@ -34,7 +31,7 @@ if (!function_exists('FastRoute\simpleDispatcher')) {
             'routeCollector' => RouteCollector::class,
         ];
 
-        $routeParser = new $options['routeParser']();
+        $routeParser   = new $options['routeParser']();
         $dataGenerator = new $options['dataGenerator']();
 
         /** @var RouteCollector $routeCollector */

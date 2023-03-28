@@ -23,19 +23,17 @@ use Amp\Success;
 
 use function JBZoo\Data\json;
 
-/**
- * Class ErrorHandler
- * @package JBZoo\MockServer\Server
- */
 final class ErrorHandler implements \Amp\Http\Server\ErrorHandler
 {
-    /** {@inheritdoc} */
-    public function handleError(int $statusCode, string $reason = null, Request $request = null): Promise
+    /**
+     * {@inheritdoc}
+     */
+    public function handleError(int $statusCode, ?string $reason = null, ?Request $request = null): Promise
     {
-        $reason = $reason ?: "Route not found or something went wrong. See server logs.";
+        $reason = $reason ?: 'Route not found or something went wrong. See server logs.';
 
-        $message = trim("{$statusCode} {$reason}");
-        $body = $message;
+        $message = \trim("{$statusCode} {$reason}");
+        $body    = $message;
 
         if ($request) {
             $body = (string)json([
