@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -24,19 +23,17 @@ use Amp\Success;
 
 use function JBZoo\Data\json;
 
-/**
- * Class ErrorHandler
- * @package JBZoo\MockServer\Server
- */
 final class ErrorHandler implements \Amp\Http\Server\ErrorHandler
 {
-    /** {@inheritdoc} */
-    public function handleError(int $statusCode, string $reason = null, Request $request = null): Promise
+    /**
+     * {@inheritdoc}
+     */
+    public function handleError(int $statusCode, ?string $reason = null, ?Request $request = null): Promise
     {
-        $reason = $reason ?: "Route not found or something went wrong. See server logs.";
+        $reason = $reason ?: 'Route not found or something went wrong. See server logs.';
 
-        $message = trim("{$statusCode} {$reason}");
-        $body = $message;
+        $message = \trim("{$statusCode} {$reason}");
+        $body    = $message;
 
         if ($request) {
             $body = (string)json([

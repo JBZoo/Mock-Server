@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -38,10 +37,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function Amp\call;
 use function Amp\Http\Server\FormParser\parseForm;
 
-/**
- * Class MockServer
- * @package JBZoo\MockServer\Server
- */
 class MockServer
 {
     public const DEFAULT_HOST      = '0.0.0.0';
@@ -62,54 +57,34 @@ class MockServer
 
     public const PROXY_DEBUG_MODE = false;
 
-    /**
-     * @var HttpServer
-     */
+    /** @var HttpServer */
     private $server;
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $requestId = 0;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $host = self::DEFAULT_HOST;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $port = self::DEFAULT_PORT;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $hostTls = self::DEFAULT_HOST;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $portTls = self::DEFAULT_PORT_TLS;
 
-    /**
-     * @var OutputInterface
-     */
+    /** @var OutputInterface */
     private $output;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $mocksPath;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $checkSyntax = false;
 
     public function start(): void
@@ -136,7 +111,7 @@ class MockServer
             $this->showDebugInfo();
             $this->logger->info('Ready to work.');
 
-            //Loop::repeat($msInterval = 10000, function () { $this->showDebugInfo(true);});
+            // Loop::repeat($msInterval = 10000, function () { $this->showDebugInfo(true);});
 
             // @phan-suppress-next-line PhanTypeMismatchArgument
             Loop::onSignal(\SIGINT, function (string $watcherId) {
@@ -147,11 +122,83 @@ class MockServer
     }
 
     /**
-     * @return array
+     * @return $this
      */
+    public function setHost(string $host): self
+    {
+        $this->host = $host;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setPort(int $port): self
+    {
+        $this->port = $port;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setHostTls(string $hostTls): self
+    {
+        $this->hostTls = $hostTls;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setPortTls(int $portTls): self
+    {
+        $this->portTls = $portTls;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setOutput(OutputInterface $output): self
+    {
+        $this->output = $output;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setCheckSyntax(bool $checkSyntax): self
+    {
+        $this->checkSyntax = $checkSyntax;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setMocksPath(string $mocksPath): self
+    {
+        $path = \realpath($mocksPath);
+        if (!$path) {
+            throw new Exception("Mock path not found: {$mocksPath}");
+        }
+
+        $this->mocksPath = $path;
+
+        return $this;
+    }
+
     private function getServers(): array
     {
-        $cert = new Certificate(__DIR__ . '/../../vendor/amphp/http-server/tools/tls/localhost.pem');
+        $cert    = new Certificate(__DIR__ . '/../../vendor/amphp/http-server/tools/tls/localhost.pem');
         $context = (new BindContext())->withTlsContext((new ServerTlsContext())->withDefaultCertificate($cert));
 
         return [
@@ -161,28 +208,28 @@ class MockServer
     }
 
     /**
-     * @return Router
      * @SuppressWarnings(PHPMD.ExitExpression)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function initRouter(): Router
     {
         $mocks = (new MockFinder($this->mocksPath, $this->logger, $this->checkSyntax))->getMocks();
-        if (count($mocks) === 0) {
+        if (\count($mocks) === 0) {
             $this->logger->error('Mocks not found. Exit.');
-            die(1);
+            exit(1);
         }
 
-        $this->logger->info('Mocks found: <comment>' . count($mocks) . '</comment>');
+        $this->logger->info('Mocks found: <comment>' . \count($mocks) . '</comment>');
 
         $router = new Router();
         $router->setFallback(new CallableRequestHandler(function (ServerRequest $request): void {
             $this->logger->error(
-                "Route not found: <important>{$request->getMethod()} {$request->getUri()}</important>"
+                "Route not found: <important>{$request->getMethod()} {$request->getUri()}</important>",
             );
         }));
 
         $totalRoutes = 0;
+
         foreach ($mocks as $mock) {
             $requestHandler = new CallableRequestHandler(function (ServerRequest $request) use ($mock) {
                 $mock->bindRequest(null);
@@ -195,30 +242,27 @@ class MockServer
                 $requestId = ++$this->requestId;
 
                 /** @var Request $jbRequest */
-                $jbRequest = yield call(static function () use ($requestId, $request) {
-                    return new Request($requestId, $request, yield parseForm($request));
-                });
+                $jbRequest = yield call(static fn () => new Request($requestId, $request, yield parseForm($request)));
 
                 $mock->bindRequest($jbRequest);
 
                 if ($proxyUrl = $mock->getBaseProxyUrl()) {
-                    [$responseCode, $responseHeaders, $responseBody] =
-                        yield call(static function () use ($mock, $proxyUrl) {
-                            return $mock->handleProxyUrl($proxyUrl);
-                        });
+                    [$responseCode, $responseHeaders, $responseBody] = yield call(
+                        static fn () => $mock->handleProxyUrl($proxyUrl),
+                    );
                     $this->logger->notice("#{$requestId} <warning>Proxy</warning> {$proxyUrl}");
                 } else {
-                    $responseCode = $mock->getResponseCode();
+                    $responseCode    = $mock->getResponseCode();
                     $responseHeaders = $mock->getResponseHeaders();
-                    $responseBody = $mock->getResponseBody();
+                    $responseBody    = $mock->getResponseBody();
                 }
 
-                $this->logger->notice(implode(" ", array_filter([
+                $this->logger->notice(\implode(' ', \array_filter([
                     "#{$requestId}",
                     $responseCode,
                     "- {$request->getMethod()} {$request->getUri()}",
-                    $mock->isCrazyEnabled() ? "<important>Crazy</important>" : '',
-                    $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : ''
+                    $mock->isCrazyEnabled() ? '<important>Crazy</important>' : '',
+                    $customDelay > 0 ? "<warning>Delay: {$customDelay}ms</warning>" : '',
                 ])));
 
                 return new Response($responseCode, $responseHeaders, $responseBody);
@@ -226,6 +270,7 @@ class MockServer
 
             try {
                 $methods = $mock->getRequestMethods();
+
                 foreach ($methods as $method) {
                     $router->addRoute($method, $mock->getRequestPath(), $requestHandler);
                     $totalRoutes++;
@@ -241,13 +286,12 @@ class MockServer
     }
 
     /**
-     * @return LoggerInterface
      * @phan-suppress PhanUndeclaredMethod
      */
     private function initLogger(): LoggerInterface
     {
         /** @phpstan-ignore-next-line */
-        foreach ([$this->output, $this->output->getErrorOutput()] as $output) { //
+        foreach ([$this->output, $this->output->getErrorOutput()] as $output) {
             $formatter = $output->getFormatter();
             $formatter->setStyle('debug', new OutputFormatterStyle('cyan'));
             $formatter->setStyle('warning', new OutputFormatterStyle('yellow'));
@@ -258,102 +302,23 @@ class MockServer
         return new ConsoleLogger($this->output);
     }
 
-    /**
-     * @param string $host
-     * @return $this
-     */
-    public function setHost(string $host): self
-    {
-        $this->host = $host;
-        return $this;
-    }
-
-    /**
-     * @param int $port
-     * @return $this
-     */
-    public function setPort(int $port): self
-    {
-        $this->port = $port;
-        return $this;
-    }
-
-    /**
-     * @param string $hostTls
-     * @return $this
-     */
-    public function setHostTls(string $hostTls): self
-    {
-        $this->hostTls = $hostTls;
-        return $this;
-    }
-
-    /**
-     * @param int $portTls
-     * @return $this
-     */
-    public function setPortTls(int $portTls): self
-    {
-        $this->portTls = $portTls;
-        return $this;
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @return $this
-     */
-    public function setOutput(OutputInterface $output): self
-    {
-        $this->output = $output;
-        return $this;
-    }
-
-    /**
-     * @param bool $checkSyntax
-     * @return $this
-     */
-    public function setCheckSyntax(bool $checkSyntax): self
-    {
-        $this->checkSyntax = $checkSyntax;
-        return $this;
-    }
-
-    /**
-     * @param string $mocksPath
-     * @return $this
-     */
-    public function setMocksPath(string $mocksPath): self
-    {
-        $path = realpath($mocksPath);
-        if (!$path) {
-            throw new Exception("Mock path not found: {$mocksPath}");
-        }
-
-        $this->mocksPath = $path;
-        return $this;
-    }
-
-    /**
-     * @param bool $showOnlyMemory
-     */
     private function showDebugInfo(bool $showOnlyMemory = false): void
     {
         if ($showOnlyMemory) {
             $this->logger->debug("Memory Usage: {$this->getMemoryUsage()}");
         } else {
-            $this->logger->debug('PHP Version: ' . PHP_VERSION);
-            $this->logger->debug('Driver: ' . get_class(Loop::get()));
+            $this->logger->debug('PHP Version: ' . \PHP_VERSION);
+            $this->logger->debug('Driver: ' . \get_class(Loop::get()));
             $this->logger->debug("Memory Usage: {$this->getMemoryUsage()}");
-            $this->logger->debug('Bootstrap time: ' . round(microtime(true) - Timer::getRequestTime(), 3) . ' sec');
+            $this->logger->debug('Bootstrap time: ' . \round(\microtime(true) - Timer::getRequestTime(), 3) . ' sec');
         }
     }
 
     /**
-     * @return string
      * @phan-suppress PhanPluginPossiblyStaticPrivateMethod
      */
     private function getMemoryUsage(): string
     {
-        return FS::format(memory_get_usage(false)) . '/' . FS::format(memory_get_peak_usage(false));
+        return FS::format(\memory_get_usage(false)) . '/' . FS::format(\memory_get_peak_usage(false));
     }
 }

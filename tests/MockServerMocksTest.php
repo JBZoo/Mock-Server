@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -21,10 +20,6 @@ use JBZoo\MockServer\Mocks\JsonMock;
 use JBZoo\MockServer\Mocks\PhpMock;
 use JBZoo\MockServer\Mocks\YmlMock;
 
-/**
- * Class MockServerMocksTest
- * @package JBZoo\PHPUnit
- */
 class MockServerMocksTest extends AbstractMockServerTest
 {
     public function testStaticPhp(): void
@@ -38,7 +33,7 @@ class MockServerMocksTest extends AbstractMockServerTest
         isSame([
             'X-Mock-Server-Fixture'    => $phpMock,
             'X-Mock-Server-Request-Id' => null,
-            'Content-Type'             => 'application/json'
+            'Content-Type'             => 'application/json',
         ], $mock->getResponseHeaders());
 
         isSame('/testStaticPhp', $mock->getRequestPath());
@@ -52,7 +47,7 @@ class MockServerMocksTest extends AbstractMockServerTest
     public function testDynamicPhp(): void
     {
         $phpMock = __DIR__ . '/../tests/mocks/max/testDynamicPhp.php';
-        $mock = new PhpMock($phpMock);
+        $mock    = new PhpMock($phpMock);
 
         $mock->bindRequest();
 
@@ -61,7 +56,7 @@ class MockServerMocksTest extends AbstractMockServerTest
         isSame([
             'X-Mock-Server-Fixture'    => $phpMock,
             'X-Mock-Server-Request-Id' => null,
-            'Content-Type'             => 'application/json'
+            'Content-Type'             => 'application/json',
         ], $mock->getResponseHeaders());
 
         isSame('/testDynamicPhp', $mock->getRequestPath());
@@ -83,7 +78,7 @@ class MockServerMocksTest extends AbstractMockServerTest
         isSame([
             'X-Mock-Server-Fixture'    => $ymlMock,
             'X-Mock-Server-Request-Id' => null,
-            'Content-Type'             => 'application/json'
+            'Content-Type'             => 'application/json',
         ], $mock->getResponseHeaders());
 
         isSame('/testStaticYml', $mock->getRequestPath());
@@ -105,7 +100,7 @@ class MockServerMocksTest extends AbstractMockServerTest
         isSame([
             'X-Mock-Server-Fixture'    => $jsonMock,
             'X-Mock-Server-Request-Id' => null,
-            'Content-Type'             => 'application/json'
+            'Content-Type'             => 'application/json',
         ], $mock->getResponseHeaders());
 
         isSame('/testStaticJson', $mock->getRequestPath());

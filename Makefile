@@ -1,14 +1,13 @@
 #
-# JBZoo Toolbox - Mock-Server
+# JBZoo Toolbox - Mock-Server.
 #
 # This file is part of the JBZoo Toolbox project.
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 #
-# @package    Mock-Server
 # @license    MIT
 # @copyright  Copyright (C) JBZoo.com, All rights reserved.
-# @link       https://github.com/JBZoo/Mock-Server
+# @see        https://github.com/JBZoo/Mock-Server
 #
 
 .PHONY: build
@@ -30,32 +29,13 @@ MOCK_SERVER_DOCKER   ?= docker run --rm    \
     -p $(MOCK_SERVER_PORT_TLS):8090        \
     jbzoo-mock-server
 
-PHAR_BOX      ?= $(PHP_BIN) `pwd`/vendor/bin/box.phar
 PHAR_FILE     ?= `pwd`/build/mock-server.phar
 PHAR_FILE_BIN ?= $(PHP_BIN) $(PHAR_FILE)
-
-BOX_PHAR    = https://github.com/box-project/box/releases/download/3.9.1/box.phar
-
-ifeq ($(strip $(PHP_VERSION_ALIAS)),72)
-	PHAR_BOX_SOURCE ?= https://github.com/box-project/box/releases/download/3.9.1/box.phar
-else
-	PHAR_BOX_SOURCE ?= https://github.com/box-project/box/releases/download/3.11.1/box.phar
-endif
-
 
 build: ##@Project Install all 3rd party dependencies
 	$(call title,"Install/Update all 3rd party dependencies")
 	@composer install --optimize-autoloader --no-progress
 	@make build-phar
-
-
-build-phar: ##@Project Compile phar file
-	$(call download_phar,$(BOX_PHAR),"box")
-	@$(PHP_BIN) `pwd`/vendor/bin/box.phar --version
-	@$(PHP_BIN) `pwd`/vendor/bin/box.phar validate -vvv
-	@composer config autoloader-suffix JBZooPhar   -v
-	@$(PHAR_BOX) compile --working-dir="`pwd`"     -v
-	@composer config autoloader-suffix --unset     -v
 
 
 build-docker:

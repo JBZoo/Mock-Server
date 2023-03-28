@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -24,10 +23,6 @@ use JBZoo\Utils\Str;
 
 use function JBZoo\Data\json;
 
-/**
- * Class MockServerTest
- * @package JBZoo\PHPUnit
- */
 class MockServerGeneralTest extends AbstractMockServerTest
 {
     public function testMinimalMock(): void
@@ -49,8 +44,8 @@ class MockServerGeneralTest extends AbstractMockServerTest
 
     public function testMultiplyMethods(): void
     {
-        $formats = ['string', 'array', 'star', 'any'];
-        $allowedMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", /*'OPTIONS'*/];
+        $formats        = ['string', 'array', 'star', 'any'];
+        $allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'/* 'OPTIONS' */];
 
         foreach ($formats as $format) {
             foreach ($allowedMethods as $allowedMethod) {
@@ -89,7 +84,7 @@ class MockServerGeneralTest extends AbstractMockServerTest
 
     public function testUndefinedRoute(): void
     {
-        $path = 'undefined-route-' . Str::random();
+        $path     = 'undefined-route-' . Str::random();
         $response = $this->request('GET', null, $path);
 
         isSame(500, $response->getCode());
@@ -99,9 +94,9 @@ class MockServerGeneralTest extends AbstractMockServerTest
                 'uri'     => "http://0.0.0.0:8089/{$path}",
                 'headers' => [
                     'host'       => ['0.0.0.0:8089'],
-                    'user-agent' => ['JBZoo/Http-Client (Guzzle)']
-                ]
-            ]
+                    'user-agent' => ['JBZoo/Http-Client (Guzzle)'],
+                ],
+            ],
         ], $response->getJSON()->getArrayCopy());
     }
 
@@ -116,9 +111,9 @@ class MockServerGeneralTest extends AbstractMockServerTest
                 'uri'     => 'http://0.0.0.0:8089/testExceptionInMock',
                 'headers' => [
                     'host'       => ['0.0.0.0:8089'],
-                    'user-agent' => ['JBZoo/Http-Client (Guzzle)']
-                ]
-            ]
+                    'user-agent' => ['JBZoo/Http-Client (Guzzle)'],
+                ],
+            ],
         ], $response->getJSON()->getArrayCopy());
     }
 
@@ -131,16 +126,16 @@ class MockServerGeneralTest extends AbstractMockServerTest
         isTrue($resultGet['id'] > 0);
         unset($resultGet['id']);
         isSame([
-            'protocol'       => '1.1',
-            'method'         => 'GET',
-            'headers'        => [
+            'protocol' => '1.1',
+            'method'   => 'GET',
+            'headers'  => [
                 'host'       => '0.0.0.0:8089',
-                'user-agent' => 'JBZoo/Http-Client (Guzzle)'
+                'user-agent' => 'JBZoo/Http-Client (Guzzle)',
             ],
-            'cookies'        => [],
-            'user_agent'     => 'JBZoo/Http-Client (Guzzle)',
-            'client_ip'      => '127.0.0.1',
-            'uri'            => [
+            'cookies'    => [],
+            'user_agent' => 'JBZoo/Http-Client (Guzzle)',
+            'client_ip'  => '127.0.0.1',
+            'uri'        => [
                 'full'      => 'http://0.0.0.0:8089/testFunctionAsResponseBody',
                 'scheme'    => 'http',
                 'host'      => '0.0.0.0',
@@ -148,9 +143,9 @@ class MockServerGeneralTest extends AbstractMockServerTest
                 'authority' => '0.0.0.0:8089',
                 'path'      => '/testFunctionAsResponseBody',
                 'query'     => '',
-                'user_info' => ''
+                'user_info' => '',
             ],
-            'params'         => [
+            'params' => [
                 'query' => [],
                 'body'  => [],
                 'all'   => [],
@@ -163,33 +158,33 @@ class MockServerGeneralTest extends AbstractMockServerTest
             'POST',
             [
                 'test'  => $random,
-                'array' => ['value_1' => $random, 'nested' => [$random, $random]]
+                'array' => ['value_1' => $random, 'nested' => [$random, $random]],
             ],
             self::TEST_URL . "?test={$random}&array[]=123456&array[]=654987&message=123",
             [
                 'Cookie'          => 'PHPSESSID=poiuytrewq; RMT=qwerty123',
-                'x-custom-header' => $random
-            ]
+                'x-custom-header' => $random,
+            ],
         )->getJSON()->getArrayCopy();
 
         isTrue($responsePost['id'] > 0);
         unset($responsePost['id']);
         isSame([
-            'protocol'       => '1.1',
-            'method'         => 'POST',
-            'headers'        => [
+            'protocol' => '1.1',
+            'method'   => 'POST',
+            'headers'  => [
                 'host'            => '0.0.0.0:8089',
                 'content-type'    => 'application/x-www-form-urlencoded',
                 'cookie'          => 'PHPSESSID=poiuytrewq; RMT=qwerty123',
                 'x-custom-header' => $random,
                 'user-agent'      => 'JBZoo/Http-Client (Guzzle)',
-                'content-length'  => '93'
+                'content-length'  => '93',
             ],
-            'cookies'        => ['PHPSESSID' => 'poiuytrewq', 'RMT' => 'qwerty123'],
-            'user_agent'     => 'JBZoo/Http-Client (Guzzle)',
-            'client_ip'      => '127.0.0.1',
-            'uri'            => [
-                'full'      => 'http://0.0.0.0:8089/testFunctionAsResponseBody?' .
+            'cookies'    => ['PHPSESSID' => 'poiuytrewq', 'RMT' => 'qwerty123'],
+            'user_agent' => 'JBZoo/Http-Client (Guzzle)',
+            'client_ip'  => '127.0.0.1',
+            'uri'        => [
+                'full' => 'http://0.0.0.0:8089/testFunctionAsResponseBody?' .
                     "test={$random}&array%5B%5D=123456&array%5B%5D=654987&message=123",
                 'scheme'    => 'http',
                 'host'      => '0.0.0.0',
@@ -197,9 +192,9 @@ class MockServerGeneralTest extends AbstractMockServerTest
                 'authority' => '0.0.0.0:8089',
                 'path'      => '/testFunctionAsResponseBody',
                 'query'     => "test={$random}&array%5B%5D=123456&array%5B%5D=654987&message=123",
-                'user_info' => ''
+                'user_info' => '',
             ],
-            'params'         => [
+            'params' => [
                 'query' => ['test' => $random, 'array' => ['123456', '654987'], 'message' => '123'],
                 'body'  => ['test' => $random, 'array' => ['value_1' => $random, 'nested' => [$random, $random]]],
                 'all'   => [
@@ -207,20 +202,20 @@ class MockServerGeneralTest extends AbstractMockServerTest
                     'array'     => ['value_1' => $random, 'nested' => [$random, $random]],
                     'message'   => '123',
                     'PHPSESSID' => 'poiuytrewq',
-                    'RMT'       => 'qwerty123'
-                ]
+                    'RMT'       => 'qwerty123',
+                ],
             ],
-            "uploaded_files" => []
+            'uploaded_files' => [],
         ], $responsePost);
 
         // Upload file in POST
-        $exampleFile = file_get_contents(__DIR__ . '/mocks/Example.jpg');
+        $exampleFile    = \file_get_contents(__DIR__ . '/mocks/Example.jpg');
         $responseUpload = (new GuzzleHttpClient())->request('POST', $this->prepareUrl(), [
             RequestOptions::MULTIPART => [
                 ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_10.jpg'],
                 ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_11.jpg'],
-                ['name' => 'image_2', 'contents' => $exampleFile, 'filename' => 'Example_20.jpg']
-            ]
+                ['name' => 'image_2', 'contents' => $exampleFile, 'filename' => 'Example_20.jpg'],
+            ],
         ]);
 
         $responseUpload = json($responseUpload->getBody()->getContents())->getArrayCopy();
@@ -229,17 +224,17 @@ class MockServerGeneralTest extends AbstractMockServerTest
         isContain('multipart/form-data; boundary=', $responseUpload['headers']['content-type']);
         unset($responseUpload['headers']['content-type']);
         isSame([
-            'protocol'       => '1.1',
-            'method'         => 'POST',
-            'headers'        => [
+            'protocol' => '1.1',
+            'method'   => 'POST',
+            'headers'  => [
                 'host'           => '0.0.0.0:8089',
                 'user-agent'     => 'GuzzleHttp/7',
-                'content-length' => '27625'
+                'content-length' => '27625',
             ],
-            'cookies'        => [],
-            'user_agent'     => 'GuzzleHttp/7',
-            'client_ip'      => '127.0.0.1',
-            'uri'            => [
+            'cookies'    => [],
+            'user_agent' => 'GuzzleHttp/7',
+            'client_ip'  => '127.0.0.1',
+            'uri'        => [
                 'full'      => 'http://0.0.0.0:8089/testFunctionAsResponseBody',
                 'scheme'    => 'http',
                 'host'      => '0.0.0.0',
@@ -247,22 +242,22 @@ class MockServerGeneralTest extends AbstractMockServerTest
                 'authority' => '0.0.0.0:8089',
                 'path'      => '/testFunctionAsResponseBody',
                 'query'     => '',
-                'user_info' => ''
+                'user_info' => '',
             ],
-            'params'         => [
+            'params' => [
                 'query' => [],
                 'body'  => [],
-                'all'   => []
+                'all'   => [],
             ],
             'uploaded_files' => [
                 'image_1' => [
-                    ['name' => 'Example_10.jpg', 'mime' => 'image/jpeg', 'contents' => base64_encode($exampleFile)],
-                    ['name' => 'Example_11.jpg', 'mime' => 'image/jpeg', 'contents' => base64_encode($exampleFile)],
+                    ['name' => 'Example_10.jpg', 'mime' => 'image/jpeg', 'contents' => \base64_encode($exampleFile)],
+                    ['name' => 'Example_11.jpg', 'mime' => 'image/jpeg', 'contents' => \base64_encode($exampleFile)],
                 ],
                 'image_2' => [
-                    ['name' => 'Example_20.jpg', 'mime' => 'image/jpeg', 'contents' => base64_encode($exampleFile)]
-                ]
-            ]
+                    ['name' => 'Example_20.jpg', 'mime' => 'image/jpeg', 'contents' => \base64_encode($exampleFile)],
+                ],
+            ],
         ], $responseUpload);
     }
 
@@ -285,37 +280,39 @@ class MockServerGeneralTest extends AbstractMockServerTest
 
     public function testConcurrency(): void
     {
-        $maxRequestsAtOnce = random_int(10, 100);
-        //$maxRequestsAtOnce = 2;
+        $maxRequestsAtOnce = \random_int(10, 100);
+        // $maxRequestsAtOnce = 2;
 
         $requests = [];
+
         for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
             $requests[] = [$this->prepareUrl(), ['anti-cache' => $i]];
         }
 
-        $start = microtime(true);
+        $start     = \microtime(true);
         $responses = $this->createClient()->multiRequest($requests);
-        $time = (microtime(true) - $start) * 1000;
+        $time      = (\microtime(true) - $start) * 1000;
 
         isTrue($time > 1000 && $time < 1600, "Expected elapsedMS between 1000 & 1600, got: {$time}");
 
         $requestIds = [];
+
         foreach ($responses as $response) {
             $requestIds[] = $response->getJSON()->get('request_id');
         }
 
-        isCount($maxRequestsAtOnce, array_unique($requestIds));
+        isCount($maxRequestsAtOnce, \array_unique($requestIds));
     }
 
     /**
-     * Just in case we have to warm up the server and PhpUnit framework
+     * Just in case we have to warm up the server and PhpUnit framework.
      * @depends testMinimalMock
      */
     public function testCustomDelay(): void
     {
-        $start = microtime(true);
+        $start    = \microtime(true);
         $response = $this->request();
-        $time = (microtime(true) - $start) * 1000;
+        $time     = (\microtime(true) - $start) * 1000;
 
         isAmount($response->getTime() * 1000, $time, '', 100);
 
@@ -323,14 +320,14 @@ class MockServerGeneralTest extends AbstractMockServerTest
     }
 
     /**
-     * Just in case we have to warm up the server and PhpUnit framework
+     * Just in case we have to warm up the server and PhpUnit framework.
      * @depends testMinimalMock
      */
     public function testFunctionAsDelay(): void
     {
-        $start = microtime(true);
+        $start    = \microtime(true);
         $response = $this->request();
-        $time = (microtime(true) - $start) * 1000;
+        $time     = (\microtime(true) - $start) * 1000;
 
         isAmount($response->getTime() * 1000, $time, '', 100);
         isTrue($time > 1000 && $time < 1300, "Expected elapsedMS between 1000 & 1300, got: {$time}");
@@ -339,7 +336,7 @@ class MockServerGeneralTest extends AbstractMockServerTest
     public function testFileAsBody(): void
     {
         $response = $this->request();
-        isSame($response->getBody(), file_get_contents(__DIR__ . '/mocks/Example.jpg'));
+        isSame($response->getBody(), \file_get_contents(__DIR__ . '/mocks/Example.jpg'));
         isSame('image/jpeg', $response->getHeader('Content-Type'));
     }
 
@@ -348,11 +345,12 @@ class MockServerGeneralTest extends AbstractMockServerTest
      */
     public function testFunctionAsCrazy(): void
     {
-        $methods = ['GET', 'DELETE']; // GET works in crazy mode
+        $methods           = ['GET', 'DELETE']; // GET works in crazy mode
         $maxRequestsAtOnce = 10;
 
         foreach ($methods as $method) {
             $requests = [];
+
             for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
                 $requests[] = [$this->prepareUrl(), null, $method];
             }
@@ -360,18 +358,19 @@ class MockServerGeneralTest extends AbstractMockServerTest
             $responses = $this->createClient()->multiRequest($requests);
 
             $requestIds = [];
+
             foreach ($responses as $response) {
                 $headers = $response->getHeaders();
                 // remove random values to make predictable hash
                 unset($headers['content-length'], $headers['x-mock-server-request-id'], $headers['date']);
 
-                $requestIds[] = sha1(serialize([$response->getCode(), $response->getBody(), $headers]));
+                $requestIds[] = \sha1(\serialize([$response->getCode(), $response->getBody(), $headers]));
             }
 
             if ($method === 'GET') {
-                isTrue(count(array_unique($requestIds)) > 1);
+                isTrue(\count(\array_unique($requestIds)) > 1);
             } else {
-                isCount(1, array_unique($requestIds));
+                isCount(1, \array_unique($requestIds));
             }
         }
     }
@@ -381,6 +380,7 @@ class MockServerGeneralTest extends AbstractMockServerTest
         $maxRequestsAtOnce = 10;
 
         $requests = [];
+
         for ($i = 0; $i < $maxRequestsAtOnce; $i++) {
             $requests[] = [$this->prepareUrl()];
         }
@@ -388,15 +388,16 @@ class MockServerGeneralTest extends AbstractMockServerTest
         $responses = $this->createClient()->multiRequest($requests);
 
         $requestIds = [];
+
         foreach ($responses as $response) {
             $headers = $response->getHeaders();
             // remove random values to make predictable hash
             unset($headers['content-length'], $headers['x-mock-server-request-id'], $headers['date']);
 
-            $requestIds[] = sha1(serialize([$response->getCode(), $response->getBody(), $headers]));
+            $requestIds[] = \sha1(\serialize([$response->getCode(), $response->getBody(), $headers]));
         }
 
-        isTrue(count(array_unique($requestIds)) > 1);
+        isTrue(\count(\array_unique($requestIds)) > 1);
     }
 
     public function testTlsConnection(): void
@@ -404,7 +405,7 @@ class MockServerGeneralTest extends AbstractMockServerTest
         incomplete('fix me');
         $tlsHost = 'localhost:' . MockServer::DEFAULT_PORT_TLS;
 
-        $client = new \GuzzleHttp\Client(['base_uri' => "https://{$tlsHost}"]);
+        $client   = new \GuzzleHttp\Client(['base_uri' => "https://{$tlsHost}"]);
         $response = $client->request('GET', '/testTlsConnection', [
             'verify' => __DIR__ . '/../vendor/amphp/http-server/tools/tls/localhost.pem',
         ]);

@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -24,10 +23,6 @@ use JBZoo\Utils\Str;
 
 use function JBZoo\Data\json;
 
-/**
- * Class ProxyUrlTest
- * @package JBZoo\PHPUnit
- */
 class MockServerProxyUrlTest extends AbstractMockServerTest
 {
     public function testPoxyUrlAllMethodsToHttpBin(): void
@@ -37,8 +32,8 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
         foreach ($methods as $method) {
             $random = Str::random();
 
-            $expectedResponse = $this->createClient()->request('http://httpbin.org/' . strtolower($method), [
-                'query' => $random
+            $expectedResponse = $this->createClient()->request('http://httpbin.org/' . \strtolower($method), [
+                'query' => $random,
             ], $method, ['headers' => ['X-Custom' => $random]]);
 
             $actualResponse = $this->request($method, ['query' => $random], self::TEST_URL, ['X-Custom' => $random]);
@@ -63,7 +58,7 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
                 $url,
                 ['query' => $random],
                 $method,
-                ['headers' => ['X-Custom' => $random]]
+                ['headers' => ['X-Custom' => $random]],
             );
 
             $actualResponse = $this->request($method, ['query' => $random], self::TEST_URL, ['X-Custom' => $random]);
@@ -76,24 +71,25 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
 
     public function testPoxyUrlUploadFiles(): void
     {
-        $exampleFile = file_get_contents(__DIR__ . '/mocks/Example.jpg');
-        $files = [
+        $exampleFile = \file_get_contents(__DIR__ . '/mocks/Example.jpg');
+        $files       = [
             RequestOptions::MULTIPART => [
                 ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_10.jpg'],
                 ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_11.jpg'],
-            ]
+            ],
         ];
 
-        $expectedResponse = json((new GuzzleHttpClient())
-            ->request('POST', $this->prepareUrl(), $files)
-            ->getBody()->getContents()
+        $expectedResponse = json(
+            (new GuzzleHttpClient())
+                ->request('POST', $this->prepareUrl(), $files)
+                ->getBody()->getContents(),
         )->getArrayCopy();
 
-        $actualResponse = json((new GuzzleHttpClient())
-            ->request('POST', 'http://httpbin.org/post', $files)
-            ->getBody()->getContents()
+        $actualResponse = json(
+            (new GuzzleHttpClient())
+                ->request('POST', 'http://httpbin.org/post', $files)
+                ->getBody()->getContents(),
         )->getArrayCopy();
-
 
         $this->sameBody($expectedResponse, $actualResponse);
     }
@@ -103,34 +99,30 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
      */
     public function testPoxyUrlUploadFilesMemoryLeaks(): void
     {
-        $exampleFile = file_get_contents(__DIR__ . '/mocks/Example_huge.jpg');
-        $files = [
+        $exampleFile = \file_get_contents(__DIR__ . '/mocks/Example_huge.jpg');
+        $files       = [
             RequestOptions::MULTIPART => [
                 ['name' => 'image_1', 'contents' => $exampleFile, 'filename' => 'Example_10.jpg'],
-            ]
+            ],
         ];
 
-        $expectedResponse = json((new GuzzleHttpClient())
-            ->request('POST', $this->prepareUrl('testPoxyUrlUploadFiles'), $files)
-            ->getBody()->getContents()
+        $expectedResponse = json(
+            (new GuzzleHttpClient())
+                ->request('POST', $this->prepareUrl('testPoxyUrlUploadFiles'), $files)
+                ->getBody()->getContents(),
         )->getArrayCopy();
 
-        $actualResponse = json((new GuzzleHttpClient())
-            ->request('POST', 'http://httpbin.org/post', $files)
-            ->getBody()->getContents()
+        $actualResponse = json(
+            (new GuzzleHttpClient())
+                ->request('POST', 'http://httpbin.org/post', $files)
+                ->getBody()->getContents(),
         )->getArrayCopy();
-
 
         $this->sameBody($expectedResponse, $actualResponse);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * @param Response    $expectedResponse
-     * @param Response    $actualResponse
-     * @param string|null $message
-     */
     private function sameResponses(Response $expectedResponse, Response $actualResponse, ?string $message = null): void
     {
         isNotSame(0, $expectedResponse->getCode(), $expectedResponse->getBody());
@@ -143,21 +135,19 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
         $this->sameBody(
             $expectedResponse->getJSON()->getArrayCopy(),
             $actualResponse->getJSON()->getArrayCopy(),
-            $message
+            $message,
         );
 
         $this->sameHeaders($expectedResponse->getHeaders(), $actualResponse->getHeaders(), $message);
     }
 
     /**
-     * @param array       $expectedHeaders
-     * @param array       $actualHeaders
-     * @param string|null $message
+     * @param null|string $message
      */
     private function sameHeaders(array $expectedHeaders, array $actualHeaders, string $message = ''): void
     {
-        $expectedHeaders = array_change_key_case($expectedHeaders);
-        $actualHeaders = array_change_key_case($actualHeaders);
+        $expectedHeaders = \array_change_key_case($expectedHeaders);
+        $actualHeaders   = \array_change_key_case($actualHeaders);
 
         $excludeKeys = [
             'vary',
@@ -181,16 +171,14 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
             );
         }
 
-        ksort($expectedHeaders);
-        ksort($actualHeaders);
+        \ksort($expectedHeaders);
+        \ksort($actualHeaders);
 
         isSame($expectedHeaders, $actualHeaders, $message);
     }
 
     /**
-     * @param array       $expectedBody
-     * @param array       $actualBody
-     * @param string|null $message
+     * @param null|string $message
      */
     private function sameBody(array $expectedBody, array $actualBody, string $message = ''): void
     {
@@ -201,11 +189,11 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
             'Content-Type',
             'Host',
             'X-Amzn-Trace-Id',
-            'Origin'
+            'Origin',
         ];
 
         foreach ($excludeHeaderKeys as $excludeHeaderKey) {
-            $excludeHeaderKeyLower = strtolower($excludeHeaderKey);
+            $excludeHeaderKeyLower = \strtolower($excludeHeaderKey);
 
             if (isset($expectedBody[$excludeHeaderKey])) {
                 isNotEmpty($expectedBody[$excludeHeaderKey]);
@@ -228,7 +216,7 @@ class MockServerProxyUrlTest extends AbstractMockServerTest
         $excludeBodyKeys = [
             'id',
             'url',
-            'origin'
+            'origin',
         ];
 
         foreach ($excludeBodyKeys as $excludeBodyKey) {
