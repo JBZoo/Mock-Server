@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -33,7 +32,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
  */
 abstract class AbstractMock
 {
-    private const CRAZY_MAX_DELAY = 10000; // 10 seconds
+    //private const CRAZY_MAX_DELAY = 10000; // 10 seconds
 
     private const CRAZY_POSSIBLE_BODIES = [
         "",

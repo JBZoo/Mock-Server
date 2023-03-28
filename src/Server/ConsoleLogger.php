@@ -1,16 +1,15 @@
 <?php
 
 /**
- * JBZoo Toolbox - Mock-Server
+ * JBZoo Toolbox - Mock-Server.
  *
  * This file is part of the JBZoo Toolbox project.
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * @package    Mock-Server
  * @license    MIT
  * @copyright  Copyright (C) JBZoo.com, All rights reserved.
- * @link       https://github.com/JBZoo/Mock-Server
+ * @see        https://github.com/JBZoo/Mock-Server
  */
 
 declare(strict_types=1);
@@ -107,7 +106,7 @@ class ConsoleLogger extends AbstractLogger
      */
     public function log($level, $message, array $context = [])
     {
-        $message = str_replace(self::REMOVE_PREFIXES, '', $message);
+        $message = str_replace(self::REMOVE_PREFIXES, '', (string)$message);
 
         if (!isset($this->verbosityLevelMap[$level])) {
             throw new InvalidArgumentException(sprintf('The log level "%s" does not exist.', $level));

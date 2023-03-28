@@ -14,15 +14,9 @@
 
 declare(strict_types=1);
 
-namespace JBZoo\MockServer\Mocks;
+namespace JBZoo\PHPUnit;
 
-use JBZoo\Data\Yml;
-
-/**
- * Class YmlMock
- * @package JBZoo\MockServer\Mocks
- */
-class YmlMock extends AbstractMock
+final class MockServerPackageTest extends \JBZoo\Codestyle\PHPUnit\AbstractPackageTest
 {
-    protected const FORMAT_CLASS = Yml::class;
+    protected string $packageName = 'Mock-Server';
 }

@@ -1,12 +1,12 @@
 {
     "name"              : "jbzoo/mock-server",
     "type"              : "library",
+    "license"           : "MIT",
     "description"       : "Flexible HTTP mocking application for testing and fast prototyping",
     "keywords"          : [
         "testing", "mock", "php", "http", "mock-server", "stubbing",
         "http-server", "prototyping", "jbzoo", "httpmock", "mmock"
     ],
-    "license"           : "MIT",
 
     "authors"           : [
         {
@@ -16,33 +16,36 @@
         }
     ],
 
+    "minimum-stability" : "dev",
+    "prefer-stable"     : true,
+
     "require"           : {
-        "php"                           : ">=7.2",
+        "php"                           : "^8.1",
         "ext-pcntl"                     : "*",
 
-        "amphp/amp"                     : "^2.5.2",
-        "amphp/log"                     : "^1.1.0",
-        "amphp/file"                    : "^1.0.2",
-        "amphp/http-client"             : "^4.5.5",
-        "amphp/http-server"             : "^2.1.2",
-        "amphp/http-server-router"      : "^1.0.2",
-        "amphp/http-server-form-parser" : "^1.1.4",
+        "amphp/amp"                     : ">=2.6.2",
+        "amphp/log"                     : ">=1.2.0",
+        "amphp/file"                    : ">=2.0.4",
+        "amphp/http-client"             : ">=4.6.2",
+        "amphp/http-server"             : ">=2.1.8",
+        "amphp/http-server-router"      : ">=1.0.2",
+        "amphp/http-server-form-parser" : ">=1.1.5",
 
-        "jbzoo/data"                    : "^4.3.1",
-        "jbzoo/utils"                   : "^4.5.2",
+        "jbzoo/data"                    : "7.x-dev",
+        "jbzoo/utils"                   : "7.x-dev",
 
-        "symfony/console"               : ">=4.4.24",
-        "symfony/yaml"                  : ">=5.2.9",
+        "symfony/console"               : ">=6.2.7",
+        "symfony/yaml"                  : ">=6.2.7",
 
-        "monolog/monolog"               : "^2.2.0",
-        "yosymfony/resource-watcher"    : "^3.0.0",
-        "winzou/state-machine"          : "^0.4.1"
+        "monolog/monolog"               : ">=3.3.1",
+        "yosymfony/resource-watcher"    : ">=3.0.0",
+        "winzou/state-machine"          : ">=0.4.3"
     },
 
     "require-dev"       : {
-        "jbzoo/http-client" : "^3.6.1",
-        "jbzoo/toolbox-dev" : "^2.13.1",
-        "guzzlehttp/guzzle" : "^7.3.0"
+        "jbzoo/toolbox-dev" : "7.x-dev",
+        "jbzoo/http-client" : "7.x-dev",
+        "guzzlehttp/guzzle" : ">=7.5.0"
     },
 
     "bin"               : ["jbzoo-mock-server"],
@@ -53,19 +56,21 @@
         },
         "files" : ["src/functions.php"]
     },
+
     "autoload-dev"      : {
-        "classmap" : ["tests"]
+        "psr-4" : {
+            "JBZoo\\PHPUnit\\" : "tests"
+        }
     },
 
-    "minimum-stability" : "dev",
-    "prefer-stable"     : true,
     "config"            : {
-        "optimize-autoloader" : true
+        "optimize-autoloader" : true,
+        "allow-plugins"       : {"composer/package-versions-deprecated" : true}
     },
 
     "extra"             : {
         "branch-alias" : {
-            "dev-master" : "1.x-dev"
+            "dev-master" : "7.x-dev"
         }
     }
 }
